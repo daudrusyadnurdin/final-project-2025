@@ -28,7 +28,7 @@ st.set_page_config(
 #-----------------------------------------------------------------------------------------------------------------
 @st.cache_data # to enhance performance
 def load_data():
-    url = "raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/tree/main/data/Telco_customer_churn.csv"
+    url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/data/Telco_customer_churn.csv"
     return pd.read_csv(url)
 
 df = load_data()
@@ -41,7 +41,7 @@ df['Total Charges'] = pd.to_numeric(df['Total Charges'], errors='coerce')
 #-----------------------------------------------------------------------------------------------------------------
 
 # Gambar header dari GitHub (RAW URL)
-header_image_url = "https://github.com/daudrusyadnurdin/final-project-2025/tree/main/assets/telco-business.jpg"
+header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/telco-business.jpg"
 st.image(header_image_url, use_container_width=True)
 
 st.title("🔄 Telco Customer Churn Analysis")
