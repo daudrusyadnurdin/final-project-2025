@@ -28,7 +28,7 @@ st.set_page_config(
 #-----------------------------------------------------------------------------------------------------------------
 @st.cache_data # to enhance performance
 def load_data():
-    url = "https://github.com/daudrusyadnurdin/final-project-2025/tree/main/data/Telco_customer_churn.csv"
+    url = "raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/tree/main/data/Telco_customer_churn.csv"
     return pd.read_csv(url)
 
 df = load_data()
