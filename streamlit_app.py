@@ -41,7 +41,7 @@ df['Total Charges'] = pd.to_numeric(df['Total Charges'], errors='coerce')
 #-----------------------------------------------------------------------------------------------------------------
 
 # Gambar header dari GitHub (RAW URL)
-header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/marketing-analysis/master/telco-business.jpg"
+header_image_url = "https://github.com/daudrusyadnurdin/final-project-2025/tree/main/assets/telco-business.jpg"
 st.image(header_image_url, use_container_width=True)
 
 st.title("🔄 Telco Customer Churn Analysis")
