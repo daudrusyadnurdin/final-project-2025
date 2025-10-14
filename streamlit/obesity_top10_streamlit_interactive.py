@@ -41,12 +41,6 @@ st.markdown("""
         background-color: #f8d7da;
         border: 2px solid #f5c6cb;
     }
-    .feature-importance-bar {
-        background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
-        height: 8px;
-        border-radius: 4px;
-        margin: 5px 0;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -88,18 +82,18 @@ default_values = {
     "Age": 24,
     "Height": 1.70,
     "Weight": 70,
-    "FCVC": 2.0,      # Frequency of consumption of vegetables
-    "NCP": 3.0,       # Number of main meals
-    "CAEC": "Sometimes",  # Consumption of food between meals
-    "FAVC": "no",     # Frequent consumption of high caloric food
-    "CH2O": 2.0,      # Water consumption
-    "CALC": "Sometimes",  # Consumption of alcohol
-    "SCC": "no",      # Calories consumption monitoring
-    "FAF": 1.0,       # Physical activity frequency
-    "TUE": 2.0,       # Time using technology devices
-    "MTRANS": "Public_Transportation",  # Transportation used
-    "FHWO": "no",     # Family history with overweight
-    "SMOKE": "no"     # Smoking
+    "FCVC": 2.0,
+    "NCP": 3.0,
+    "CAEC": "Sometimes",
+    "FAVC": "no",
+    "CH2O": 2.0,
+    "CALC": "Sometimes",
+    "SCC": "no",
+    "FAF": 1.0,
+    "TUE": 2.0,
+    "MTRANS": "Public_Transportation",
+    "FHWO": "no",
+    "SMOKE": "no"
 }
 
 # Initialize session state
@@ -118,12 +112,9 @@ if st.sidebar.button("🔄 Reset to Default"):
     reset_defaults()
     st.rerun()
 
-# Input features
 feature_inputs = {}
 
-# Personal Information
-st.sidebar.subheader("👤 Personal Information")
-
+# Collect user inputs
 feature_inputs["Gender"] = st.sidebar.selectbox(
     "Gender", ["Male", "Female"],
     index=0 if st.session_state.get("Gender", default_values["Gender"]) == "Male" else 1
@@ -149,14 +140,10 @@ feature_inputs["Weight"] = st.sidebar.slider(
 bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
 st.sidebar.metric("BMI", f"{bmi:.1f}")
 
-# Dietary Habits
-st.sidebar.subheader("🍽️ Dietary Habits")
-
 feature_inputs["FCVC"] = st.sidebar.slider(
     "Frequency of vegetable consumption", 1.0, 3.0,
     value=float(st.session_state.get("FCVC", default_values["FCVC"])),
-    step=0.1,
-    help="1: Never, 2: Sometimes, 3: Always"
+    step=0.1
 )
 
 feature_inputs["NCP"] = st.sidebar.slider(
@@ -165,18 +152,18 @@ feature_inputs["NCP"] = st.sidebar.slider(
     step=0.1
 )
 
-favc_options = ["no", "yes"]
-feature_inputs["FAVC"] = st.sidebar.selectbox(
-    "Frequent consumption of high caloric food", 
-    favc_options,
-    index=favc_options.index(st.session_state.get("FAVC", default_values["FAVC"]))
-)
-
 caec_options = ["no", "Sometimes", "Frequently", "Always"]
 feature_inputs["CAEC"] = st.sidebar.selectbox(
     "Consumption of food between meals", 
     caec_options,
     index=caec_options.index(st.session_state.get("CAEC", default_values["CAEC"]))
+)
+
+favc_options = ["no", "yes"]
+feature_inputs["FAVC"] = st.sidebar.selectbox(
+    "Frequent consumption of high caloric food", 
+    favc_options,
+    index=favc_options.index(st.session_state.get("FAVC", default_values["FAVC"]))
 )
 
 feature_inputs["CH2O"] = st.sidebar.slider(
@@ -192,21 +179,16 @@ feature_inputs["CALC"] = st.sidebar.selectbox(
     index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
 )
 
-# Lifestyle Factors
-st.sidebar.subheader("🏃 Lifestyle Factors")
-
 feature_inputs["FAF"] = st.sidebar.slider(
     "Physical activity frequency", 0.0, 3.0,
     value=float(st.session_state.get("FAF", default_values["FAF"])),
-    step=0.1,
-    help="0: No activity, 1: 1-2 days, 2: 2-4 days, 3: 4-5 days"
+    step=0.1
 )
 
 feature_inputs["TUE"] = st.sidebar.slider(
     "Time using electronic devices", 0.0, 2.0,
     value=float(st.session_state.get("TUE", default_values["TUE"])),
-    step=0.1,
-    help="0: 0-2 hours, 1: 3-5 hours, 2: More than 5 hours"
+    step=0.1
 )
 
 mtrans_options = ["Public_Transportation", "Walking", "Automobile", "Motorbike", "Bike"]
@@ -215,9 +197,6 @@ feature_inputs["MTRANS"] = st.sidebar.selectbox(
     mtrans_options,
     index=mtrans_options.index(st.session_state.get("MTRANS", default_values["MTRANS"]))
 )
-
-# Health Information
-st.sidebar.subheader("❤️ Health Information")
 
 scc_options = ["no", "yes"]
 feature_inputs["SCC"] = st.sidebar.selectbox(
@@ -251,7 +230,6 @@ def manual_preprocessing(feature_dict):
     processed_features = {}
     
     # ONE-HOT ENCODING untuk categorical features
-    # Gender: hanya "ohe__Gender_Male" (1 untuk Male, 0 untuk Female)
     processed_features["ohe__Gender_Male"] = [1 if feature_dict["Gender"] == "Male" else 0]
     
     # MTRANS: one-hot encoding untuk 5 kategori
@@ -290,7 +268,7 @@ def manual_preprocessing(feature_dict):
         if feature in processed_features:
             final_df[feature] = processed_features[feature]
         else:
-            final_df[feature] = [0]  # Default value
+            final_df[feature] = [0]
     
     return final_df
 
@@ -303,7 +281,6 @@ tab1, tab2, tab3 = st.tabs(["📊 Prediction", "🔍 Analysis", "ℹ️ About"])
 with tab1:
     st.header("📈 Prediction Results")
     
-    # Tampilkan input features
     col1, col2 = st.columns(2)
     
     with col1:
@@ -311,7 +288,6 @@ with tab1:
         original_df = pd.DataFrame([feature_inputs])
         st.dataframe(original_df, use_container_width=True)
         
-        # Display BMI information
         st.metric("Body Mass Index (BMI)", f"{bmi:.1f}")
         if bmi < 18.5:
             st.info("BMI Category: Underweight")
@@ -330,11 +306,9 @@ with tab1:
     if st.button("🎯 Predict Obesity Level", type="primary", use_container_width=True):
         with st.spinner("Analyzing features and making prediction..."):
             try:
-                # Make prediction
                 pred_class = model.predict(input_df)[0]
                 pred_proba = model.predict_proba(input_df)[0]
                 
-                # Map class numbers ke labels
                 class_mapping = {
                     0: "Insufficient Weight",
                     1: "Normal Weight", 
@@ -347,36 +321,29 @@ with tab1:
                 
                 predicted_label = class_mapping.get(pred_class, f"Class {pred_class}")
                 
-                # Display prediction results
                 st.subheader("🎯 Prediction Result")
                 
-                # Color-coded prediction box
                 if "Obesity" in predicted_label:
                     prediction_class = "obesity"
                     prediction_icon = "⚠️"
-                    prediction_color = "red"
                 elif "Overweight" in predicted_label:
                     prediction_class = "overweight"
                     prediction_icon = "📊"
-                    prediction_color = "orange"
                 elif "Insufficient" in predicted_label:
                     prediction_class = "normal-weight"
                     prediction_icon = "💪"
-                    prediction_color = "blue"
                 else:
                     prediction_class = "normal-weight"
                     prediction_icon = "✅"
-                    prediction_color = "green"
                 
                 st.markdown(f"""
                 <div class="prediction-box {prediction_class}">
-                    <h2 style="color: {prediction_color}; text-align: center;">
+                    <h2 style="text-align: center;">
                         {prediction_icon} {predicted_label} {prediction_icon}
                     </h2>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Display probabilities
                 st.subheader("📊 Class Probabilities")
                 
                 prob_df = pd.DataFrame({
@@ -387,7 +354,6 @@ with tab1:
                 prob_df['Probability (%)'] = (prob_df['Probability'] * 100).round(2)
                 prob_df = prob_df.drop('Probability', axis=1)
                 
-                # Display as bar chart
                 fig, ax = plt.subplots(figsize=(10, 6))
                 colors = ['#ff6b6b' if 'Obesity' in x else '#ffd166' if 'Overweight' in x else '#06d6a0' for x in prob_df['Obesity Level']]
                 bars = ax.barh(prob_df['Obesity Level'], prob_df['Probability (%)'], color=colors)
@@ -397,7 +363,6 @@ with tab1:
                 plt.tight_layout()
                 st.pyplot(fig)
                 
-                # Store prediction results in session state for other tabs
                 st.session_state.prediction_results = {
                     'pred_class': pred_class,
                     'pred_proba': pred_proba,
@@ -419,24 +384,21 @@ with tab2:
         pred_proba = st.session_state.prediction_results['pred_proba']
         predicted_label = st.session_state.prediction_results['predicted_label']
         input_df = st.session_state.prediction_results['input_df']
-        bmi = st.session_state.prediction_results.get('bmi', 0)
         
-        # SHAP Analysis
         st.subheader("📊 SHAP Feature Analysis")
         
         with st.spinner("Calculating SHAP values..."):
             try:
-                # Initialize SHAP explainer
                 explainer = shap.TreeExplainer(model)
                 shap_values = explainer(input_df)
                 
-                # Display SHAP values shape info
-                with st.expander("📐 SHAP Values Shape Info"):
+                # Debug info
+                with st.expander("🔧 SHAP Debug Info"):
                     st.write(f"SHAP values shape: {shap_values.shape}")
+                    st.write(f"Expected features: {len(input_df.columns)}")
                     st.write(f"Number of classes: {len(model.classes_)}")
-                    st.write(f"Number of features: {len(input_df.columns)}")
                 
-                # Global Feature Importance - BAR PLOT
+                # Global Feature Importance
                 st.subheader("📈 Global Feature Importance")
                 fig, ax = plt.subplots(figsize=(10, 8))
                 shap.summary_plot(shap_values, input_df, plot_type="bar", show=False)
@@ -458,9 +420,8 @@ with tab2:
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # Waterfall Plot untuk class yang diprediksi - FIXED
+                    # Waterfall Plot - FIXED
                     try:
-                        # Untuk multi-class, shape: (1, n_features, n_classes)
                         if len(shap_values.shape) == 3:
                             shap_val_single = shap_values[0, :, pred_class]
                             base_value = explainer.expected_value[pred_class]
@@ -477,8 +438,6 @@ with tab2:
                             plt.title(f"Waterfall Plot for {predicted_label}")
                             plt.tight_layout()
                             st.pyplot(fig)
-                        else:
-                            st.warning("Unexpected SHAP values shape for waterfall plot")
                             
                     except Exception as e:
                         st.warning(f"Could not display waterfall plot: {e}")
@@ -487,10 +446,9 @@ with tab2:
                     # Feature Importance untuk class spesifik - FIXED
                     try:
                         if len(shap_values.shape) == 3:
-                            # Ambil SHAP values untuk class yang diprediksi
                             shap_val_single = shap_values[0, :, pred_class]
                             
-                            # Pastikan panjang array sesuai
+                            # VALIDASI PANJANG ARRAY
                             if len(shap_val_single) == len(input_df.columns):
                                 feature_imp = pd.DataFrame({
                                     'feature': input_df.columns,
@@ -502,7 +460,6 @@ with tab2:
                                 ax.set_title(f"Feature Importance for {predicted_label}")
                                 ax.set_xlabel("Absolute SHAP Value")
                                 
-                                # Tambah nilai pada bar
                                 for bar in bars:
                                     width = bar.get_width()
                                     ax.text(width + 0.001, bar.get_y() + bar.get_height()/2, 
@@ -511,87 +468,127 @@ with tab2:
                                 plt.tight_layout()
                                 st.pyplot(fig)
                             else:
-                                st.warning("Feature count mismatch in SHAP values")
+                                st.error(f"Array length mismatch: SHAP values {len(shap_val_single)} vs features {len(input_df.columns)}")
                         else:
                             st.warning("Unexpected SHAP values shape")
                             
                     except Exception as e:
                         st.warning(f"Could not display feature importance: {e}")
                 
-                # Decision Plot untuk class yang diprediksi - FIXED
+                # Decision Plot - FIXED untuk multi-class
                 st.subheader(f"🛣️ Decision Path for {predicted_label}")
                 try:
                     if len(shap_values.shape) == 3:
-                        # Untuk multi-output, gunakan base_value[i] dan shap_values[i]
                         fig, ax = plt.subplots(figsize=(12, 8))
                         
-                        # Gunakan multioutput_decision_plot atau decision_plot untuk class spesifik
+                        # Gunakan values yang benar untuk class yang diprediksi
+                        shap_val_class = shap_values.values[0, :, pred_class] if hasattr(shap_values, 'values') else shap_values[0, :, pred_class]
+                        
                         shap.decision_plot(
                             explainer.expected_value[pred_class],
-                            shap_values.values[0, :, pred_class] if hasattr(shap_values, 'values') else shap_values[0, :, pred_class],
+                            shap_val_class,
                             feature_names=list(input_df.columns),
                             show=False
                         )
                         plt.title(f"Decision Plot - {predicted_label}")
                         plt.tight_layout()
                         st.pyplot(fig)
-                    else:
-                        st.warning("Multi-output decision plot requires specific class selection")
                         
                 except Exception as e:
                     st.warning(f"Could not display decision plot: {e}")
-                    
-                    # Alternative: Simple feature contribution plot
-                    try:
-                        if len(shap_values.shape) == 3:
-                            shap_val_single = shap_values[0, :, pred_class]
-                            
-                            fig, ax = plt.subplots(figsize=(12, 8))
-                            
-                            # Plot positive and negative contributions separately
-                            positive_idx = shap_val_single > 0
-                            negative_idx = shap_val_single < 0
-                            
-                            features = np.array(input_df.columns)
-                            
-                            if np.any(positive_idx):
-                                ax.barh(features[positive_idx], shap_val_single[positive_idx], 
-                                       color='red', label='Increases Obesity Risk')
-                            if np.any(negative_idx):
-                                ax.barh(features[negative_idx], shap_val_single[negative_idx], 
-                                       color='green', label='Decreases Obesity Risk')
-                            
-                            ax.axvline(x=0, color='black', linestyle='-', alpha=0.3)
-                            ax.set_xlabel('SHAP Value Impact')
-                            ax.set_title(f'Feature Contributions for {predicted_label}')
-                            ax.legend()
-                            plt.tight_layout()
-                            st.pyplot(fig)
-                    except Exception as e2:
-                        st.error(f"Alternative plot also failed: {e2}")
                 
-                # SHAP Values Table untuk semua classes
+                # SHAP Values Table - FIXED TRANSPOSE
                 st.subheader("📋 SHAP Values Table")
                 try:
                     if len(shap_values.shape) == 3:
-                        # Create DataFrame dengan SHAP values untuk semua classes
+                        # Dapatkan SHAP values untuk semua classes
+                        if hasattr(shap_values, 'values'):
+                            shap_array = shap_values.values[0]  # Shape: (19, 7)
+                        else:
+                            shap_array = shap_values[0]  # Shape: (19, 7)
+                        
+                        # PERBAIKAN: Transpose yang benar
+                        # shap_array shape: (features, classes) -> kita mau (classes, features) untuk DataFrame
                         shap_df = pd.DataFrame(
-                            shap_values.values[0].T if hasattr(shap_values, 'values') else shap_values[0].T,
-                            columns=[f"Class {i}" for i in range(shap_values.shape[2])],
-                            index=input_df.columns
+                            shap_array.T,  # Transpose ke (7, 19)
+                            columns=input_df.columns,
+                            index=[f"Class {i}" for i in range(shap_array.shape[1])]
                         )
                         
-                        # Highlight the predicted class
-                        styled_df = shap_df.style.background_gradient(cmap='RdBu', axis=1)\
-                                                .format("{:.4f}")\
-                                                .set_caption(f"SHAP Values for Each Feature and Class (Predicted: {predicted_label})")
+                        # Highlight predicted class
+                        def highlight_predicted_class(row):
+                            if row.name == f"Class {pred_class}":
+                                return ['background-color: yellow'] * len(row)
+                            return [''] * len(row)
+                        
+                        styled_df = shap_df.style.apply(highlight_predicted_class, axis=1)\
+                                                .background_gradient(cmap='RdBu', axis=None)\
+                                                .format("{:.4f}")
                         
                         st.dataframe(styled_df, use_container_width=True)
+                        
+                        st.caption(f"🟨 Highlighted: {predicted_label} (Class {pred_class})")
+                        
                     else:
                         st.warning("Cannot display SHAP values table - unexpected shape")
                         
                 except Exception as e:
                     st.warning(f"Could not display SHAP values table: {e}")
+                    
+                    # Alternative: Simple display tanpa styling
+                    try:
+                        if len(shap_values.shape) == 3:
+                            if hasattr(shap_values, 'values'):
+                                shap_array = shap_values.values[0]
+                            else:
+                                shap_array = shap_values[0]
+                            
+                            shap_df_simple = pd.DataFrame(
+                                shap_array.T,
+                                columns=input_df.columns,
+                                index=[f"Class {i}" for i in range(shap_array.shape[1])]
+                            )
+                            st.dataframe(shap_df_simple, use_container_width=True)
+                    except:
+                        pass
+                
+                # Additional: Feature Contributions Plot
+                st.subheader("📊 Feature Contributions")
+                try:
+                    if len(shap_values.shape) == 3:
+                        shap_val_single = shap_values[0, :, pred_class]
+                        
+                        # Pisahkan positive dan negative contributions
+                        contributions = pd.DataFrame({
+                            'feature': input_df.columns,
+                            'contribution': shap_val_single,
+                            'abs_contribution': np.abs(shap_val_single)
+                        }).sort_values('abs_contribution', ascending=True)
+                        
+                        fig, ax = plt.subplots(figsize=(12, 8))
+                        
+                        colors = ['red' if x > 0 else 'green' for x in contributions['contribution']]
+                        bars = ax.barh(contributions['feature'], contributions['contribution'], color=colors)
+                        
+                        ax.axvline(x=0, color='black', linestyle='-', alpha=0.3)
+                        ax.set_xlabel('SHAP Value Contribution')
+                        ax.set_title(f'Feature Contributions to {predicted_label}\n(Red: Increases risk, Green: Decreases risk)')
+                        
+                        # Add value labels
+                        for bar in bars:
+                            width = bar.get_width()
+                            if abs(width) > 0.001:  # Only label significant values
+                                ax.text(width + (0.01 if width > 0 else -0.01), 
+                                       bar.get_y() + bar.get_height()/2, 
+                                       f'{width:.3f}', 
+                                       ha='left' if width > 0 else 'right', 
+                                       va='center')
+                        
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                        
+                except Exception as e:
+                    st.warning(f"Could not display feature contributions: {e}")
                     
             except Exception as e:
                 st.error(f"❌ SHAP analysis error: {e}")
@@ -601,87 +598,18 @@ with tab3:
     
     st.markdown("""
     ### 🏥 Obesity Risk Prediction System
-    
-    This machine learning application predicts obesity levels based on lifestyle, dietary habits, 
-    and physical attributes using an XGBoost classifier.
-    
-    #### 📋 Features Used:
-    
-    **Personal Information:**
-    - Gender, Age, Height, Weight
-    
-    **Dietary Habits:**
-    - Vegetable consumption frequency (FCVC)
-    - Number of main meals (NCP)
-    - High caloric food consumption (FAVC)
-    - Food between meals (CAEC)
-    - Water consumption (CH2O)
-    - Alcohol consumption (CALC)
-    
-    **Lifestyle Factors:**
-    - Physical activity frequency (FAF)
-    - Technology usage time (TUE)
-    - Transportation method (MTRANS)
-    
-    **Health Information:**
-    - Calorie monitoring (SCC)
-    - Family history of overweight (FHWO)
-    - Smoking habit (SMOKE)
-    
-    #### 🎯 Obesity Levels:
-    - **Insufficient Weight**: BMI < 18.5
-    - **Normal Weight**: BMI 18.5-24.9
-    - **Overweight Level I**: BMI 25-26.9
-    - **Overweight Level II**: BMI 27-29.9
-    - **Obesity Level I**: BMI 30-34.9
-    - **Obesity Level II**: BMI 35-39.9
-    - **Obesity Level III**: BMI ≥ 40
-    
-    #### 🔧 Technical Details:
-    - **Model**: XGBoost Classifier
-    - **Preprocessing**: OneHot Encoding + Standard Scaling
-    - **Interpretability**: SHAP (SHapley Additive exPlanations)
-    - **Framework**: Streamlit for web interface
-    
-    #### 📊 Model Performance:
-    The model has been trained on comprehensive obesity dataset and provides 
-    explainable predictions with feature importance analysis.
     """)
-    
-    # Feature descriptions
-    with st.expander("📖 Detailed Feature Descriptions"):
-        st.markdown("""
-        | Feature | Description | Values |
-        |---------|-------------|--------|
-        | **Gender** | Biological sex | Male, Female |
-        | **Age** | Age in years | 14-61 |
-        | **Height** | Height in meters | 1.45-1.98m |
-        | **Weight** | Weight in kilograms | 39-173kg |
-        | **FCVC** | Frequency of vegetable consumption | 1-3 (Never-Always) |
-        | **NCP** | Number of main meals | 1-4 meals per day |
-        | **FAVC** | High caloric food consumption | Yes/No |
-        | **CAEC** | Food between meals | No, Sometimes, Frequently, Always |
-        | **CH2O** | Water consumption | 1-3 (Low-High) |
-        | **CALC** | Alcohol consumption | No, Sometimes, Frequently, Always |
-        | **SCC** | Calorie consumption monitoring | Yes/No |
-        | **FAF** | Physical activity frequency | 0-3 (None-High) |
-        | **TUE** | Technology device usage time | 0-2 (Low-High) |
-        | **MTRANS** | Transportation method | Various methods |
-        | **FHWO** | Family history of overweight | Yes/No |
-        | **SMOKE** | Smoking habit | Yes/No |
-        """)
 
 # Footer
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: gray;'>"
-    "🏥 Obesity Prediction System | Made with Streamlit & XGBoost | "
-    "For educational and health awareness purposes"
+    "🏥 Obesity Prediction System | Made with Streamlit & XGBoost"
     "</div>",
     unsafe_allow_html=True
 )
 
-# Test examples di sidebar
+# Test examples
 st.sidebar.header("🧪 Test Examples")
 
 example_inputs = {
@@ -697,17 +625,11 @@ example_inputs = {
         "FCVC": 1.2, "NCP": 2.0, "CAEC": "Frequently", "FAVC": "yes",
         "CH2O": 1.5, "CALC": "no", "SCC": "no", "FAF": 0.5,
         "TUE": 1.8, "MTRANS": "Automobile", "FHWO": "yes", "SMOKE": "no"
-    },
-    "Underweight": {
-        "Gender": "Female", "Age": 22, "Height": 1.68, "Weight": 48,
-        "FCVC": 2.0, "NCP": 2.5, "CAEC": "Sometimes", "FAVC": "no",
-        "CH2O": 2.0, "CALC": "no", "SCC": "yes", "FAF": 1.5,
-        "TUE": 1.2, "MTRANS": "Bike", "FHWO": "no", "SMOKE": "no"
     }
 }
 
 selected_example = st.sidebar.selectbox("Load test example:", list(example_inputs.keys()))
-if st.sidebar.button("🚀 Load Example", use_container_width=True):
+if st.sidebar.button("🚀 Load Example"):
     if selected_example != "Select an example...":
         example_data = example_inputs[selected_example]
         for k, v in example_data.items():
