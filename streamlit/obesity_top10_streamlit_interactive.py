@@ -12,7 +12,7 @@ header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-pro
 st.image(header_image_url, use_container_width=True)
 
 
-url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb_obesity.json"
+url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
 model.load_model(url)  # path relatif
 
 # # 2️⃣ Top 10 Features + default values (sesuai dataset)
@@ -133,5 +133,6 @@ model.load_model(url)  # path relatif
 # shap.initjs()
 # force_plot_html = shap.force_plot(explainer.expected_value, shap_values.values, input_df, matplotlib=False)
 # st.components.v1.html(force_plot_html.html(), height=400)
+
 
 
