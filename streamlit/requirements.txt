@@ -1,6 +1,6 @@
 streamlit
 pandas
 numpy
-xgboost==1.7.6
+xgboost==3.0.5
 shap
 matplotlib
