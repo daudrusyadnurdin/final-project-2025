@@ -32,6 +32,8 @@ try:
     
     # Clean up
     os.unlink(tmp_path)
+
+    print(f"Hai.....: {100}")
     
 except Exception as e:
     print(f"Error loading model: {e}")
@@ -161,6 +163,7 @@ except Exception as e:
 # shap.initjs()
 # force_plot_html = shap.force_plot(explainer.expected_value, shap_values.values, input_df, matplotlib=False)
 # st.components.v1.html(force_plot_html.html(), height=400)
+
 
 
 
