@@ -10,8 +10,8 @@ import tempfile
 import os
 
 # Gambar header dari GitHub (RAW URL)
-header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/telco-business.jpg"
-st.image(header_image_url, use_container_width=True)
+# header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/telco-business.jpg"
+# st.image(header_image_url, use_container_width=True)
 
 # Instead of loading directly from URL, download the file first
 url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"  # or .model, .bin, etc.
@@ -33,8 +33,8 @@ try:
     # Clean up
     os.unlink(tmp_path)
 
-    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/goal.png"
-    st.image(header_image_url, use_container_width=True)
+    # header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/goal.png"
+    # st.image(header_image_url, use_container_width=True)
     
 except Exception as e:
     print(f"Error loading model: {e}")
@@ -164,3 +164,4 @@ st.subheader("Force Plot (Features Driving Prediction)")
 shap.initjs()
 force_plot_html = shap.force_plot(explainer.expected_value, shap_values.values, input_df, matplotlib=False)
 st.components.v1.html(force_plot_html.html(), height=400)
+
