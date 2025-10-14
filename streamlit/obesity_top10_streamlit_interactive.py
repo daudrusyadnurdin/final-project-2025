@@ -4,16 +4,44 @@ import xgboost as xgb
 import shap
 import matplotlib.pyplot as plt
 
-# 1️⃣ Load Model
-model = xgb.XGBClassifier()
+
+import requests
+import tempfile
+import os
 
 # Gambar header dari GitHub (RAW URL)
 header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/telco-business.jpg"
 st.image(header_image_url, use_container_width=True)
 
+# Instead of loading directly from URL, download the file first
+url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"  # or .model, .bin, etc.
 
-url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
-model.load_model(url)  # path relatif
+try:
+    # Download the model file
+    response = requests.get(url)
+    response.raise_for_status()  # Check if download was successful
+    
+    # Save to temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as tmp_file:
+        tmp_file.write(response.content)
+        tmp_path = tmp_file.name
+    
+    # Load the model
+    model = xgb.XGBClassifier()
+    model.load_model(tmp_path)
+    
+    # Clean up
+    os.unlink(tmp_path)
+    
+except Exception as e:
+    print(f"Error loading model: {e}")
+  
+
+# # 1️⃣ Load Model
+# model = xgb.XGBClassifier()
+
+# url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
+# model.load_model(url)  # path relatif
 
 # # 2️⃣ Top 10 Features + default values (sesuai dataset)
 # default_values = {
@@ -133,6 +161,7 @@ model.load_model(url)  # path relatif
 # shap.initjs()
 # force_plot_html = shap.force_plot(explainer.expected_value, shap_values.values, input_df, matplotlib=False)
 # st.components.v1.html(force_plot_html.html(), height=400)
+
 
 
 
