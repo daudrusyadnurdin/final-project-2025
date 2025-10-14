@@ -270,12 +270,12 @@ try:
         max_prob_idx = pred_proba.argmax()
         st.write(f"Highest probability: **{class_mapping.get(max_prob_idx, f'Class {max_prob_idx}')}** ({pred_proba[max_prob_idx]:.2%})")
 
-    # 5️⃣ SHAP Analysis
+    # 5️⃣ SHAP Analysis - FIXED VERSION
     st.header("🔍 SHAP Analysis")
     
     # Explain the prediction
     explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(input_df)
+    shap_values = explainer(input_df)
     
     # SHAP Summary Plot
     st.subheader("Feature Importance")
@@ -284,43 +284,77 @@ try:
     plt.tight_layout()
     st.pyplot(fig)
     
-    # SHAP Force Plot
+    # SHAP Force Plot - FIXED SYNTAX
     st.subheader("Force Plot - Prediction Explanation")
-    st.write("This shows how each feature contributes to pushing the prediction from the base value to the final output.")
     
-    # Untuk binary classification atau multi-class
-    if len(shap_values) == len(model.classes_):
-        # Multi-class scenario
-        class_idx = pred_class
-        shap_force = shap.force_plot(
-            explainer.expected_value[class_idx],
-            shap_values[class_idx],
-            input_df,
-            matplotlib=True,
-            show=False
-        )
-    else:
-        # Binary scenario
-        shap_force = shap.force_plot(
+    # Untuk single instance prediction
+    if hasattr(shap_values, 'values'):
+        # New SHAP version syntax
+        force_fig = shap.force_plot(
             explainer.expected_value,
-            shap_values,
-            input_df,
+            shap_values.values[0],  # First instance
+            input_df.iloc[0],
             matplotlib=True,
             show=False
         )
-    
-    st.pyplot(shap_force)
+        st.pyplot(force_fig)
+    else:
+        # Alternative approach
+        try:
+            # Coba approach yang berbeda untuk SHAP versions
+            fig, ax = plt.subplots(figsize=(12, 4))
+            shap.decision_plot(explainer.expected_value, 
+                             shap_values.values[0] if hasattr(shap_values, 'values') else shap_values[0],
+                             input_df.iloc[0], 
+                             show=False)
+            plt.tight_layout()
+            st.pyplot(fig)
+        except Exception as e:
+            st.warning(f"Could not display force plot: {e}")
     
     # Waterfall plot untuk penjelasan detail
     st.subheader("Waterfall Plot - Detailed Feature Contributions")
-    fig, ax = plt.subplots(figsize=(12, 6))
-    shap.waterfall_plot(shap.Explanation(values=shap_values[0] if len(shap_values.shape) > 1 else shap_values[0], 
-                                       base_values=explainer.expected_value[0] if isinstance(explainer.expected_value, list) else explainer.expected_value,
-                                       data=input_df.iloc[0],
-                                       feature_names=input_df.columns), show=False)
-    plt.tight_layout()
-    st.pyplot(fig)
+    try:
+        fig, ax = plt.subplots(figsize=(12, 6))
+        
+        # Untuk SHAP versions yang berbeda
+        if hasattr(shap_values, 'values'):
+            shap.waterfall_plot(shap.Explanation(
+                values=shap_values.values[0],
+                base_values=explainer.expected_value,
+                data=input_df.iloc[0],
+                feature_names=input_df.columns
+            ), show=False)
+        else:
+            shap.waterfall_plot(shap.Explanation(
+                values=shap_values[0],
+                base_values=explainer.expected_value,
+                data=input_df.iloc[0],
+                feature_names=input_df.columns
+            ), show=False)
+            
+        plt.tight_layout()
+        st.pyplot(fig)
+    except Exception as e:
+        st.warning(f"Could not display waterfall plot: {e}")
+    
+    # Alternative: Beeswarm plot untuk overview
+    st.subheader("Beeswarm Plot - Overall Feature Impact")
+    try:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        shap.summary_plot(shap_values, input_df, show=False)
+        plt.tight_layout()
+        st.pyplot(fig)
+    except Exception as e:
+        st.warning(f"Could not display beeswarm plot: {e}")
 
 except Exception as e:
     st.error(f"❌ Prediction error: {e}")
     st.info("Please check that all required features are provided correctly")
+    
+    # Debug information
+    with st.expander("Debug Information"):
+        st.write("Model classes:", model.classes_)
+        st.write("Input DataFrame shape:", input_df.shape)
+        st.write("Input DataFrame columns:", input_df.columns.tolist())
+        st.write("Expected features:", model.get_booster().feature_names)
