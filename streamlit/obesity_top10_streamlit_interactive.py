@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import requests
 import tempfile
 import os
+import numpy as np
 
 # Set page config
 st.set_page_config(page_title="Obesity Prediction", layout="wide")
@@ -40,25 +41,24 @@ if model is None:
 # Debug: Tampilkan fitur yang diharapkan model
 st.sidebar.write("🔍 Model features:", model.get_booster().feature_names)
 
-# Default values sesuai dengan fitur model
+# Default values untuk fitur original (sebelum preprocessing)
 default_values = {
-    "Gender": 0,   # 0=Male, 1=Female
-    "Age": 24,     # Ditambahkan karena mungkin diperlukan
+    "Gender": "Male",  # Original value
+    "Age": 24,
     "Height": 1.70,
     "Weight": 70,
-    "FCVC": 2,     # Frequency of consumption of vegetables
-    "NCP": 3,      # Number of main meals
-    "CAEC": 1,     # Consumption of food between meals
-    "FAVC": 1,     # Frequent consumption of high caloric food
-    "CH2O": 2,     # Water consumption
-    "CALC": 1,     # Consumption of alcohol
-    "SCC": 0,      # Calories consumption monitoring
-    "FAF": 1,      # Physical activity frequency
-    "TUE": 2,      # Time using technology devices
-    "MTRANS": 0,   # Transportation used
-    "FHWO": 1,     # Family history with overweight
-    "SMOKE": 0,    # Smoking
-    "family_history_with_overweight": 1  # Mungkin diperlukan
+    "FCVC": 2.0,
+    "NCP": 3.0,
+    "CAEC": "Sometimes",
+    "FAVC": "yes",
+    "CH2O": 2.0,
+    "CALC": "Sometimes",
+    "SCC": "no",
+    "FAF": 1.0,
+    "TUE": 2.0,
+    "MTRANS": "Public_Transportation",
+    "FHWO": "yes",
+    "SMOKE": "no"
 }
 
 # Initialize session state
@@ -79,15 +79,14 @@ if st.sidebar.button("🔄 Reset to Default"):
 
 feature_inputs = {}
 
-# Collect user inputs
+# Collect user inputs - menggunakan nilai original
 # Gender
-gender_sel = st.sidebar.selectbox(
+feature_inputs["Gender"] = st.sidebar.selectbox(
     "Gender", ["Male", "Female"],
-    index=st.session_state.get("Gender", default_values["Gender"])
+    index=0 if st.session_state.get("Gender", default_values["Gender"]) == "Male" else 1
 )
-feature_inputs["Gender"] = 0 if gender_sel == "Male" else 1
 
-# Age (ditambahkan karena biasanya diperlukan)
+# Age
 feature_inputs["Age"] = st.sidebar.slider(
     "Age", 14, 61,
     value=st.session_state.get("Age", default_values["Age"])
@@ -122,23 +121,21 @@ feature_inputs["NCP"] = st.sidebar.slider(
 
 # CAEC - Consumption of food between meals
 caec_options = ["no", "Sometimes", "Frequently", "Always"]
-caec_sel = st.sidebar.selectbox(
+feature_inputs["CAEC"] = st.sidebar.selectbox(
     "CAEC (Food Between Meals)", 
     caec_options,
-    index=st.session_state.get("CAEC", default_values["CAEC"])
+    index=caec_options.index(st.session_state.get("CAEC", default_values["CAEC"]))
 )
-feature_inputs["CAEC"] = caec_options.index(caec_sel)
 
 # FAVC - Frequent consumption of high caloric food
 favc_options = ["no", "yes"]
-favc_sel = st.sidebar.selectbox(
+feature_inputs["FAVC"] = st.sidebar.selectbox(
     "FAVC (High Caloric Food)", 
     favc_options,
-    index=st.session_state.get("FAVC", default_values["FAVC"])
+    index=favc_options.index(st.session_state.get("FAVC", default_values["FAVC"]))
 )
-feature_inputs["FAVC"] = favc_options.index(favc_sel)
 
-# CH2O - Water consumption (ditambahkan)
+# CH2O - Water consumption
 feature_inputs["CH2O"] = st.sidebar.slider(
     "CH2O (Water Consumption)", 1.0, 3.0,
     value=float(st.session_state.get("CH2O", default_values["CH2O"])),
@@ -147,12 +144,11 @@ feature_inputs["CH2O"] = st.sidebar.slider(
 
 # CALC - Consumption of alcohol
 calc_options = ["no", "Sometimes", "Frequently", "Always"]
-calc_sel = st.sidebar.selectbox(
+feature_inputs["CALC"] = st.sidebar.selectbox(
     "CALC (Alcohol Consumption)", 
     calc_options,
-    index=st.session_state.get("CALC", default_values["CALC"])
+    index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
 )
-feature_inputs["CALC"] = calc_options.index(calc_sel)
 
 # FAF - Physical activity frequency
 feature_inputs["FAF"] = st.sidebar.slider(
@@ -170,67 +166,111 @@ feature_inputs["TUE"] = st.sidebar.slider(
 
 # MTRANS - Transportation used
 mtrans_options = ["Public_Transportation", "Walking", "Automobile", "Motorbike", "Bike"]
-mtrans_sel = st.sidebar.selectbox(
+feature_inputs["MTRANS"] = st.sidebar.selectbox(
     "MTRANS (Transportation)", 
     mtrans_options,
-    index=st.session_state.get("MTRANS", default_values["MTRANS"])
+    index=mtrans_options.index(st.session_state.get("MTRANS", default_values["MTRANS"]))
 )
-feature_inputs["MTRANS"] = mtrans_options.index(mtrans_sel)
 
 # FHWO - Family history with overweight
 fhwo_options = ["no", "yes"]
-fhwo_sel = st.sidebar.selectbox(
+feature_inputs["FHWO"] = st.sidebar.selectbox(
     "Family History Overweight", 
     fhwo_options,
-    index=st.session_state.get("FHWO", default_values["FHWO"])
+    index=fhwo_options.index(st.session_state.get("FHWO", default_values["FHWO"]))
 )
-feature_inputs["FHWO"] = fhwo_options.index(fhwo_sel)
-feature_inputs["family_history_with_overweight"] = feature_inputs["FHWO"]  # Duplicate untuk kompatibilitas
 
 # SCC - Calories consumption monitoring
 scc_options = ["no", "yes"]
-scc_sel = st.sidebar.selectbox(
+feature_inputs["SCC"] = st.sidebar.selectbox(
     "SCC (Calorie Monitoring)", 
     scc_options,
-    index=st.session_state.get("SCC", default_values["SCC"])
+    index=scc_options.index(st.session_state.get("SCC", default_values["SCC"]))
 )
-feature_inputs["SCC"] = scc_options.index(scc_sel)
 
 # SMOKE - Smoking
 smoke_options = ["no", "yes"]
-smoke_sel = st.sidebar.selectbox(
+feature_inputs["SMOKE"] = st.sidebar.selectbox(
     "Smoking", 
     smoke_options,
-    index=st.session_state.get("SMOKE", default_values["SMOKE"])
+    index=smoke_options.index(st.session_state.get("SMOKE", default_values["SMOKE"]))
 )
-feature_inputs["SMOKE"] = smoke_options.index(smoke_sel)
 
 # Update session state
 for k, v in feature_inputs.items():
     st.session_state[k] = v
 
-# Prepare input DataFrame dengan urutan yang benar
-def prepare_input_data(feature_dict, model):
-    """Prepare input data dengan urutan fitur yang sesuai dengan model"""
-    expected_features = model.get_booster().feature_names
+# Fungsi untuk melakukan preprocessing manual sesuai dengan model
+def manual_preprocessing(feature_dict):
+    """Manual preprocessing untuk menyesuaikan dengan pipeline model"""
     
-    # Create DataFrame dengan urutan yang benar
-    input_data = {}
-    for feature in expected_features:
-        if feature in feature_dict:
-            input_data[feature] = [feature_dict[feature]]
+    # Create DataFrame dengan fitur original
+    original_df = pd.DataFrame([feature_dict])
+    
+    # ONE-HOT ENCODING untuk categorical features
+    processed_features = {}
+    
+    # Gender: hanya "ohe__Gender_Male" (1 untuk Male, 0 untuk Female)
+    processed_features["ohe__Gender_Male"] = [1 if feature_dict["Gender"] == "Male" else 0]
+    
+    # MTRANS: one-hot encoding untuk 5 kategori
+    mtrans_categories = ["Bike", "Motorbike", "Public_Transportation", "Walking", "Automobile"]
+    for category in mtrans_categories:
+        col_name = f"ohe__MTRANS_{category}"
+        processed_features[col_name] = [1 if feature_dict["MTRANS"] == category else 0]
+    
+    # Numerical features dengan prefix "remainder__"
+    numerical_features = ["Age", "Height", "Weight", "FHWO", "FAVC", "FCVC", "NCP", 
+                         "CAEC", "SMOKE", "CH2O", "SCC", "FAF", "TUE", "CALC"]
+    
+    # Mapping categorical to numerical untuk beberapa fitur
+    categorical_to_numerical = {
+        "FHWO": {"no": 0, "yes": 1},
+        "FAVC": {"no": 0, "yes": 1},
+        "CAEC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3},
+        "SMOKE": {"no": 0, "yes": 1},
+        "SCC": {"no": 0, "yes": 1},
+        "CALC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3}
+    }
+    
+    for feature in numerical_features:
+        col_name = f"remainder__{feature}"
+        if feature in categorical_to_numerical:
+            # Convert categorical to numerical
+            value = feature_dict[feature]
+            processed_features[col_name] = [categorical_to_numerical[feature][value]]
         else:
-            # Jika fitur tidak ada, gunakan default value
-            input_data[feature] = [default_values.get(feature, 0)]
+            # Use numerical value directly
+            processed_features[col_name] = [feature_dict[feature]]
     
-    return pd.DataFrame(input_data, columns=expected_features)
+    # Create final DataFrame dengan urutan yang sesuai model
+    expected_features = model.get_booster().feature_names
+    final_df = pd.DataFrame(columns=expected_features)
+    
+    for feature in expected_features:
+        if feature in processed_features:
+            final_df[feature] = processed_features[feature]
+        else:
+            final_df[feature] = [0]  # Default value
+    
+    return final_df
 
-# Create input DataFrame
-input_df = prepare_input_data(feature_inputs, model)
+# Create input DataFrame dengan preprocessing manual
+input_df = manual_preprocessing(feature_inputs)
 
-# Tampilkan input features
+# Tampilkan input features sebelum dan sesudah preprocessing
 st.header("📊 Input Features")
-st.dataframe(input_df)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Original Features")
+    original_df = pd.DataFrame([feature_inputs])
+    st.dataframe(original_df)
+
+with col2:
+    st.subheader("Preprocessed Features")
+    st.dataframe(input_df)
 
 # 4️⃣ Prediction
 try:
@@ -239,12 +279,13 @@ try:
     
     # Map class numbers ke labels yang meaningful
     class_mapping = {
-        0: "Normal Weight",
-        1: "Overweight Level I", 
-        2: "Overweight Level II",
-        3: "Obesity Level I",
-        4: "Obesity Level II",
-        5: "Obesity Level III"
+        0: "Insufficient Weight",
+        1: "Normal Weight", 
+        2: "Overweight Level I",
+        3: "Overweight Level II",
+        4: "Obesity Level I",
+        5: "Obesity Level II",
+        6: "Obesity Level III"
     }
     
     predicted_label = class_mapping.get(pred_class, f"Class {pred_class}")
@@ -256,105 +297,115 @@ try:
     
     with col1:
         st.subheader("Predicted Class")
-        st.info(f"**{predicted_label}**")
+        # Color code based on obesity level
+        if "Obesity" in predicted_label:
+            st.error(f"**{predicted_label}** ⚠️")
+        elif "Overweight" in predicted_label:
+            st.warning(f"**{predicted_label}** 📊")
+        else:
+            st.success(f"**{predicted_label}** ✅")
     
     with col2:
         st.subheader("Class Probabilities")
         prob_df = pd.DataFrame({
             'Class': [class_mapping.get(i, f'Class {i}') for i in range(len(pred_proba))],
             'Probability': pred_proba
-        })
-        st.dataframe(prob_df)
+        }).sort_values('Probability', ascending=False)
         
-        # Highlight highest probability
-        max_prob_idx = pred_proba.argmax()
-        st.write(f"Highest probability: **{class_mapping.get(max_prob_idx, f'Class {max_prob_idx}')}** ({pred_proba[max_prob_idx]:.2%})")
+        # Format probabilities as percentages
+        prob_df['Probability'] = prob_df['Probability'].apply(lambda x: f"{x:.2%}")
+        st.dataframe(prob_df, hide_index=True)
 
-    # 5️⃣ SHAP Analysis - FIXED VERSION
+    # 5️⃣ SHAP Analysis
     st.header("🔍 SHAP Analysis")
     
     # Explain the prediction
     explainer = shap.TreeExplainer(model)
     shap_values = explainer(input_df)
     
-    # SHAP Summary Plot
-    st.subheader("Feature Importance")
+    # SHAP Summary Plot - Bar
+    st.subheader("Feature Importance (Global)")
     fig, ax = plt.subplots(figsize=(10, 6))
     shap.summary_plot(shap_values, input_df, plot_type="bar", show=False)
+    plt.title("Feature Importance - Global Impact")
     plt.tight_layout()
     st.pyplot(fig)
     
-    # SHAP Force Plot - FIXED SYNTAX
-    st.subheader("Force Plot - Prediction Explanation")
+    # SHAP Waterfall Plot untuk instance spesifik
+    st.subheader("Waterfall Plot - Prediction Explanation")
+    try:
+        fig, ax = plt.subplots(figsize=(12, 6))
+        
+        # Create Explanation object untuk waterfall plot
+        explanation = shap.Explanation(
+            values=shap_values.values[0],
+            base_values=explainer.expected_value,
+            data=input_df.iloc[0],
+            feature_names=input_df.columns
+        )
+        
+        shap.waterfall_plot(explanation, show=False)
+        plt.title(f"Waterfall Plot for {predicted_label} Prediction")
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+    except Exception as e:
+        st.warning(f"Could not display waterfall plot: {e}")
     
-    # Untuk single instance prediction
-    if hasattr(shap_values, 'values'):
-        # New SHAP version syntax
-        force_fig = shap.force_plot(
+    # SHAP Force Plot
+    st.subheader("Force Plot - Prediction Forces")
+    try:
+        plt.figure(figsize=(12, 3))
+        force_plot = shap.force_plot(
             explainer.expected_value,
-            shap_values.values[0],  # First instance
+            shap_values.values[0],
             input_df.iloc[0],
             matplotlib=True,
             show=False
         )
-        st.pyplot(force_fig)
-    else:
-        # Alternative approach
-        try:
-            # Coba approach yang berbeda untuk SHAP versions
-            fig, ax = plt.subplots(figsize=(12, 4))
-            shap.decision_plot(explainer.expected_value, 
-                             shap_values.values[0] if hasattr(shap_values, 'values') else shap_values[0],
-                             input_df.iloc[0], 
-                             show=False)
-            plt.tight_layout()
-            st.pyplot(fig)
-        except Exception as e:
-            st.warning(f"Could not display force plot: {e}")
+        st.pyplot(plt.gcf())
+    except Exception as e:
+        st.warning(f"Could not display force plot: {e}")
     
-    # Waterfall plot untuk penjelasan detail
-    st.subheader("Waterfall Plot - Detailed Feature Contributions")
+    # Decision Plot
+    st.subheader("Decision Plot - Prediction Path")
     try:
-        fig, ax = plt.subplots(figsize=(12, 6))
-        
-        # Untuk SHAP versions yang berbeda
-        if hasattr(shap_values, 'values'):
-            shap.waterfall_plot(shap.Explanation(
-                values=shap_values.values[0],
-                base_values=explainer.expected_value,
-                data=input_df.iloc[0],
-                feature_names=input_df.columns
-            ), show=False)
-        else:
-            shap.waterfall_plot(shap.Explanation(
-                values=shap_values[0],
-                base_values=explainer.expected_value,
-                data=input_df.iloc[0],
-                feature_names=input_df.columns
-            ), show=False)
-            
+        fig, ax = plt.subplots(figsize=(12, 8))
+        shap.decision_plot(
+            explainer.expected_value,
+            shap_values.values[0],
+            input_df.iloc[0],
+            feature_names=list(input_df.columns),
+            show=False
+        )
+        plt.title(f"Decision Plot for {predicted_label}")
         plt.tight_layout()
         st.pyplot(fig)
     except Exception as e:
-        st.warning(f"Could not display waterfall plot: {e}")
-    
-    # Alternative: Beeswarm plot untuk overview
-    st.subheader("Beeswarm Plot - Overall Feature Impact")
-    try:
-        fig, ax = plt.subplots(figsize=(10, 6))
-        shap.summary_plot(shap_values, input_df, show=False)
-        plt.tight_layout()
-        st.pyplot(fig)
-    except Exception as e:
-        st.warning(f"Could not display beeswarm plot: {e}")
+        st.warning(f"Could not display decision plot: {e}")
 
 except Exception as e:
     st.error(f"❌ Prediction error: {e}")
-    st.info("Please check that all required features are provided correctly")
     
-    # Debug information
-    with st.expander("Debug Information"):
-        st.write("Model classes:", model.classes_)
+    # Detailed debug information
+    with st.expander("🔧 Debug Information"):
+        st.write("Model classes:", getattr(model, 'classes_', 'Not available'))
         st.write("Input DataFrame shape:", input_df.shape)
         st.write("Input DataFrame columns:", input_df.columns.tolist())
         st.write("Expected features:", model.get_booster().feature_names)
+        st.write("Feature inputs:", feature_inputs)
+        
+        # Check for missing features
+        expected = set(model.get_booster().feature_names)
+        provided = set(input_df.columns)
+        st.write("Missing features:", expected - provided)
+        st.write("Extra features:", provided - expected)
+
+# Additional information
+st.sidebar.header("ℹ️ About")
+st.sidebar.info("""
+This model uses preprocessed features with:
+- OneHot Encoding for categorical variables
+- Standard Scaling for numerical variables
+- XGBoost for classification
+""")
