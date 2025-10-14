@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 
 # 1️⃣ Load Model
 model = xgb.XGBClassifier()
-model.load_model("xgb_obesity.json")  # path relatif
+
+url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb_obesity.json"
+model.load_model(url)  # path relatif
 
 # 2️⃣ Top 10 Features + default values (sesuai dataset)
 default_values = {
@@ -126,6 +128,7 @@ st.subheader("Force Plot (Features Driving Prediction)")
 shap.initjs()
 force_plot_html = shap.force_plot(explainer.expected_value, shap_values.values, input_df, matplotlib=False)
 st.components.v1.html(force_plot_html.html(), height=400)
+
 
 
 
