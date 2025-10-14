@@ -3,81 +3,102 @@ import pandas as pd
 import xgboost as xgb
 import shap
 import matplotlib.pyplot as plt
-
-
 import requests
 import tempfile
 import os
 
-# Gambar header dari GitHub (RAW URL)
-# header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/telco-business.jpg"
-# st.image(header_image_url, use_container_width=True)
+# Set page config
+st.set_page_config(page_title="Obesity Prediction", layout="wide")
 
-# Instead of loading directly from URL, download the file first
-url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"  # or .model, .bin, etc.
+# Load model dengan error handling yang lebih baik
+@st.cache_resource
+def load_model():
+    url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False, suffix='.json') as tmp_file:
+            tmp_file.write(response.content)
+            tmp_path = tmp_file.name
+        
+        model = xgb.XGBClassifier()
+        model.load_model(tmp_path)
+        os.unlink(tmp_path)
+        st.success("✅ Model loaded successfully!")
+        return model
+    except Exception as e:
+        st.error(f"❌ Error loading model: {e}")
+        return None
 
-try:
-    # Download the model file
-    response = requests.get(url)
-    response.raise_for_status()  # Check if download was successful
-    
-    # Save to temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as tmp_file:
-        tmp_file.write(response.content)
-        tmp_path = tmp_file.name
-    
-    # Load the model
-    model = xgb.XGBClassifier()
-    model.load_model(tmp_path)
-    
-    # Clean up
-    os.unlink(tmp_path)
+# Load model
+model = load_model()
 
-    # header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/goal.png"
-    # st.image(header_image_url, use_container_width=True)
-    
-except Exception as e:
-    print(f"Error loading model: {e}")
-  
+if model is None:
+    st.stop()
 
-# # 1️⃣ Load Model
-# model = xgb.XGBClassifier()
+# Debug: Tampilkan fitur yang diharapkan model
+st.sidebar.write("🔍 Model features:", model.get_booster().feature_names)
 
-# url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
-# model.load_model(url)  # path relatif
-
-# 2️⃣ Top 10 Features + default values (sesuai dataset)
+# Default values sesuai dengan fitur model
 default_values = {
     "Gender": 0,   # 0=Male, 1=Female
-    "Weight": 70,
-    "FCVC": 2,
-    "FAVC": 1,     # 1=yes, 0=no
-    "CAEC": 1,     # encoded 0-3
-    "CALC": 1,     # encoded 0-3
+    "Age": 24,     # Ditambahkan karena mungkin diperlukan
     "Height": 1.70,
-    "FHWO": 1,     # 1=yes,0=no
-    "NCP": 2,
-    "MTRANS": 0    # encoded 0-4
+    "Weight": 70,
+    "FCVC": 2,     # Frequency of consumption of vegetables
+    "NCP": 3,      # Number of main meals
+    "CAEC": 1,     # Consumption of food between meals
+    "FAVC": 1,     # Frequent consumption of high caloric food
+    "CH2O": 2,     # Water consumption
+    "CALC": 1,     # Consumption of alcohol
+    "SCC": 0,      # Calories consumption monitoring
+    "FAF": 1,      # Physical activity frequency
+    "TUE": 2,      # Time using technology devices
+    "MTRANS": 0,   # Transportation used
+    "FHWO": 1,     # Family history with overweight
+    "SMOKE": 0,    # Smoking
+    "family_history_with_overweight": 1  # Mungkin diperlukan
 }
 
+# Initialize session state
+for key in default_values.keys():
+    if key not in st.session_state:
+        st.session_state[key] = default_values[key]
+
 # 3️⃣ Sidebar Input
-st.sidebar.header("Set Feature Values (Top 10)")
+st.sidebar.header("🛠️ Set Feature Values")
 
 def reset_defaults():
-    for k,v in default_values.items():
+    for k, v in default_values.items():
         st.session_state[k] = v
 
-if st.sidebar.button("Reset to Default"):
+if st.sidebar.button("🔄 Reset to Default"):
     reset_defaults()
+    st.rerun()
 
 feature_inputs = {}
 
+# Collect user inputs
 # Gender
-feature_inputs["Gender"] = st.sidebar.selectbox(
+gender_sel = st.sidebar.selectbox(
     "Gender", ["Male", "Female"],
     index=st.session_state.get("Gender", default_values["Gender"])
 )
-feature_inputs["Gender"] = 0 if feature_inputs["Gender"]=="Male" else 1
+feature_inputs["Gender"] = 0 if gender_sel == "Male" else 1
+
+# Age (ditambahkan karena biasanya diperlukan)
+feature_inputs["Age"] = st.sidebar.slider(
+    "Age", 14, 61,
+    value=st.session_state.get("Age", default_values["Age"])
+)
+
+# Height
+feature_inputs["Height"] = st.sidebar.slider(
+    "Height (m)", 1.45, 1.98,
+    value=st.session_state.get("Height", default_values["Height"]), 
+    step=0.01
+)
 
 # Weight
 feature_inputs["Weight"] = st.sidebar.slider(
@@ -85,83 +106,221 @@ feature_inputs["Weight"] = st.sidebar.slider(
     value=st.session_state.get("Weight", default_values["Weight"])
 )
 
-# FCVC
+# FCVC - Frequency of consumption of vegetables
 feature_inputs["FCVC"] = st.sidebar.slider(
-    "FCVC", 1, 3,
-    value=st.session_state.get("FCVC", default_values["FCVC"])
+    "FCVC (Vegetable Consumption)", 1.0, 3.0,
+    value=float(st.session_state.get("FCVC", default_values["FCVC"])),
+    step=0.1
 )
 
-# FAVC
-favc_options = ["yes","no"]
-favc_sel = st.sidebar.selectbox("FAVC", favc_options,
-                                index=st.session_state.get("FAVC", default_values["FAVC"]))
-feature_inputs["FAVC"] = 1 if favc_sel=="yes" else 0
+# NCP - Number of main meals
+feature_inputs["NCP"] = st.sidebar.slider(
+    "NCP (Number of Main Meals)", 1.0, 4.0,
+    value=float(st.session_state.get("NCP", default_values["NCP"])),
+    step=0.1
+)
 
-# CAEC
-caec_options = ["no","Sometimes","Frequently","Always"]
-caec_sel = st.sidebar.selectbox("CAEC", caec_options,
-                                index=st.session_state.get("CAEC", default_values["CAEC"]))
+# CAEC - Consumption of food between meals
+caec_options = ["no", "Sometimes", "Frequently", "Always"]
+caec_sel = st.sidebar.selectbox(
+    "CAEC (Food Between Meals)", 
+    caec_options,
+    index=st.session_state.get("CAEC", default_values["CAEC"])
+)
 feature_inputs["CAEC"] = caec_options.index(caec_sel)
 
-# CALC
-calc_options = ["no","Sometimes","Frequently","Always"]
-calc_sel = st.sidebar.selectbox("CALC", calc_options,
-                                index=st.session_state.get("CALC", default_values["CALC"]))
+# FAVC - Frequent consumption of high caloric food
+favc_options = ["no", "yes"]
+favc_sel = st.sidebar.selectbox(
+    "FAVC (High Caloric Food)", 
+    favc_options,
+    index=st.session_state.get("FAVC", default_values["FAVC"])
+)
+feature_inputs["FAVC"] = favc_options.index(favc_sel)
+
+# CH2O - Water consumption (ditambahkan)
+feature_inputs["CH2O"] = st.sidebar.slider(
+    "CH2O (Water Consumption)", 1.0, 3.0,
+    value=float(st.session_state.get("CH2O", default_values["CH2O"])),
+    step=0.1
+)
+
+# CALC - Consumption of alcohol
+calc_options = ["no", "Sometimes", "Frequently", "Always"]
+calc_sel = st.sidebar.selectbox(
+    "CALC (Alcohol Consumption)", 
+    calc_options,
+    index=st.session_state.get("CALC", default_values["CALC"])
+)
 feature_inputs["CALC"] = calc_options.index(calc_sel)
 
-# Height
-feature_inputs["Height"] = st.sidebar.slider(
-    "Height (m)", 1.45, 1.98,
-    value=st.session_state.get("Height", default_values["Height"]), step=0.01
+# FAF - Physical activity frequency
+feature_inputs["FAF"] = st.sidebar.slider(
+    "FAF (Physical Activity)", 0.0, 3.0,
+    value=float(st.session_state.get("FAF", default_values["FAF"])),
+    step=0.1
 )
 
-# FHWO
-fhwo_sel = st.sidebar.selectbox("FHWO", ["yes","no"],
-                                index=st.session_state.get("FHWO", default_values["FHWO"]))
-feature_inputs["FHWO"] = 1 if fhwo_sel=="yes" else 0
-
-# NCP
-feature_inputs["NCP"] = st.sidebar.slider(
-    "NCP", 1, 4,
-    value=st.session_state.get("NCP", default_values["NCP"])
+# TUE - Time using technology devices
+feature_inputs["TUE"] = st.sidebar.slider(
+    "TUE (Technology Time)", 0.0, 2.0,
+    value=float(st.session_state.get("TUE", default_values["TUE"])),
+    step=0.1
 )
 
-# MTRANS
-mtrans_options = ["Public_Transportation","Walking","Automobile","Motorbike","Bike"]
-mtrans_sel = st.sidebar.selectbox("MTRANS", mtrans_options,
-                                  index=st.session_state.get("MTRANS", default_values["MTRANS"]))
+# MTRANS - Transportation used
+mtrans_options = ["Public_Transportation", "Walking", "Automobile", "Motorbike", "Bike"]
+mtrans_sel = st.sidebar.selectbox(
+    "MTRANS (Transportation)", 
+    mtrans_options,
+    index=st.session_state.get("MTRANS", default_values["MTRANS"])
+)
 feature_inputs["MTRANS"] = mtrans_options.index(mtrans_sel)
 
+# FHWO - Family history with overweight
+fhwo_options = ["no", "yes"]
+fhwo_sel = st.sidebar.selectbox(
+    "Family History Overweight", 
+    fhwo_options,
+    index=st.session_state.get("FHWO", default_values["FHWO"])
+)
+feature_inputs["FHWO"] = fhwo_options.index(fhwo_sel)
+feature_inputs["family_history_with_overweight"] = feature_inputs["FHWO"]  # Duplicate untuk kompatibilitas
+
+# SCC - Calories consumption monitoring
+scc_options = ["no", "yes"]
+scc_sel = st.sidebar.selectbox(
+    "SCC (Calorie Monitoring)", 
+    scc_options,
+    index=st.session_state.get("SCC", default_values["SCC"])
+)
+feature_inputs["SCC"] = scc_options.index(scc_sel)
+
+# SMOKE - Smoking
+smoke_options = ["no", "yes"]
+smoke_sel = st.sidebar.selectbox(
+    "Smoking", 
+    smoke_options,
+    index=st.session_state.get("SMOKE", default_values["SMOKE"])
+)
+feature_inputs["SMOKE"] = smoke_options.index(smoke_sel)
+
 # Update session state
-for k,v in feature_inputs.items():
+for k, v in feature_inputs.items():
     st.session_state[k] = v
 
-# Input DataFrame
-input_df = pd.DataFrame(feature_inputs, index=[0])
-st.subheader("Input Features")
+# Prepare input DataFrame dengan urutan yang benar
+def prepare_input_data(feature_dict, model):
+    """Prepare input data dengan urutan fitur yang sesuai dengan model"""
+    expected_features = model.get_booster().feature_names
+    
+    # Create DataFrame dengan urutan yang benar
+    input_data = {}
+    for feature in expected_features:
+        if feature in feature_dict:
+            input_data[feature] = [feature_dict[feature]]
+        else:
+            # Jika fitur tidak ada, gunakan default value
+            input_data[feature] = [default_values.get(feature, 0)]
+    
+    return pd.DataFrame(input_data, columns=expected_features)
+
+# Create input DataFrame
+input_df = prepare_input_data(feature_inputs, model)
+
+# Tampilkan input features
+st.header("📊 Input Features")
 st.dataframe(input_df)
 
 # 4️⃣ Prediction
-pred_class = model.predict(input_df)[0]
-pred_proba = model.predict_proba(input_df)
+try:
+    pred_class = model.predict(input_df)[0]
+    pred_proba = model.predict_proba(input_df)[0]
+    
+    # Map class numbers ke labels yang meaningful
+    class_mapping = {
+        0: "Normal Weight",
+        1: "Overweight Level I", 
+        2: "Overweight Level II",
+        3: "Obesity Level I",
+        4: "Obesity Level II",
+        5: "Obesity Level III"
+    }
+    
+    predicted_label = class_mapping.get(pred_class, f"Class {pred_class}")
+    
+    st.header("🎯 Prediction Results")
+    
+    # Tampilkan hasil prediksi
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Predicted Class")
+        st.info(f"**{predicted_label}**")
+    
+    with col2:
+        st.subheader("Class Probabilities")
+        prob_df = pd.DataFrame({
+            'Class': [class_mapping.get(i, f'Class {i}') for i in range(len(pred_proba))],
+            'Probability': pred_proba
+        })
+        st.dataframe(prob_df)
+        
+        # Highlight highest probability
+        max_prob_idx = pred_proba.argmax()
+        st.write(f"Highest probability: **{class_mapping.get(max_prob_idx, f'Class {max_prob_idx}')}** ({pred_proba[max_prob_idx]:.2%})")
 
-st.subheader("Predicted Obesity Level")
-st.write(f"### {pred_class}")
-st.subheader("Probability per Class")
-st.dataframe(pd.DataFrame(pred_proba, columns=model.classes_))
+    # 5️⃣ SHAP Analysis
+    st.header("🔍 SHAP Analysis")
+    
+    # Explain the prediction
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(input_df)
+    
+    # SHAP Summary Plot
+    st.subheader("Feature Importance")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    shap.summary_plot(shap_values, input_df, plot_type="bar", show=False)
+    plt.tight_layout()
+    st.pyplot(fig)
+    
+    # SHAP Force Plot
+    st.subheader("Force Plot - Prediction Explanation")
+    st.write("This shows how each feature contributes to pushing the prediction from the base value to the final output.")
+    
+    # Untuk binary classification atau multi-class
+    if len(shap_values) == len(model.classes_):
+        # Multi-class scenario
+        class_idx = pred_class
+        shap_force = shap.force_plot(
+            explainer.expected_value[class_idx],
+            shap_values[class_idx],
+            input_df,
+            matplotlib=True,
+            show=False
+        )
+    else:
+        # Binary scenario
+        shap_force = shap.force_plot(
+            explainer.expected_value,
+            shap_values,
+            input_df,
+            matplotlib=True,
+            show=False
+        )
+    
+    st.pyplot(shap_force)
+    
+    # Waterfall plot untuk penjelasan detail
+    st.subheader("Waterfall Plot - Detailed Feature Contributions")
+    fig, ax = plt.subplots(figsize=(12, 6))
+    shap.waterfall_plot(shap.Explanation(values=shap_values[0] if len(shap_values.shape) > 1 else shap_values[0], 
+                                       base_values=explainer.expected_value[0] if isinstance(explainer.expected_value, list) else explainer.expected_value,
+                                       data=input_df.iloc[0],
+                                       feature_names=input_df.columns), show=False)
+    plt.tight_layout()
+    st.pyplot(fig)
 
-# 5️⃣ SHAP
-st.subheader("Feature Contribution (SHAP Values)")
-explainer = shap.TreeExplainer(model)
-shap_values = explainer(input_df)
-
-# Plot bar & force side by side
-fig, ax = plt.subplots(figsize=(8,5))
-shap.plots.bar(shap_values, show=False)
-st.pyplot(fig)
-
-st.subheader("Force Plot (Features Driving Prediction)")
-shap.initjs()
-force_plot_html = shap.force_plot(explainer.expected_value, shap_values.values, input_df, matplotlib=False)
-st.components.v1.html(force_plot_html.html(), height=400)
-
+except Exception as e:
+    st.error(f"❌ Prediction error: {e}")
+    st.info("Please check that all required features are provided correctly")
