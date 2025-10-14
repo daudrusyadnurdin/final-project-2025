@@ -41,6 +41,12 @@ st.markdown("""
         background-color: #f8d7da;
         border: 2px solid #f5c6cb;
     }
+    .feature-importance-bar {
+        background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
+        height: 8px;
+        border-radius: 4px;
+        margin: 5px 0;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -396,7 +402,8 @@ with tab1:
                     'pred_class': pred_class,
                     'pred_proba': pred_proba,
                     'predicted_label': predicted_label,
-                    'input_df': input_df
+                    'input_df': input_df,
+                    'bmi': bmi
                 }
                 
             except Exception as e:
@@ -412,6 +419,7 @@ with tab2:
         pred_proba = st.session_state.prediction_results['pred_proba']
         predicted_label = st.session_state.prediction_results['predicted_label']
         input_df = st.session_state.prediction_results['input_df']
+        bmi = st.session_state.prediction_results.get('bmi', 0)
         
         # SHAP Analysis
         st.subheader("📊 SHAP Feature Analysis")
@@ -422,8 +430,14 @@ with tab2:
                 explainer = shap.TreeExplainer(model)
                 shap_values = explainer(input_df)
                 
-                # Global Feature Importance
-                st.subheader("Global Feature Importance")
+                # Display SHAP values shape info
+                with st.expander("📐 SHAP Values Shape Info"):
+                    st.write(f"SHAP values shape: {shap_values.shape}")
+                    st.write(f"Number of classes: {len(model.classes_)}")
+                    st.write(f"Number of features: {len(input_df.columns)}")
+                
+                # Global Feature Importance - BAR PLOT
+                st.subheader("📈 Global Feature Importance")
                 fig, ax = plt.subplots(figsize=(10, 8))
                 shap.summary_plot(shap_values, input_df, plot_type="bar", show=False)
                 plt.title("Overall Feature Importance Across All Classes")
@@ -431,7 +445,7 @@ with tab2:
                 st.pyplot(fig)
                 
                 # Beeswarm Plot
-                st.subheader("Feature Impact Distribution")
+                st.subheader("🐝 Feature Impact Distribution")
                 fig, ax = plt.subplots(figsize=(10, 8))
                 shap.summary_plot(shap_values, input_df, show=False)
                 plt.title("Feature Impact Distribution (Beeswarm Plot)")
@@ -439,72 +453,145 @@ with tab2:
                 st.pyplot(fig)
                 
                 # Class-specific Analysis
-                st.subheader(f"Analysis for {predicted_label}")
+                st.subheader(f"🎯 Analysis for {predicted_label}")
                 
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # Waterfall Plot untuk class yang diprediksi
+                    # Waterfall Plot untuk class yang diprediksi - FIXED
                     try:
+                        # Untuk multi-class, shape: (1, n_features, n_classes)
                         if len(shap_values.shape) == 3:
                             shap_val_single = shap_values[0, :, pred_class]
                             base_value = explainer.expected_value[pred_class]
+                            
+                            explanation = shap.Explanation(
+                                values=shap_val_single,
+                                base_values=base_value,
+                                data=input_df.iloc[0].values,
+                                feature_names=input_df.columns.tolist()
+                            )
+                            
+                            fig, ax = plt.subplots(figsize=(10, 6))
+                            shap.plots.waterfall(explanation, show=False)
+                            plt.title(f"Waterfall Plot for {predicted_label}")
+                            plt.tight_layout()
+                            st.pyplot(fig)
                         else:
-                            shap_val_single = shap_values[0, :]
-                            base_value = explainer.expected_value
-                        
-                        explanation = shap.Explanation(
-                            values=shap_val_single,
-                            base_values=base_value,
-                            data=input_df.iloc[0].values,
-                            feature_names=input_df.columns.tolist()
-                        )
-                        
-                        fig, ax = plt.subplots(figsize=(10, 6))
-                        shap.plots.waterfall(explanation, show=False)
-                        plt.title(f"Waterfall Plot for {predicted_label}")
-                        plt.tight_layout()
-                        st.pyplot(fig)
+                            st.warning("Unexpected SHAP values shape for waterfall plot")
+                            
                     except Exception as e:
                         st.warning(f"Could not display waterfall plot: {e}")
                 
                 with col2:
-                    # Feature Importance untuk class spesifik
+                    # Feature Importance untuk class spesifik - FIXED
                     try:
                         if len(shap_values.shape) == 3:
+                            # Ambil SHAP values untuk class yang diprediksi
                             shap_val_single = shap_values[0, :, pred_class]
-                        else:
-                            shap_val_single = shap_values[0, :]
                             
-                        feature_imp = pd.DataFrame({
-                            'feature': input_df.columns,
-                            'importance': np.abs(shap_val_single)
-                        }).sort_values('importance', ascending=True)
-                        
-                        fig, ax = plt.subplots(figsize=(10, 6))
-                        ax.barh(feature_imp['feature'], feature_imp['importance'])
-                        ax.set_title(f"Feature Importance for {predicted_label}")
-                        ax.set_xlabel("Absolute SHAP Value")
-                        plt.tight_layout()
-                        st.pyplot(fig)
+                            # Pastikan panjang array sesuai
+                            if len(shap_val_single) == len(input_df.columns):
+                                feature_imp = pd.DataFrame({
+                                    'feature': input_df.columns,
+                                    'importance': np.abs(shap_val_single)
+                                }).sort_values('importance', ascending=True)
+                                
+                                fig, ax = plt.subplots(figsize=(10, 6))
+                                bars = ax.barh(feature_imp['feature'], feature_imp['importance'])
+                                ax.set_title(f"Feature Importance for {predicted_label}")
+                                ax.set_xlabel("Absolute SHAP Value")
+                                
+                                # Tambah nilai pada bar
+                                for bar in bars:
+                                    width = bar.get_width()
+                                    ax.text(width + 0.001, bar.get_y() + bar.get_height()/2, 
+                                           f'{width:.3f}', ha='left', va='center')
+                                
+                                plt.tight_layout()
+                                st.pyplot(fig)
+                            else:
+                                st.warning("Feature count mismatch in SHAP values")
+                        else:
+                            st.warning("Unexpected SHAP values shape")
+                            
                     except Exception as e:
                         st.warning(f"Could not display feature importance: {e}")
                 
-                # Decision Plot
-                st.subheader("Prediction Decision Path")
+                # Decision Plot untuk class yang diprediksi - FIXED
+                st.subheader(f"🛣️ Decision Path for {predicted_label}")
                 try:
-                    fig, ax = plt.subplots(figsize=(12, 8))
-                    shap.decision_plot(
-                        explainer.expected_value,
-                        shap_values.values[0] if hasattr(shap_values, 'values') else shap_values[0],
-                        feature_names=list(input_df.columns),
-                        show=False
-                    )
-                    plt.title("Decision Plot - How Features Influence the Prediction")
-                    plt.tight_layout()
-                    st.pyplot(fig)
+                    if len(shap_values.shape) == 3:
+                        # Untuk multi-output, gunakan base_value[i] dan shap_values[i]
+                        fig, ax = plt.subplots(figsize=(12, 8))
+                        
+                        # Gunakan multioutput_decision_plot atau decision_plot untuk class spesifik
+                        shap.decision_plot(
+                            explainer.expected_value[pred_class],
+                            shap_values.values[0, :, pred_class] if hasattr(shap_values, 'values') else shap_values[0, :, pred_class],
+                            feature_names=list(input_df.columns),
+                            show=False
+                        )
+                        plt.title(f"Decision Plot - {predicted_label}")
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                    else:
+                        st.warning("Multi-output decision plot requires specific class selection")
+                        
                 except Exception as e:
                     st.warning(f"Could not display decision plot: {e}")
+                    
+                    # Alternative: Simple feature contribution plot
+                    try:
+                        if len(shap_values.shape) == 3:
+                            shap_val_single = shap_values[0, :, pred_class]
+                            
+                            fig, ax = plt.subplots(figsize=(12, 8))
+                            
+                            # Plot positive and negative contributions separately
+                            positive_idx = shap_val_single > 0
+                            negative_idx = shap_val_single < 0
+                            
+                            features = np.array(input_df.columns)
+                            
+                            if np.any(positive_idx):
+                                ax.barh(features[positive_idx], shap_val_single[positive_idx], 
+                                       color='red', label='Increases Obesity Risk')
+                            if np.any(negative_idx):
+                                ax.barh(features[negative_idx], shap_val_single[negative_idx], 
+                                       color='green', label='Decreases Obesity Risk')
+                            
+                            ax.axvline(x=0, color='black', linestyle='-', alpha=0.3)
+                            ax.set_xlabel('SHAP Value Impact')
+                            ax.set_title(f'Feature Contributions for {predicted_label}')
+                            ax.legend()
+                            plt.tight_layout()
+                            st.pyplot(fig)
+                    except Exception as e2:
+                        st.error(f"Alternative plot also failed: {e2}")
+                
+                # SHAP Values Table untuk semua classes
+                st.subheader("📋 SHAP Values Table")
+                try:
+                    if len(shap_values.shape) == 3:
+                        # Create DataFrame dengan SHAP values untuk semua classes
+                        shap_df = pd.DataFrame(
+                            shap_values.values[0].T if hasattr(shap_values, 'values') else shap_values[0].T,
+                            columns=[f"Class {i}" for i in range(shap_values.shape[2])],
+                            index=input_df.columns
+                        )
+                        
+                        # Highlight the predicted class
+                        styled_df = shap_df.style.background_gradient(cmap='RdBu', axis=1)\
+                                                .format("{:.4f}")\
+                                                .set_caption(f"SHAP Values for Each Feature and Class (Predicted: {predicted_label})")
+                        
+                        st.dataframe(styled_df, use_container_width=True)
+                    else:
+                        st.warning("Cannot display SHAP values table - unexpected shape")
+                        
+                except Exception as e:
+                    st.warning(f"Could not display SHAP values table: {e}")
                     
             except Exception as e:
                 st.error(f"❌ SHAP analysis error: {e}")
