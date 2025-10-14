@@ -1,6 +1,6 @@
 streamlit
 pandas
 numpy
-seaborn
+xgboost==1.7.6
+shap
 matplotlib
-plotly
