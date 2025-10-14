@@ -357,29 +357,76 @@ try:
         except Exception as e2:
             st.error(f"Alternative also failed: {e2}")
     
-    # Force Plot untuk class yang diprediksi
-    st.subheader(f"Force Plot - {predicted_label}")
+    # Force Plot untuk class yang diprediksi - FIXED VERSION
+st.subheader(f"Force Plot - {predicted_label}")
+try:
+    if len(shap_values.shape) == 3:
+        shap_val_single = shap_values[0, :, pred_class]
+        base_value = explainer.expected_value[pred_class]
+    else:
+        shap_val_single = shap_values[0, :]
+        base_value = explainer.expected_value
+    
+    # CREATE EXPLANATION OBJECT FIRST
+    explanation = shap.Explanation(
+        values=shap_val_single,
+        base_values=base_value,
+        data=input_df.iloc[0].values,
+        feature_names=input_df.columns.tolist()
+    )
+    
+    plt.figure(figsize=(12, 3))
+    
+    # METHOD 1: Menggunakan explanation object
+    shap.plots.force(explanation, matplotlib=True, show=False)
+    plt.title(f"Force Plot for {predicted_label}")
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    
+except Exception as e:
+    st.warning(f"Could not display force plot with method 1: {e}")
+    
+    # METHOD 2: Alternative approach
     try:
-        if len(shap_values.shape) == 3:
-            shap_val_single = shap_values[0, :, class_idx]
-            base_value = explainer.expected_value[class_idx]
-        else:
-            shap_val_single = shap_values[0, :]
-            base_value = explainer.expected_value
-        
         plt.figure(figsize=(12, 3))
-        shap.force_plot(
-            base_value,
-            shap_val_single,
-            input_df.iloc[0],
-            matplotlib=True,
-            show=False
-        )
-        plt.title(f"Force Plot for {predicted_label}")
+        
+        # Untuk multi-output models
+        if len(shap_values.shape) == 3:
+            shap.plots.force(explainer.expected_value[pred_class], 
+                           shap_values.values[0, :, pred_class], 
+                           input_df.iloc[0], 
+                           matplotlib=True, show=False)
+        else:
+            shap.plots.force(explainer.expected_value, 
+                           shap_values.values[0, :], 
+                           input_df.iloc[0], 
+                           matplotlib=True, show=False)
+        
+        plt.title(f"Force Plot for {predicted_label} (Method 2)")
         plt.tight_layout()
         st.pyplot(plt.gcf())
-    except Exception as e:
-        st.warning(f"Could not display force plot: {e}")
+        
+    except Exception as e2:
+        st.warning(f"Could not display force plot with method 2: {e2}")
+        
+        # METHOD 3: Simple bar plot sebagai alternatif
+        try:
+            fig, ax = plt.subplots(figsize=(12, 6))
+            
+            # Create feature importance plot
+            feature_importance = pd.DataFrame({
+                'feature': input_df.columns,
+                'importance': np.abs(shap_val_single)
+            }).sort_values('importance', ascending=True)
+            
+            ax.barh(feature_importance['feature'], feature_importance['importance'])
+            ax.set_title(f"Feature Importance for {predicted_label} Prediction")
+            ax.set_xlabel("Absolute SHAP Value")
+            plt.tight_layout()
+            st.pyplot(fig)
+            
+        except Exception as e3:
+            st.error(f"All force plot methods failed: {e3}")
     
     # Decision Plot untuk semua classes
     st.subheader("Decision Plot - All Classes")
@@ -443,3 +490,4 @@ if st.sidebar.button("Apply Example"):
     for k, v in example_data.items():
         st.session_state[k] = v
     st.rerun()
+
