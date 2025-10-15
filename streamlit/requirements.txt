@@ -1,6 +1,8 @@
 streamlit
+xgboost
+plotly
+matplotlib
+requests
 pandas
 numpy
-xgboost==3.0.5
-shap
-matplotlib
+seaborn
