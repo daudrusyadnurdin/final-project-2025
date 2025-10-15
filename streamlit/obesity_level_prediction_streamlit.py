@@ -54,6 +54,24 @@ st.markdown("""
         padding: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+    .risk-legend {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+    }
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        border-radius: 3px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -200,25 +218,39 @@ def create_donut_chart(pred_proba, class_mapping):
     
     return fig
 
-# Fungsi untuk membuat risk meter
-def create_risk_meter(pred_class):
-    """Membuat risk meter visual"""
+# Fungsi untuk membuat risk meter dengan legend
+def create_risk_meter_with_legend(pred_class):
+    """Membuat risk meter visual dengan legend terpisah"""
     
-    risk_levels = ['Low', 'Moderate', 'High', 'Very High', 'Severe', 'Critical', 'Extreme']
-    risk_colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
+    risk_info = [
+        {'level': 0, 'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
+        {'level': 1, 'label': 'Low', 'color': '#45B7D1', 'description': 'Normal Weight'},
+        {'level': 2, 'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight I'},
+        {'level': 3, 'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight II'},
+        {'level': 4, 'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity I'},
+        {'level': 5, 'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity II'},
+        {'level': 6, 'label': 'Critical', 'color': '#C44569', 'description': 'Obesity III'}
+    ]
     
+    current_risk = risk_info[pred_class]
+    
+    # Create risk meter
     fig = go.Figure(go.Indicator(
         mode = "number+gauge+delta",
         value = pred_class,
         domain = {'x': [0, 1], 'y': [0, 1]},
         delta = {'reference': 1},
-        number = {'font': {'size': 20}},
+        number = {
+            'font': {'size': 24, 'color': current_risk['color']},
+            'prefix': 'Level ',
+            'suffix': f" - {current_risk['label']}"
+        },
         gauge = {
             'shape': "bullet",
-            'axis': {'range': [0, 6], 'tickwidth': 1},
+            'axis': {'range': [0, 6], 'tickwidth': 1, 'tickvals': list(range(7))},
             'threshold': {
-                'line': {'color': "black", 'width': 2},
-                'thickness': 0.75,
+                'line': {'color': "black", 'width': 3},
+                'thickness': 0.8,
                 'value': pred_class},
             'steps': [
                 {'range': [0, 1], 'color': '#4ECDC4'},
@@ -228,15 +260,38 @@ def create_risk_meter(pred_class):
                 {'range': [4, 5], 'color': '#FF6B6B'},
                 {'range': [5, 6], 'color': '#EE4266'},
                 {'range': [6, 7], 'color': '#C44569'}],
-            'bar': {'color': "black"}}))
+            'bar': {'color': "black", 'thickness': 0.8}}))
     
     fig.update_layout(
         height=200,
-        margin=dict(l=10, r=10, t=30, b=10),
-        title="Obesity Risk Level"
+        margin=dict(l=10, r=10, t=50, b=10),
+        title=f"Obesity Risk Level: {current_risk['description']}"
     )
     
-    return fig
+    return fig, risk_info
+
+# Fungsi untuk membuat legend
+def create_risk_legend(risk_info):
+    """Membuat legend untuk risk meter"""
+    
+    legend_html = """
+    <div class="risk-legend">
+        <h4>🟰 Risk Level Legend</h4>
+    """
+    
+    for risk in risk_info:
+        legend_html += f"""
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: {risk['color']};"></div>
+            <div>
+                <strong>Level {risk['level']}: {risk['label']}</strong><br>
+                <small>{risk['description']}</small>
+            </div>
+        </div>
+        """
+    
+    legend_html += "</div>"
+    return legend_html
 
 # Header aplikasi
 st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
@@ -285,7 +340,7 @@ if st.sidebar.button("🔄 Reset to Default"):
     reset_defaults()
     st.rerun()
 
-# Collect user inputs (sama seperti sebelumnya)
+# Collect user inputs
 feature_inputs = {}
 
 feature_inputs["Gender"] = st.sidebar.selectbox(
@@ -564,7 +619,7 @@ with tab1:
                 # VISUALISASI BARU - Dashboard dengan berbagai chart
                 st.subheader("📊 Advanced Visualization Dashboard")
                 
-                # Row 1: Gauge Chart dan Risk Meter
+                # Row 1: Gauge Chart dan Risk Meter dengan Legend
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -572,8 +627,12 @@ with tab1:
                                   use_container_width=True)
                 
                 with col2:
-                    st.plotly_chart(create_risk_meter(pred_class), 
-                                  use_container_width=True)
+                    # Buat risk meter dan dapatkan info risk
+                    risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
+                    st.plotly_chart(risk_fig, use_container_width=True)
+                    
+                    # Tampilkan legend di bawah risk meter
+                    st.markdown(create_risk_legend(risk_info), unsafe_allow_html=True)
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
