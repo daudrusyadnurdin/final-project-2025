@@ -6,6 +6,9 @@ import requests
 import tempfile
 import os
 import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from matplotlib.patches import Circle, Wedge, Rectangle
 
 # Set page config
 st.set_page_config(
@@ -45,6 +48,12 @@ st.markdown("""
         background-color: #f8d7da;
         border: 2px solid #f5c6cb;
     }
+    .gauge-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -72,6 +81,162 @@ def load_model():
     except Exception as e:
         st.error(f"❌ Error loading model: {e}")
         return None
+
+# Fungsi untuk membuat gauge chart
+def create_gauge_chart(pred_class, pred_proba, class_mapping):
+    """Membuat gauge chart yang menarik"""
+    
+    obesity_levels = list(class_mapping.values())
+    current_level = obesity_levels[pred_class]
+    confidence = pred_proba[pred_class] * 100
+    
+    # Warna untuk setiap level
+    color_map = {
+        'Insufficient_Weight': '#4ECDC4',
+        'Normal_Weight': '#45B7D1', 
+        'Overweight_Level_I': '#FFD166',
+        'Overweight_Level_II': '#FF9F1C',
+        'Obesity_Type_I': '#FF6B6B',
+        'Obesity_Type_II': '#EE4266',
+        'Obesity_Type_III': '#C44569'
+    }
+    
+    fig = go.Figure()
+    
+    # Gauge chart
+    fig.add_trace(go.Indicator(
+        mode = "gauge+number+delta",
+        value = confidence,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        title = {'text': f"Confidence: {current_level.replace('_', ' ')}", 'font': {'size': 20}},
+        delta = {'reference': 50, 'increasing': {'color': "red"}},
+        gauge = {
+            'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkblue"},
+            'bar': {'color': color_map[current_level]},
+            'bgcolor': "white",
+            'borderwidth': 2,
+            'bordercolor': "gray",
+            'steps': [
+                {'range': [0, 20], 'color': '#e3f2fd'},
+                {'range': [20, 40], 'color': '#bbdefb'},
+                {'range': [40, 60], 'color': '#90caf9'},
+                {'range': [60, 80], 'color': '#64b5f6'},
+                {'range': [80, 100], 'color': '#42a5f5'}],
+            'threshold': {
+                'line': {'color': "red", 'width': 4},
+                'thickness': 0.75,
+                'value': 90}}))
+    
+    fig.update_layout(
+        height=300,
+        margin=dict(l=20, r=20, t=50, b=20),
+        font={'color': "darkblue", 'family': "Arial"}
+    )
+    
+    return fig
+
+# Fungsi untuk membuat radar chart
+def create_radar_chart(feature_inputs):
+    """Membuat radar chart untuk lifestyle factors"""
+    
+    categories = ['Physical Activity', 'Healthy Diet', 'Water Intake', 'Meal Frequency', 'Lifestyle Score']
+    
+    # Normalize values untuk radar chart
+    physical_activity = (feature_inputs['FAF'] / 3.0) * 100
+    healthy_diet = ((feature_inputs['FCVC'] - 1) / 2.0) * 100  # FCVC 1-3 -> 0-100
+    water_intake = ((feature_inputs['CH2O'] - 1) / 2.0) * 100  # CH2O 1-3 -> 0-100
+    meal_frequency = ((feature_inputs['NCP'] - 1) / 3.0) * 100  # NCP 1-4 -> 0-100
+    
+    # Lifestyle score (composite)
+    lifestyle_score = (physical_activity + healthy_diet + water_intake + meal_frequency) / 4
+    
+    values = [physical_activity, healthy_diet, water_intake, meal_frequency, lifestyle_score]
+    
+    fig = go.Figure()
+    
+    fig.add_trace(go.Scatterpolar(
+        r=values + [values[0]],  # Close the radar
+        theta=categories + [categories[0]],
+        fill='toself',
+        name='Lifestyle Factors',
+        line=dict(color='#1f77b4'),
+        fillcolor='rgba(31, 119, 180, 0.3)'
+    ))
+    
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100]
+            )),
+        showlegend=False,
+        height=400,
+        title="Lifestyle Factors Radar Chart"
+    )
+    
+    return fig
+
+# Fungsi untuk membuat donut chart probabilities
+def create_donut_chart(pred_proba, class_mapping):
+    """Membuat donut chart untuk probabilities"""
+    
+    obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(len(pred_proba))]
+    colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
+    
+    fig = go.Figure(data=[go.Pie(
+        labels=obesity_levels,
+        values=pred_proba,
+        hole=.5,
+        marker_colors=colors,
+        textinfo='label+percent',
+        insidetextorientation='radial'
+    )])
+    
+    fig.update_layout(
+        title="Obesity Level Probabilities",
+        height=400,
+        showlegend=False
+    )
+    
+    return fig
+
+# Fungsi untuk membuat risk meter
+def create_risk_meter(pred_class):
+    """Membuat risk meter visual"""
+    
+    risk_levels = ['Low', 'Moderate', 'High', 'Very High', 'Severe', 'Critical', 'Extreme']
+    risk_colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
+    
+    fig = go.Figure(go.Indicator(
+        mode = "number+gauge+delta",
+        value = pred_class,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        delta = {'reference': 1},
+        number = {'font': {'size': 20}},
+        gauge = {
+            'shape': "bullet",
+            'axis': {'range': [0, 6], 'tickwidth': 1},
+            'threshold': {
+                'line': {'color': "black", 'width': 2},
+                'thickness': 0.75,
+                'value': pred_class},
+            'steps': [
+                {'range': [0, 1], 'color': '#4ECDC4'},
+                {'range': [1, 2], 'color': '#45B7D1'},
+                {'range': [2, 3], 'color': '#FFD166'},
+                {'range': [3, 4], 'color': '#FF9F1C'},
+                {'range': [4, 5], 'color': '#FF6B6B'},
+                {'range': [5, 6], 'color': '#EE4266'},
+                {'range': [6, 7], 'color': '#C44569'}],
+            'bar': {'color': "black"}}))
+    
+    fig.update_layout(
+        height=200,
+        margin=dict(l=10, r=10, t=30, b=10),
+        title="Obesity Risk Level"
+    )
+    
+    return fig
 
 # Header aplikasi
 st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
@@ -120,7 +285,7 @@ if st.sidebar.button("🔄 Reset to Default"):
     reset_defaults()
     st.rerun()
 
-# Collect user inputs
+# Collect user inputs (sama seperti sebelumnya)
 feature_inputs = {}
 
 feature_inputs["Gender"] = st.sidebar.selectbox(
@@ -273,7 +438,7 @@ def correct_preprocessing(feature_dict):
         "Motorbike": "ohe__MTRANS_Motorbike", 
         "Public_Transportation": "ohe__MTRANS_Public_Transportation",
         "Walking": "ohe__MTRANS_Walking",
-        "Automobile": "ohe__MTRANS_Automobile"  # Note: Automobile tidak ada dalam expected features
+        "Automobile": "ohe__MTRANS_Automobile"
     }
     
     # Reset semua MTRANS features ke 0
@@ -286,11 +451,6 @@ def correct_preprocessing(feature_dict):
         feature_name = mtrans_mapping[feature_dict["MTRANS"]]
         if feature_name in processed_data:
             processed_data[feature_name] = 1.0
-    
-    # Handle Automobile (baseline category)
-    if feature_dict["MTRANS"] == "Automobile":
-        # Semua one-hot encoding untuk MTRANS tetap 0 (baseline)
-        pass
     
     # Set numerical features
     processed_data["remainder__Age"] = float(feature_dict["Age"])
@@ -316,7 +476,7 @@ def correct_preprocessing(feature_dict):
     return input_df
 
 # Main content area
-tab1, tab2 = st.tabs(["📊 Prediction", "ℹ️ About"])
+tab1, tab2 = st.tabs(["🎯 Prediction Dashboard", "ℹ️ About"])
 
 with tab1:
     st.header("📈 Prediction Results")
@@ -401,14 +561,36 @@ with tab1:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                st.subheader("📊 Prediction Probabilities")
+                # VISUALISASI BARU - Dashboard dengan berbagai chart
+                st.subheader("📊 Advanced Visualization Dashboard")
                 
-                # Create probability chart
+                # Row 1: Gauge Chart dan Risk Meter
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.plotly_chart(create_gauge_chart(pred_class, pred_proba, class_mapping), 
+                                  use_container_width=True)
+                
+                with col2:
+                    st.plotly_chart(create_risk_meter(pred_class), 
+                                  use_container_width=True)
+                
+                # Row 2: Donut Chart dan Radar Chart
+                col3, col4 = st.columns(2)
+                
+                with col3:
+                    st.plotly_chart(create_donut_chart(pred_proba, class_mapping), 
+                                  use_container_width=True)
+                
+                with col4:
+                    st.plotly_chart(create_radar_chart(feature_inputs), 
+                                  use_container_width=True)
+                
+                # Row 3: Traditional Bar Chart (sebagai backup)
+                st.subheader("📈 Probability Distribution")
                 obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(len(pred_proba))]
                 
-                fig, ax = plt.subplots(figsize=(10, 6))
-                
-                # Colors based on obesity level
+                fig, ax = plt.subplots(figsize=(12, 6))
                 colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
                 bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
                 
@@ -425,26 +607,12 @@ with tab1:
                 # Add value labels on bars
                 for i, bar in enumerate(bars):
                     height = bar.get_height()
-                    if height > 0.01:  # Only show label if probability > 1%
+                    if height > 0.01:
                         ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
                                f'{height:.3f}', ha='center', va='bottom', fontweight='bold')
                 
                 plt.tight_layout()
                 st.pyplot(fig)
-                
-                # Probability table
-                prob_df = pd.DataFrame({
-                    'Obesity Level': obesity_levels,
-                    'Probability': [f"{p:.4f}" for p in pred_proba]
-                })
-                
-                # Highlight the predicted row
-                def highlight_row(row):
-                    if row.name == pred_class:
-                        return ['background-color: #ffffcc'] * len(row)
-                    return [''] * len(row)
-                
-                st.dataframe(prob_df.style.apply(highlight_row, axis=1), use_container_width=True)
                 
                 # Health recommendations
                 st.subheader("💡 Health Recommendations")
