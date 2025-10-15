@@ -233,47 +233,87 @@ feature_inputs["SMOKE"] = st.sidebar.selectbox(
 for k, v in feature_inputs.items():
     st.session_state[k] = v
 
-# Fungsi preprocessing yang lebih sederhana dan robust
-def simple_preprocessing(feature_dict):
-    """Preprocessing sederhana yang sesuai dengan model"""
+# Fungsi preprocessing yang sesuai dengan expected features model
+def correct_preprocessing(feature_dict):
+    """Preprocessing yang sesuai dengan expected features model"""
     
-    # Mapping categorical to numerical
-    categorical_mapping = {
-        'Gender': {'Female': 0, 'Male': 1},
-        'FHWO': {'no': 0, 'yes': 1},
-        'FAVC': {'no': 0, 'yes': 1},
-        'CAEC': {'no': 0, 'Sometimes': 1, 'Frequently': 2, 'Always': 3},
-        'SMOKE': {'no': 0, 'yes': 1},
-        'SCC': {'no': 0, 'yes': 1},
-        'CALC': {'no': 0, 'Sometimes': 1, 'Frequently': 2, 'Always': 3},
-        'MTRANS': {
-            'Public_Transportation': 0,
-            'Walking': 1, 
-            'Automobile': 2,
-            'Motorbike': 3,
-            'Bike': 4
-        }
+    # Mapping categorical to numerical untuk remainder features
+    categorical_to_numerical = {
+        "FHWO": {"no": 0, "yes": 1},
+        "FAVC": {"no": 0, "yes": 1},
+        "CAEC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3},
+        "SMOKE": {"no": 0, "yes": 1},
+        "SCC": {"no": 0, "yes": 1},
+        "CALC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3}
     }
     
-    # Process features
-    processed = {}
+    # Create DataFrame dengan expected features
+    expected_features = [
+        'ohe__Gender_Male', 'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
+        'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking', 
+        'remainder__Age', 'remainder__Height', 'remainder__Weight', 
+        'remainder__FHWO', 'remainder__FAVC', 'remainder__FCVC', 
+        'remainder__NCP', 'remainder__CAEC', 'remainder__SMOKE', 
+        'remainder__CH2O', 'remainder__SCC', 'remainder__FAF', 
+        'remainder__TUE', 'remainder__CALC'
+    ]
     
-    # Numerical features langsung
-    numerical_features = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'FAF', 'TUE']
-    for feature in numerical_features:
-        processed[feature] = feature_dict[feature]
+    # Initialize semua features dengan 0
+    processed_data = {feature: 0.0 for feature in expected_features}
     
-    # Categorical features mapping
-    for feature, mapping in categorical_mapping.items():
-        processed[feature] = mapping[feature_dict[feature]]
+    # Set one-hot encoding untuk Gender
+    if feature_dict["Gender"] == "Male":
+        processed_data["ohe__Gender_Male"] = 1.0
+    else:
+        processed_data["ohe__Gender_Male"] = 0.0
     
-    # Create DataFrame dengan urutan yang konsisten
-    feature_order = ['Gender', 'Age', 'Height', 'Weight', 'FHWO', 'FAVC', 'FCVC', 
-                    'NCP', 'CAEC', 'SMOKE', 'CH2O', 'SCC', 'FAF', 'TUE', 'CALC', 'MTRANS']
+    # Set one-hot encoding untuk MTRANS
+    mtrans_mapping = {
+        "Bike": "ohe__MTRANS_Bike",
+        "Motorbike": "ohe__MTRANS_Motorbike", 
+        "Public_Transportation": "ohe__MTRANS_Public_Transportation",
+        "Walking": "ohe__MTRANS_Walking",
+        "Automobile": "ohe__MTRANS_Automobile"  # Note: Automobile tidak ada dalam expected features
+    }
     
-    input_array = np.array([[processed[feature] for feature in feature_order]])
+    # Reset semua MTRANS features ke 0
+    for feature in ['ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
+                   'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking']:
+        processed_data[feature] = 0.0
     
-    return input_array, feature_order
+    # Set yang aktif berdasarkan pilihan
+    if feature_dict["MTRANS"] in mtrans_mapping:
+        feature_name = mtrans_mapping[feature_dict["MTRANS"]]
+        if feature_name in processed_data:
+            processed_data[feature_name] = 1.0
+    
+    # Handle Automobile (baseline category)
+    if feature_dict["MTRANS"] == "Automobile":
+        # Semua one-hot encoding untuk MTRANS tetap 0 (baseline)
+        pass
+    
+    # Set numerical features
+    processed_data["remainder__Age"] = float(feature_dict["Age"])
+    processed_data["remainder__Height"] = float(feature_dict["Height"])
+    processed_data["remainder__Weight"] = float(feature_dict["Weight"])
+    processed_data["remainder__FCVC"] = float(feature_dict["FCVC"])
+    processed_data["remainder__NCP"] = float(feature_dict["NCP"])
+    processed_data["remainder__CH2O"] = float(feature_dict["CH2O"])
+    processed_data["remainder__FAF"] = float(feature_dict["FAF"])
+    processed_data["remainder__TUE"] = float(feature_dict["TUE"])
+    
+    # Set encoded categorical features
+    processed_data["remainder__FHWO"] = categorical_to_numerical["FHWO"][feature_dict["FHWO"]]
+    processed_data["remainder__FAVC"] = categorical_to_numerical["FAVC"][feature_dict["FAVC"]]
+    processed_data["remainder__CAEC"] = categorical_to_numerical["CAEC"][feature_dict["CAEC"]]
+    processed_data["remainder__SMOKE"] = categorical_to_numerical["SMOKE"][feature_dict["SMOKE"]]
+    processed_data["remainder__SCC"] = categorical_to_numerical["SCC"][feature_dict["SCC"]]
+    processed_data["remainder__CALC"] = categorical_to_numerical["CALC"][feature_dict["CALC"]]
+    
+    # Create DataFrame dengan urutan yang tepat
+    input_df = pd.DataFrame([processed_data])[expected_features]
+    
+    return input_df
 
 # Main content area
 tab1, tab2 = st.tabs(["📊 Prediction", "ℹ️ About"])
@@ -301,27 +341,29 @@ with tab1:
     
     with col2:
         st.subheader("Preprocessed Features")
-        input_array, feature_order = simple_preprocessing(feature_inputs)
-        preprocessed_df = pd.DataFrame(input_array, columns=feature_order)
-        st.dataframe(preprocessed_df, use_container_width=True)
+        input_df = correct_preprocessing(feature_inputs)
+        st.dataframe(input_df.T.rename(columns={0: "Value"}), use_container_width=True)
     
     # Prediction button
     if st.button("🎯 Predict Obesity Level", type="primary", use_container_width=True):
         with st.spinner("Analyzing features and making prediction..."):
             try:
                 # Convert to DMatrix untuk XGBoost
-                dmatrix = xgb.DMatrix(input_array)
+                dmatrix = xgb.DMatrix(input_df)
                 
                 # Make prediction
                 prediction = model.predict(dmatrix)
                 
                 # Untuk multiclass, ambil class dengan probability tertinggi
-                if len(prediction.shape) > 1:
+                if len(prediction.shape) > 1 and prediction.shape[1] > 1:
                     pred_proba = prediction[0]
                     pred_class = np.argmax(pred_proba)
                 else:
+                    # Jika binary classification atau regression
                     pred_class = int(prediction[0])
-                    pred_proba = [1.0 if i == pred_class else 0.0 for i in range(7)]
+                    # Buat probability array dummy
+                    pred_proba = np.zeros(7)
+                    pred_proba[pred_class] = 1.0
                 
                 class_mapping = {
                     0: "Insufficient_Weight",
@@ -362,7 +404,7 @@ with tab1:
                 st.subheader("📊 Prediction Probabilities")
                 
                 # Create probability chart
-                obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(7)]
+                obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(len(pred_proba))]
                 
                 fig, ax = plt.subplots(figsize=(10, 6))
                 
@@ -371,9 +413,10 @@ with tab1:
                 bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
                 
                 # Highlight predicted class
-                bars[pred_class].set_edgecolor('black')
-                bars[pred_class].set_linewidth(3)
-                bars[pred_class].set_alpha(1.0)
+                if pred_class < len(bars):
+                    bars[pred_class].set_edgecolor('black')
+                    bars[pred_class].set_linewidth(3)
+                    bars[pred_class].set_alpha(1.0)
                 
                 ax.set_ylabel('Probability')
                 ax.set_title('Obesity Level Probabilities')
@@ -451,7 +494,8 @@ with tab1:
                     ]
                 }
                 
-                for rec in recommendations.get(class_mapping[pred_class], []):
+                rec_key = class_mapping[pred_class]
+                for rec in recommendations.get(rec_key, []):
                     st.write(f"• {rec}")
                 
             except Exception as e:
