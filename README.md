@@ -1,9 +1,6 @@
 # Final Project 2025: Obesity Level Prediction
 Here are all files of my final project at DA/DS bootcamp class batch 34 at [dibimbing.id](https://dibimbing.id/).
-Please click, here is [my streamlit work](https://final-project-2025-obesity-level-prediction.streamlit.app/), has been deployed on streamlit cloud.
-
-If you have any questions (about streamlit), checkout the following addresses: [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).<br><br>
+Please click, here is [my streamlit data science final project work](https://final-project-2025-obesity-level-prediction.streamlit.app/), has been deployed on streamlit cloud.
 
 ## NOTES:
 Below are my notes when developing application at streamlit.
@@ -18,3 +15,7 @@ Below are my notes when developing application at streamlit.
 - To deploy streamlit's work, create a **runtime.txt** in the root of the github repository and fill it with **python-3.11** or another stable version.
 
 - Don't forget to include all the libraries imported in the Python program that we created in the **requirements.txt** file.
+
+<br><br>
+If you have any questions (about streamlit), checkout the following addresses: [documentation](https://docs.streamlit.io) and [community
+forums](https://discuss.streamlit.io).
