@@ -1,6 +1,6 @@
 # Final Project 2025: Student Performance Analysis
 Here are all files of my final project at DA/DS bootcamp class batch 34 at [dibimbing.id](https://dibimbing.id/).
-Please click, here is [my streamlit work](https://telco-customer-churn-analysis-2025.streamlit.app/), has been deployed on streamlit cloud.
+Please click, here is [my streamlit work](https://final-project-2025-obesity-level-prediction.streamlit.app/), has been deployed on streamlit cloud.
 
 If you have any questions (about streamlit), checkout the following addresses: [documentation](https://docs.streamlit.io) and [community
 forums](https://discuss.streamlit.io).<br><br>
@@ -13,7 +13,7 @@ Below are my notes when developing application at streamlit.
 
   **$ streamlit run streamlit_app.py --server.enableCORS false --server.enableXsrfProtection false**
 
-- Before deploying your job, it's a good idea to give it a meaningful name in **streamlit.io**. For example, in this task, I named it **[final-project-2025-students-performance-analysis.streamlit.app](https://final-project-2025-students-performance-analysis.streamlit.app/)**. **streamlit.app** is the default streamlit name.
+- Before deploying your job, it's a good idea to give it a meaningful name in **streamlit.io**. For example, in this task, I named it **[final-project-2025-obesity-level-prediction.streamlit.app](https://final-project-2025-obesity-level-prediction.streamlit.app/)**. **streamlit.app** is the default streamlit name.
 
 - To deploy streamlit's work, create a **runtime.txt** in the root of the github repository and fill it with **python-3.11** or another stable version.
 
