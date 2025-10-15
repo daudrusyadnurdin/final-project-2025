@@ -8,7 +8,6 @@ import os
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from matplotlib.patches import Circle, Wedge, Rectangle
 
 # Set page config
 st.set_page_config(
@@ -48,29 +47,13 @@ st.markdown("""
         background-color: #f8d7da;
         border: 2px solid #f5c6cb;
     }
-    .gauge-container {
+    .risk-legend-item {
         background: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .risk-legend {
-        background: white;
-        border-radius: 10px;
-        padding: 15px;
-        margin: 10px 0;
-        border: 1px solid #ddd;
-    }
-    .legend-item {
-        display: flex;
-        align-items: center;
+        padding: 10px;
         margin: 5px 0;
-    }
-    .legend-color {
-        width: 20px;
-        height: 20px;
-        margin-right: 10px;
-        border-radius: 3px;
+        border-radius: 5px;
+        border-left: 5px solid;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -218,9 +201,9 @@ def create_donut_chart(pred_proba, class_mapping):
     
     return fig
 
-# Fungsi untuk membuat risk meter dengan legend
+# Fungsi untuk membuat risk meter dengan legend terintegrasi
 def create_risk_meter_with_legend(pred_class):
-    """Membuat risk meter visual dengan legend terpisah"""
+    """Membuat risk meter visual dengan legend"""
     
     risk_info = [
         {'level': 0, 'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
@@ -234,7 +217,6 @@ def create_risk_meter_with_legend(pred_class):
     
     current_risk = risk_info[pred_class]
     
-    # Create risk meter
     fig = go.Figure(go.Indicator(
         mode = "number+gauge+delta",
         value = pred_class,
@@ -263,35 +245,52 @@ def create_risk_meter_with_legend(pred_class):
             'bar': {'color': "black", 'thickness': 0.8}}))
     
     fig.update_layout(
-        height=200,
-        margin=dict(l=10, r=10, t=50, b=10),
+        height=250,
+        margin=dict(l=10, r=10, t=60, b=10),
         title=f"Obesity Risk Level: {current_risk['description']}"
     )
     
     return fig, risk_info
 
-# Fungsi untuk membuat legend
-def create_risk_legend(risk_info):
-    """Membuat legend untuk risk meter"""
+# Fungsi untuk menampilkan risk legend yang aman
+def display_risk_legend_safe(risk_info):
+    """Menampilkan legend menggunakan Streamlit native yang aman"""
     
-    legend_html = """
-    <div class="risk-legend">
-        <h4>🟰 Risk Level Legend</h4>
-    """
+    st.markdown("### 📊 Risk Level Guide")
     
-    for risk in risk_info:
-        legend_html += f"""
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: {risk['color']};"></div>
-            <div>
-                <strong>Level {risk['level']}: {risk['label']}</strong><br>
-                <small>{risk['description']}</small>
-            </div>
-        </div>
-        """
+    # Buat columns untuk layout yang rapi
+    cols = st.columns(2)
     
-    legend_html += "</div>"
-    return legend_html
+    for i, risk in enumerate(risk_info):
+        with cols[i % 2]:  # Alternatif antara 2 columns
+            # Gunakan container dengan border color
+            st.markdown(
+                f"""
+                <div style='
+                    background-color: {risk['color']}15; 
+                    padding: 12px; 
+                    border-radius: 8px; 
+                    border-left: 5px solid {risk['color']};
+                    margin: 5px 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                '>
+                    <div style='display: flex; align-items: center; margin-bottom: 5px;'>
+                        <div style='
+                            width: 20px; 
+                            height: 20px; 
+                            background-color: {risk['color']}; 
+                            border-radius: 50%; 
+                            margin-right: 10px;
+                        '></div>
+                        <strong style='font-size: 16px;'>Level {risk['level']}: {risk['label']}</strong>
+                    </div>
+                    <div style='color: #666; font-size: 14px; padding-left: 30px;'>
+                        {risk['description']}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 # Header aplikasi
 st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
@@ -616,10 +615,10 @@ with tab1:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # VISUALISASI BARU - Dashboard dengan berbagai chart
+                # VISUALISASI - Dashboard dengan berbagai chart
                 st.subheader("📊 Advanced Visualization Dashboard")
                 
-                # Row 1: Gauge Chart dan Risk Meter dengan Legend
+                # Row 1: Gauge Chart dan Risk Meter
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -632,7 +631,7 @@ with tab1:
                     st.plotly_chart(risk_fig, use_container_width=True)
                     
                     # Tampilkan legend di bawah risk meter
-                    st.markdown(create_risk_legend(risk_info), unsafe_allow_html=True)
+                    display_risk_legend_safe(risk_info)
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
@@ -645,7 +644,7 @@ with tab1:
                     st.plotly_chart(create_radar_chart(feature_inputs), 
                                   use_container_width=True)
                 
-                # Row 3: Traditional Bar Chart (sebagai backup)
+                # Row 3: Traditional Bar Chart
                 st.subheader("📈 Probability Distribution")
                 obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(len(pred_proba))]
                 
@@ -754,6 +753,13 @@ with tab2:
     - **Model**: XGBoost Classifier
     - **Training Data**: Obesity dataset with multiple lifestyle factors
     - **Accuracy**: High predictive performance for obesity classification
+    
+    #### 📊 How to Read the Charts:
+    - **Gauge Chart**: Shows model confidence in the prediction (0-100%)
+    - **Risk Meter**: Visual representation of obesity risk level (0-6)
+    - **Donut Chart**: Probability distribution across all obesity levels
+    - **Radar Chart**: Analysis of lifestyle factors and habits
+    - **Bar Chart**: Detailed probability breakdown for each obesity level
     """)
 
 # Test examples
