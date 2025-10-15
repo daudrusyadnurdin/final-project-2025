@@ -1,9 +1,6 @@
 streamlit
 pandas
 xgboost
-shap
-matplotlib.pyplot
-requests
-tempfile
-os
+matplotlib
 numpy
+requests
