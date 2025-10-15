@@ -2,7 +2,7 @@ streamlit
 pandas
 xgboost
 shap
-matplotlib
+matplotlib.pyplot
 requests
 tempfile
 os
