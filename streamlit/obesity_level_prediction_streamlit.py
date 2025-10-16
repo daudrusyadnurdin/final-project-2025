@@ -556,7 +556,19 @@ def create_performance_metrics():
 
 # Header aplikasi
 st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
-st.markdown("Predict obesity levels based on lifestyle and physical attributes using Machine Learning")
+
+st.markdown("""
+<style>
+    .centered-text {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<p class="centered-text">Predict obesity levels based on lifestyle and physical attributes using Machine Learning</p>'
+            , unsafe_allow_html=True)
 
 # Load model
 model = load_model()
@@ -604,16 +616,16 @@ if st.sidebar.button("🔄 Reset to Default"):
 # --------------------
 # Collect user inputs
 # --------------------
-'''
-    Age: min = 14.0, max = 61.0
-    Height: min = 1.45, max = 1.98
-    Weight: min = 39.0, max = 173.0
-    FCVC: min = 1.0, max = 3.0
-    NCP: min = 1.0, max = 4.0
-    CH2O: min = 1.0, max = 3.0
-    FAF: min = 0.0, max = 3.0
-    TUE: min = 0.0, max = 2.0
-'''
+
+#    Age: min = 14.0, max = 61.0
+#    Height: min = 1.45, max = 1.98
+#    Weight: min = 39.0, max = 173.0
+#    FCVC: min = 1.0, max = 3.0
+#    NCP: min = 1.0, max = 4.0
+#    CH2O: min = 1.0, max = 3.0
+#    FAF: min = 0.0, max = 3.0
+#    TUE: min = 0.0, max = 2.0
+
 feature_inputs = {} # Initial state
 
 feature_inputs["Gender"] = st.sidebar.selectbox(
