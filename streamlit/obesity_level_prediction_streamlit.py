@@ -1139,7 +1139,7 @@ with tab1:
                 # ----------------------------------
                 # Row 2: Donut Chart dan Radar Chart
                 # ----------------------------------
-                st.markdown("### 🧬 Obesity Level Probabilities")
+                st.markdown("### 📊 Obesity Level Probabilities")
                 
                 col3, col4 = st.columns(2)
                 
@@ -1148,6 +1148,8 @@ with tab1:
                                   use_container_width=True)
                 with col4:
                     # Langsung definisikan obesity_levels
+                    #import plotly.graph_objects as go
+
                     obesity_levels = [
                         'Insufficient Weight',
                         'Normal Weight', 
@@ -1157,39 +1159,47 @@ with tab1:
                         'Obesity Type II', 
                         'Obesity Type III'
                     ]
-                    
-                    # Pastikan pred_proba punya 7 elements
+
                     if len(pred_proba) == 7:
-                        fig, ax = plt.subplots(figsize=(16, 8))
-                        sns.set_style("whitegrid")
-                    
                         colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
-                        bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
-                    
-                        if pred_class < len(bars):
-                            bars[pred_class].set_edgecolor('black')
-                            bars[pred_class].set_linewidth(3)
-                    
-                        sns.despine(right=True, top=True)
-                    
-                        ax.set_ylabel('Probability')
-                        #ax.set_title('Obesity Level Probabilities')
-                        ax.tick_params(axis='x', rotation=45)
-                    
-                        for i, bar in enumerate(bars):
-                            height = bar.get_height()
-                            if height > 0.01:
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f'{height:.3f}', ha='center', va='bottom')
-                    
-                        plt.tight_layout()
-                        st.pyplot(fig)
+                        
+                        # 🔥 BUAT BAR CHART DENGAN PLOTLY - Lebih responsive
+                        fig = go.Figure()
+                        
+                        for i, (level, prob, color) in enumerate(zip(obesity_levels, pred_proba, colors)):
+                            fig.add_trace(go.Bar(
+                                x=[level],
+                                y=[prob],
+                                name=level,
+                                marker_color=color,
+                                opacity=0.8,
+                                hovertemplate=f'<b>{level}</b><br>Probability: {prob:.3f}<extra></extra>'
+                            ))
+                        
+                        # Highlight predicted class
+                        if pred_class < len(pred_proba):
+                            fig.data[pred_class].marker.line.color = 'black'
+                            fig.data[pred_class].marker.line.width = 3
+                            fig.data[pred_class].opacity = 1.0
+                        
+                        fig.update_layout(
+                            title="📊 Obesity Level Probabilities",
+                            xaxis_title="Obesity Levels",
+                            yaxis_title="Probability",
+                            showlegend=False,
+                            height=500,  # 🔥 Tinggi optimal
+                            margin=dict(t=50, l=50, r=50, b=100),  # 🔥 Margin untuk label panjang
+                            xaxis=dict(tickangle=45)
+                        )
+                        
+                        st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.error(f"Expected 7 probability values, got {len(pred_proba)}")
                 
                 # -----------------------
                 # Health recommendations
                 # -----------------------
+                st.markdown("---")
                 st.subheader("💡 Health Recommendations")
                 
                 recommendations = {
@@ -1239,7 +1249,7 @@ with tab1:
                 
                 rec_key = class_mapping[pred_class]
                 for rec in recommendations.get(rec_key, []):
-                    st.write(f"• {rec}")
+                    st.write(f"     ✅ {rec}")
                 
             except Exception as e:
                 st.error(f"❌ Prediction error: {str(e)}")
