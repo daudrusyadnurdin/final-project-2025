@@ -209,34 +209,25 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
     return fig
 
 def create_radar_chart(feature_inputs):
-    try:
-        st.write("🔍 Debug: Feature inputs received:", feature_inputs)
-        
-        # Basic radar chart dulu
-        categories = ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4', 'Feature 5']
-        values = [3, 4, 2, 5, 3]
-        
-        fig = go.Figure(data=go.Scatterpolar(
-            r=values,
-            theta=categories,
-            fill='toself'
-        ))
-        
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=True, range=[0, 5])
-            ),
-            showlegend=False,
-            title="Simple Radar Chart"
+    # Contoh sederhana
+    fig = go.Figure(go.Scatterpolar(
+        r=[3, 4, 2, 5, 3],
+        theta=['A', 'B', 'C', 'D', 'E'],
+        fill='toself'
+    ))
+    
+    fig.update_layout(
+        title=dict(
+            text="📊 TEST BIG TITLE",  # 🔥
+            x=0.5,
+            font=dict(size=26, color='red', weight='bold')  # 🔥 WARNA MERAH BIAR KELIHATAN
+        ),
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 5])
         )
-        
-        st.success("✅ Radar chart created successfully!")
-        return fig
-        
-    except Exception as e:
-        st.error(f"❌ Error in create_radar_chart: {str(e)}")
-        # Return very simple figure as fallback
-        return go.Figure()
+    )
+    
+    return fig
 
 
 def create_donut_chart(pred_proba, class_mapping):
@@ -1311,6 +1302,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
