@@ -814,7 +814,7 @@ def correct_preprocessing(feature_dict):
 tab1, tab2, tab3, tab4 = st.tabs(["🎯 Prediction", "📊 Model Performance", "🔍 Health Analysis", "ℹ️ About"])
 
 with tab1:
-    st.header("📈 Prediction Results")
+    #st.header("📈 Prediction Results")
     
     col1, col2 = st.columns(2)
     
@@ -823,13 +823,15 @@ with tab1:
         
         # Personal Information
         st.markdown("**Personal Information:**")
-        col_a, col_b, col_c = st.columns(3)
+        col_a, col_b, col_c, col_d = st.columns(4)
         with col_a:
             st.metric("Gender", feature_inputs["Gender"])
         with col_b:
-            st.metric("Age", f"{feature_inputs['Age']} years")
+            st.metric("Age", f"{feature_inputs['Age']} y.o.")
         with col_c:
-            st.metric("BMI", f"{bmi:.1f}")
+            st.metric("Height", f"{feature_inputs["Height"]} cm")
+        with col_d:
+            st.metric("Weight", f"{feature_inputs["Weight"]} kg")
         
         # Lifestyle Factors
         st.markdown("**Lifestyle Factors:**")
