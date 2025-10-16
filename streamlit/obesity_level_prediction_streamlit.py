@@ -557,18 +557,12 @@ def create_performance_metrics():
 # Header aplikasi
 st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-    .centered-text {
-        text-align: center;
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown('<p class="centered-text">Predict obesity levels based on lifestyle and physical attributes using Machine Learning</p>'
-            , unsafe_allow_html=True)
+st.markdown(
+    '<h2 style="text-align: center; color: #1f77b4; margin-bottom: 2rem;">'
+    'Predict obesity levels based on lifestyle and physical attributes using Machine Learning'
+    '</h2>', 
+    unsafe_allow_html=True
+)
 
 # Load model
 model = load_model()
