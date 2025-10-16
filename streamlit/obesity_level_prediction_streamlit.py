@@ -297,6 +297,7 @@ def create_health_radar(feature_inputs):
     categories = [
         'Smoking (SMOKE)',
         'Alcohol (CALC)'
+        'Family History (FHWO)'
     ]
     
     values = [
@@ -305,6 +306,9 @@ def create_health_radar(feature_inputs):
         
         # CALC: Lower is better (0-3 → 0-5, reversed)
         (1 - (safe_float_convert(feature_inputs.get('CALC', 'no')) / 3)) * 5
+        
+        # FHWO: Lower is better (binary, reversed)
+        (1 - safe_float_convert(feature_inputs.get('FHWO', 'no'))) * 5,
     ]
     
     fig = go.Figure(go.Scatterpolar(
