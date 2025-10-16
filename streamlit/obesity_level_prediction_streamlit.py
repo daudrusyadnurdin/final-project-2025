@@ -554,6 +554,10 @@ def create_performance_metrics():
 # MAIN APPLICATION
 # ============================
 
+# Gambar header dari GitHub (RAW URL)
+header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/ebolution.png"
+st.image(header_image_url, use_container_width=True)
+
 # Header aplikasi
 st.markdown('<h1 class="main-header">🏥 Obesity Level Prediction App</h1>', unsafe_allow_html=True)
 
