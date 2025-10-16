@@ -730,7 +730,7 @@ feature_inputs["Weight"] = st.sidebar.slider(
 )
 
 # Calculate BMI
-#bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
+bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
 #st.sidebar.metric("BMI", f"{bmi:.1f}")
 
 feature_inputs["FCVC"] = st.sidebar.slider(
@@ -1434,5 +1434,6 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
