@@ -554,11 +554,8 @@ def create_performance_metrics():
 # MAIN APPLICATION
 # ============================
 
-# Gambar header dari GitHub (RAW URL)
-test_url = "https://streamlit.io/images/brand/streamlit-mark-color.png"
-st.image(test_url, use_container_width=True, caption="Test Image - Jika ini muncul, masalah di URL Anda")
-
-header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/ebolution.png"
+#Banner
+header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/Obelution.png"
 st.image(header_image_url, use_container_width=True)
 
 # Header aplikasi
