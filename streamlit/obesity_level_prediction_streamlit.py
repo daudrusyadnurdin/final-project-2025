@@ -1158,8 +1158,8 @@ with tab1:
                     st.plotly_chart(risk_fig, use_container_width=True)
                     #TEST display_risk_legend_safe(risk_info)
                     #display_color_bar_legend(risk_info)
-                    display_horizontal_scroll_legend
-                    #display_ml_model_legend
+                    #display_horizontal_scroll_legend
+                    display_ml_model_legend
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
@@ -1461,6 +1461,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
