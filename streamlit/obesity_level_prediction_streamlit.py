@@ -1248,11 +1248,12 @@ with tab1:
                 }
 
                 rec_key = class_mapping[pred_class]
+                rec_list = recommendations.get(rec_key, [])
 
-                st.markdown("<div style='margin-left: 40px;'>", unsafe_allow_html=True)
-                for rec in recommendations.get(rec_key, []):
-                    st.markdown(f"✅ {rec}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                # Build HTML sekaligus biar clean
+                recommendations_html = "".join([f'<div style="margin-left: 30px; margin-bottom: 8px;">✅ {rec}</div>' for rec in rec_list])
+
+                st.markdown(f'<div>{recommendations_html}</div>', unsafe_allow_html=True)
                 
             except Exception as e:
                 st.error(f"❌ Prediction error: {str(e)}")
