@@ -558,9 +558,9 @@ def create_performance_metrics():
 st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
 
 st.markdown(
-    '<h2 style="text-align: center; color: #1f77b4; margin-bottom: 2rem;">'
+    '<h3 style="text-align: center; color: #1f77b4; margin-bottom: 2rem;">'
     'Predict obesity levels based on lifestyle and physical attributes using Machine Learning'
-    '</h2>', 
+    '</h3>', 
     unsafe_allow_html=True
 )
 
