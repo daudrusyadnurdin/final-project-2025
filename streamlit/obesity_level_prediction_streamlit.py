@@ -854,12 +854,12 @@ with tab1:
         
         col_d, col_e = st.columns(2)
         with col_d:
-            st.write(f"**Physical Activity**: {feature_inputs['FAF']}/3")
-            st.write(f"**Vegetable Intake**: {feature_inputs['FCVC']}/3")
-            st.write(f"**Water Consumption**: {feature_inputs['CH2O']}/3")
+            st.write(f"**Physical Activity**: {feature_inputs['FAF']}/3.0")
+            st.write(f"**Vegetable Intake**: {feature_inputs['FCVC']}/3.0")
+            st.write(f"**Water Consumption**: {feature_inputs['CH2O']}/3.0")
         with col_e:
             st.write(f"**Meals per Day**: {feature_inputs['NCP']}")
-            st.write(f"**Screen Time**: {feature_inputs['TUE']}/2")
+            st.write(f"**Screen Time**: {feature_inputs['TUE']}/2.0")
             st.write(f"**High-Calorie Food**: {feature_inputs['FAVC']}")
         
         # Health Indicators
@@ -1311,5 +1311,6 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
