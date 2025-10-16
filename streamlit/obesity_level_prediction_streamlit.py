@@ -1,3 +1,21 @@
+'''
+    This application program is dedicated to study purposes during 
+    the Data Analytics/Data Science bootcamp batch 34 at Dibimbing.id. 
+    This program was created as a final project as one of the graduation requirements.
+
+    The program's objective: to predict obesity levels (7 levels) using 
+    a trained machine learning model that has been tested and is the best.
+    With this program, learners are expected to see how the model 
+    would be implemented in a web-based application, such as Streamlit.
+
+    Input: all features provided in the data.
+    Output: The model's predicted obesity levels.
+
+    (c) daudrusyadnurdin@gmail.com, 2025-10
+'''
+# -------------------------------
+# Library used
+# -------------------------------
 import streamlit as st
 import pandas as pd
 import xgboost as xgb
@@ -9,14 +27,18 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 
+# -------------------------------------------
 # Set page config
+# -------------------------------------------
 st.set_page_config(
-    page_title="Obesity Risk Prediction", 
+    page_title="Obesity Risk Prediction App", 
     layout="wide",
     page_icon="🏥"
 )
 
+# -------------------------------------------
 # Custom CSS untuk styling
+# -------------------------------------------
 st.markdown("""
 <style>
     .main-header {
@@ -62,7 +84,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ------------------------------------------------
 # Load model dengan error handling yang lebih baik
+# ------------------------------------------------
 @st.cache_resource
 def load_model():
     url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
@@ -87,10 +111,9 @@ def load_model():
         st.error(f"❌ Error loading model: {e}")
         return None
 
-# ============================
-# FUNGSI-FUNGSI UTAMA
-# ============================
-
+# ----------------------------
+# Main functions defined
+# ----------------------------
 def calculate_health_score(feature_inputs):
     """Calculate a simple health score based on user input"""
     
@@ -578,8 +601,20 @@ if st.sidebar.button("🔄 Reset to Default"):
     reset_defaults()
     st.rerun()
 
+# --------------------
 # Collect user inputs
-feature_inputs = {}
+# --------------------
+'''
+    Age: min = 14.0, max = 61.0
+    Height: min = 1.45, max = 1.98
+    Weight: min = 39.0, max = 173.0
+    FCVC: min = 1.0, max = 3.0
+    NCP: min = 1.0, max = 4.0
+    CH2O: min = 1.0, max = 3.0
+    FAF: min = 0.0, max = 3.0
+    TUE: min = 0.0, max = 2.0
+'''
+feature_inputs = {} # Initial state
 
 feature_inputs["Gender"] = st.sidebar.selectbox(
     "Gender", ["Male", "Female"],
@@ -937,7 +972,7 @@ with tab1:
                 with col2:
                     risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
                     st.plotly_chart(risk_fig, use_container_width=True)
-                    display_risk_legend_safe(risk_info)
+                    #TEST display_risk_legend_safe(risk_info)
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
