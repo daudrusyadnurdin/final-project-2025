@@ -225,98 +225,100 @@ def safe_float_convert(value, default=0):
     except (ValueError, TypeError):
         return float(default)
 
-def create_radar_chart(feature_inputs):
-    try:
-        categories = [
-            'Physical Activity (FAF)',
-            'Tech Usage (TUE)', 
-            'Water Intake (CH2O)',
-            'High-Calorie Food (FAVC)',
-            'Vegetable Consumption (FCVC)',
-            'Meal Frequency (NCP)',
-            'Smoking (SMOKE)',
-            'Alcohol (CALC)'
-        ]
+def create_dietary_radar(feature_inputs):
+    """Radar chart khusus Dietary Habits"""
+    categories = [
+        'Vegetable Consumption (FCVC)',
+        'Meal Frequency (NCP)', 
+        'High-Calorie Food (FAVC)'
+    ]
+    
+    values = [
+        # FCVC: Higher is better (1-3 → 0-5)
+        ((safe_float_convert(feature_inputs.get('FCVC', 2)) - 1) / 2) * 5,
         
-        # PAKAI SAFE CONVERSION DENGAN HANDLING YES/NO
-        values = [
-            # FAF: Continuous 0-3
-            (safe_float_convert(feature_inputs.get('FAF', 1.5)) / 3) * 5,
-            
-            # TUE: Integer 0-2
-            (safe_float_convert(feature_inputs.get('TUE', 1)) / 2) * 5,
-            
-            # CH2O: Continuous 1-3
-            ((safe_float_convert(feature_inputs.get('CH2O', 2)) - 1) / 2) * 5,
-            
-            # FAVC: Binary (yes/no) → Convert to 1/0
-            safe_float_convert(feature_inputs.get('FAVC', 'no')) * 5,  # 'no'=0, 'yes'=5
-            
-            # FCVC: Integer 1-3
-            ((safe_float_convert(feature_inputs.get('FCVC', 2)) - 1) / 2) * 5,
-            
-            # NCP: Continuous 1-4
-            ((safe_float_convert(feature_inputs.get('NCP', 2.5)) - 1) / 3) * 5,
-            
-            # SMOKE: Binary (yes/no) → Convert to 1/0
-            safe_float_convert(feature_inputs.get('SMOKE', 'no')) * 5,  # 'no'=0, 'yes'=5
-            
-            # CALC: Categorical (no/sometimes/frequently/always)
-            safe_float_convert(feature_inputs.get('CALC', 'no')) * 5
-        ]
+        # NCP: Optimal around middle (1-4 → 0-5)
+        ((safe_float_convert(feature_inputs.get('NCP', 2.5)) - 1) / 3) * 5,
         
-        values = [max(0, min(5, v)) for v in values]
+        # FAVC: Lower is better (binary, reversed)
+        (1 - safe_float_convert(feature_inputs.get('FAVC', 'no'))) * 5
+    ]
+    
+    fig = go.Figure(go.Scatterpolar(
+        r=values, theta=categories, fill='toself',
+        line=dict(color='#28a745'), fillcolor='rgba(40, 167, 69, 0.3)'
+    ))
+    
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
+        title_text="🍽️ DIETARY HABITS",
+        title_font_size=20,
+        title_x=0.5,
+        height=400
+    )
+    return fig
+
+def create_lifestyle_radar(feature_inputs):
+    """Radar chart khusus Lifestyle Factors"""
+    categories = [
+        'Physical Activity (FAF)',
+        'Water Intake (CH2O)',
+        'Technology Usage (TUE)'
+    ]
+    
+    values = [
+        # FAF: Higher is better (0-3 → 0-5)
+        (safe_float_convert(feature_inputs.get('FAF', 1.5)) / 3) * 5,
         
-        fig = go.Figure()
+        # CH2O: Higher is better (1-3 → 0-5)
+        ((safe_float_convert(feature_inputs.get('CH2O', 2)) - 1) / 2) * 5,
         
-        fig.add_trace(go.Scatterpolar(
-            r=values,
-            theta=categories,
-            fill='toself',
-            name='Health & Lifestyle Profile',
-            line=dict(color='#FF6B6B', width=2),
-            fillcolor='rgba(255, 107, 107, 0.3)',
-            hovertemplate='<b>%{theta}</b><br>Normalized Score: %{r:.1f}/5<extra></extra>'
-        ))
+        # TUE: Lower is better (0-2 → 0-5, reversed)
+        (1 - (safe_float_convert(feature_inputs.get('TUE', 1)) / 2)) * 5
+    ]
+    
+    fig = go.Figure(go.Scatterpolar(
+        r=values, theta=categories, fill='toself', 
+        line=dict(color='#17a2b8'), fillcolor='rgba(23, 162, 184, 0.3)'
+    ))
+    
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
+        title_text="🏃‍♂️ LIFESTYLE FACTORS", 
+        title_font_size=20,
+        title_x=0.5,
+        height=400
+    )
+    return fig
+
+def create_health_radar(feature_inputs):
+    """Radar chart khusus Health Indicators"""
+    categories = [
+        'Smoking (SMOKE)',
+        'Alcohol (CALC)'
+    ]
+    
+    values = [
+        # SMOKE: Lower is better (binary, reversed)
+        (1 - safe_float_convert(feature_inputs.get('SMOKE', 'no'))) * 5,
         
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True,
-                    range=[0, 5],
-                    tickvals=[0, 1, 2, 3, 4, 5],
-                    ticktext=['0', '1', '2', '3', '4', '5'],
-                    tickfont=dict(size=11)
-                ),
-                angularaxis=dict(
-                    tickfont=dict(size=10)
-                )
-            ),
-            title_text="📊 HEALTH & LIFESTYLE PROFILE",
-            title_font_size=24,
-            title_font_color='#2E86AB',
-            title_font_family='Arial',
-            title_x=0.5,
-            title_y=0.95,
-            showlegend=False,
-            margin=dict(t=100, l=80, r=80, b=80),
-            width=700,
-            height=500
-        )
-        
-        return fig
-        
-    except Exception as e:
-        st.error(f"Error creating radar chart: {e}")
-        
-        # DEBUG
-        st.write("🔍 Debug - Feature Inputs:", feature_inputs)
-        
-        # Fallback
-        categories = ['Activity', 'Tech', 'Water', 'Calories', 'Veggies', 'Meals', 'Smoke', 'Alcohol']
-        fig = go.Figure(go.Scatterpolar(r=[3,3,3,3,3,3,3,3], theta=categories, fill='toself'))
-        fig.update_layout(title_text="Health & Lifestyle Profile", title_x=0.5)
-        return fig
+        # CALC: Lower is better (0-3 → 0-5, reversed)
+        (1 - (safe_float_convert(feature_inputs.get('CALC', 'no')) / 3)) * 5
+    ]
+    
+    fig = go.Figure(go.Scatterpolar(
+        r=values, theta=categories, fill='toself',
+        line=dict(color='#dc3545'), fillcolor='rgba(220, 53, 69, 0.3)'
+    ))
+    
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
+        title_text="❤️ HEALTH INDICATORS",
+        title_font_size=20,
+        title_x=0.5,
+        height=400
+    )
+    return fig
 
 def create_donut_chart(pred_proba, class_mapping):
     """Membuat donut chart untuk probabilities"""
@@ -1089,6 +1091,29 @@ with tab1:
                     risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
                     st.plotly_chart(risk_fig, use_container_width=True)
                     display_color_bar_legend(risk_info)
+
+                # Di tab prediction
+                st.subheader("📊 Health Profile Analysis")
+                
+                # Tampilkan 3 radar chart dalam columns
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.plotly_chart(create_dietary_radar(feature_inputs), use_container_width=True)
+                
+                with col2:
+                    st.plotly_chart(create_lifestyle_radar(feature_inputs), use_container_width=True)
+                
+                with col3:
+                    st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
+                
+                # Family History terpisah
+                st.markdown("---")
+                family_history = feature_inputs.get('family_history_with_overweight', 'no')
+                st.metric("🧬 Family History of Overweight", 
+                          "Yes" if family_history == 'yes' else "No",
+                          delta="Higher Risk" if family_history == 'yes' else "Normal Risk",
+                          delta_color="inverse")
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
@@ -1097,9 +1122,6 @@ with tab1:
                     st.plotly_chart(create_donut_chart(pred_proba, class_mapping), 
                                   use_container_width=True)
                 
-                with col4:
-                    st.plotly_chart(create_radar_chart(feature_inputs), 
-                                  use_container_width=True)
                 
                 # Row 3: Traditional Bar Chart
                 st.subheader("📈 Probability Distribution")
@@ -1390,6 +1412,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
