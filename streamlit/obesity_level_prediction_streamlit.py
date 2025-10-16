@@ -221,31 +221,31 @@ def create_radar_chart(feature_inputs):
             'Alcohol (CALC)'
         ]
         
-        # SCALING YANG BENAR BERDASARKAN RANGE SEBENARNYA
+        # CONVERT TO FLOAT DULU SEBELUM SCALING
         values = [
             # FAF: 0-3 → Scale to 0-5
-            (feature_inputs.get('FAF', 1.5) / 3) * 5,
+            (float(feature_inputs.get('FAF', 1.5)) / 3) * 5,
             
             # TUE: 0-2 → Scale to 0-5  
-            (feature_inputs.get('TUE', 1) / 2) * 5,
+            (float(feature_inputs.get('TUE', 1)) / 2) * 5,
             
             # CH2O: 1-3 → Scale to 0-5
-            ((feature_inputs.get('CH2O', 2) - 1) / 2) * 5,
+            ((float(feature_inputs.get('CH2O', 2)) - 1) / 2) * 5,
             
             # FAVC: Binary 0-1 → Scale to 0-5
-            feature_inputs.get('FAVC', 0.5) * 5,
+            float(feature_inputs.get('FAVC', 0.5)) * 5,
             
             # FCVC: 1-3 → Scale to 0-5
-            ((feature_inputs.get('FCVC', 2) - 1) / 2) * 5,
+            ((float(feature_inputs.get('FCVC', 2)) - 1) / 2) * 5,
             
             # NCP: 1-4 → Scale to 0-5
-            ((feature_inputs.get('NCP', 2.5) - 1) / 3) * 5,
+            ((float(feature_inputs.get('NCP', 2.5)) - 1) / 3) * 5,
             
             # SMOKE: Binary 0-1 → Scale to 0-5
-            feature_inputs.get('SMOKE', 0.5) * 5,
+            float(feature_inputs.get('SMOKE', 0.5)) * 5,
             
             # CALC: 0-3 → Scale to 0-5
-            (feature_inputs.get('CALC', 1.5) / 3) * 5
+            (float(feature_inputs.get('CALC', 1.5)) / 3) * 5
         ]
         
         # Ensure values are within 0-5 range
@@ -292,6 +292,11 @@ def create_radar_chart(feature_inputs):
         
     except Exception as e:
         st.error(f"Error creating radar chart: {e}")
+        
+        # DEBUG: Tampilkan feature_inputs untuk troubleshooting
+        st.write("🔍 Debug - Feature Inputs:", feature_inputs)
+        st.write("🔍 Debug - Feature Inputs Types:", {k: type(v) for k, v in feature_inputs.items()})
+        
         # Fallback
         categories = ['Activity', 'Tech', 'Water', 'Calories', 'Veggies', 'Meals', 'Smoke', 'Alcohol']
         fig = go.Figure(go.Scatterpolar(r=[3,3,3,3,3,3,3,3], theta=categories, fill='toself'))
@@ -1370,6 +1375,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
