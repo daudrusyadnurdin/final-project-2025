@@ -350,12 +350,9 @@ def display_color_bar_legend(risk_info):
     )
     '''
 def display_color_bar_legend(risk_info):
-    """Menampilkan color bar horizontal dengan debug info"""
+    """Menampilkan color bar horizontal yang informatif"""
     
-    st.markdown("**Obesity Risk Spectrum**")
-    
-    # Debug: Tampilkan risk_info untuk melihat struktur sebenarnya
-    st.write("🔍 Debug risk_info:", [risk['label'] for risk in risk_info])
+    st.markdown("**Obesity Risk Classification**")
     
     # Create color gradient bar
     color_gradient = "background: linear-gradient(90deg"
@@ -363,8 +360,16 @@ def display_color_bar_legend(risk_info):
         color_gradient += f", {risk['color']}"
     color_gradient += ");"
     
-    # Risk levels berdasarkan urutan saja
-    risk_levels = ['Very Low', 'Low', 'Medium', 'High', 'Very High', 'Severe', 'Critical']
+    # Mapping yang jelas
+    class_mapping = {
+        'Very Low': 'Insufficient Weight',
+        'Low': 'Normal Weight', 
+        'Moderate': 'Overweight I',
+        'High': 'Overweight II',
+        'Very High': 'Obesity I',
+        'Severe': 'Obesity II',
+        'Critical': 'Obesity III'
+    }
     
     st.markdown(
         f"""
@@ -372,17 +377,18 @@ def display_color_bar_legend(risk_info):
             {color_gradient}
             height: 20px;
             border-radius: 4px;
-            margin: 8px 0 4px 0;
+            margin: 8px 0 2px 0;
+            border: 1px solid #ddd;
         '></div>
         
-        <!-- Risk Levels -->
-        <div style='display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 2px;'>
-            {"".join([f"<div style='color: {risk_info[i]['color']};'>{risk_levels[i]}</div>" for i in range(len(risk_info))])}
+        <!-- Risk Levels (Top Row) -->
+        <div style='display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin: 5px 0 2px 0;'>
+            {"".join([f"<div style='color: {risk['color']}; text-align: center; width: {100/len(risk_info)}%'>{risk['label']}</div>" for risk in risk_info])}
         </div>
         
-        <!-- Class Names -->
-        <div style='display: flex; justify-content: space-between; font-size: 8px; color: #666;'>
-            {"".join([f"<div style='text-align: center; width: {100/len(risk_info)}%'>{risk['label']}</div>" for risk in risk_info])}
+        <!-- Obesity Classes (Bottom Row) -->
+        <div style='display: flex; justify-content: space-between; font-size: 8px; color: #666; margin-bottom: 10px;'>
+            {"".join([f"<div style='text-align: center; width: {100/len(risk_info)}%'>{class_mapping[risk['label']]}</div>" for risk in risk_info])}
         </div>
         """,
         unsafe_allow_html=True
@@ -1342,6 +1348,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
