@@ -1249,11 +1249,15 @@ with tab1:
 
                 rec_key = class_mapping[pred_class]
 
-                # 🔥 VERSI DENGAN INDENTASI KE KANAN
-                st.markdown("<div style='margin-left: 30px;'>", unsafe_allow_html=True)
+                html_content = """
+                <div style='margin-left: 40px;'>
+                    <h3>💡 Health Recommendations</h3>
+                """
                 for rec in recommendations.get(rec_key, []):
-                    st.markdown(f"✅ **{rec}**")
-                st.markdown("</div>", unsafe_allow_html=True)
+                    html_content += f"<p style='margin: 12px 0;'>✅ {rec}</p>"
+                html_content += "</div>"
+
+                st.markdown(html_content, unsafe_allow_html=True)
                 
             except Exception as e:
                 st.error(f"❌ Prediction error: {str(e)}")
