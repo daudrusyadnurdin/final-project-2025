@@ -1112,14 +1112,14 @@ with tab1:
                 st.markdown("---")
                 st.markdown("### 🧬 Family History of Overweight")
                 st.markdown(
-                    f"<h1 style='text-align: center; color: {'#dc3545' if family_history == 'yes' else '#28a745'}; margin: 20px 0;'>"
-                    f"{'YES ⚠️' if family_history == 'yes' else 'NO ✅'}"
+                    f"<h1 style='text-align: center; color: {'#dc3545' if FHWO == 'yes' else '#28a745'}; margin: 20px 0;'>"
+                    f"{'YES ⚠️' if FHWO == 'yes' else 'NO ✅'}"
                     f"</h1>", 
                     unsafe_allow_html=True
                 )
                 st.markdown(
                     f"<p style='text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 30px;'>"
-                    f"{'Higher Obesity Risk' if family_history == 'yes' else 'Normal Risk'}"
+                    f"{'Higher Obesity Risk' if FHWO == 'yes' else 'Normal Risk'}"
                     f"</p>", 
                     unsafe_allow_html=True
                 )
@@ -1422,3 +1422,4 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
