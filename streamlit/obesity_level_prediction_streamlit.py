@@ -1183,7 +1183,7 @@ with tab1:
                             fig.data[pred_class].opacity = 1.0
                         
                         fig.update_layout(
-                            title="📊 Obesity Level Probabilities",
+                            #title="📊 Obesity Level Probabilities",
                             xaxis_title="Obesity Levels",
                             yaxis_title="Probability",
                             showlegend=False,
@@ -1201,7 +1201,7 @@ with tab1:
                 # -----------------------
                 st.markdown("---")
                 st.subheader("💡 Health Recommendations")
-                
+
                 recommendations = {
                     "Insufficient_Weight": [
                         "Increase caloric intake with nutrient-dense foods",
@@ -1246,10 +1246,14 @@ with tab1:
                         "Multidisciplinary team approach needed"
                     ]
                 }
-                
+
                 rec_key = class_mapping[pred_class]
+
+                # 🔥 VERSI DENGAN INDENTASI KE KANAN
+                st.markdown("<div style='margin-left: 30px;'>", unsafe_allow_html=True)
                 for rec in recommendations.get(rec_key, []):
-                    st.write(f"     ✅ {rec}")
+                    st.markdown(f"✅ **{rec}**")
+                st.markdown("</div>", unsafe_allow_html=True)
                 
             except Exception as e:
                 st.error(f"❌ Prediction error: {str(e)}")
