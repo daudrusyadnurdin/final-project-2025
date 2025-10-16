@@ -811,6 +811,35 @@ def correct_preprocessing(feature_dict):
 # TAB LAYOUT
 # ============================
 
+st.markdown("""
+<style>
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #F0F2F6;
+        border-radius: 4px 4px 0px 0px;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: #1F77B4;
+        color: white;
+    }
+    
+    /* Custom font size untuk tabs */
+    .stTabs [data-baseweb="tab"] div {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 tab1, tab2, tab3, tab4 = st.tabs(["🎯 Prediction", "📊 Model Performance", "🔍 Health Analysis", "ℹ️ About"])
 
 with tab1:
@@ -1284,4 +1313,3 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
-
