@@ -555,7 +555,7 @@ def create_performance_metrics():
 # ============================
 
 # Header aplikasi
-st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-header">🏥 Obesity Level Prediction App</h1>', unsafe_allow_html=True)
 
 st.markdown(
     '<h3 style="text-align: center; color: #1f77b4; margin-bottom: 2rem;">'
