@@ -210,18 +210,31 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
 
 def create_radar_chart(feature_inputs):
     try:
-        # Contoh data real berdasarkan input user
-        categories = ['Physical Activity', 'Healthy Eating', 'Sleep Quality', 
-                     'Stress Level', 'Water Consumption', 'Screen Time']
+        # FEATURES SESUAI DENGAN MODEL ANDA
+        categories = [
+            'Physical Activity', 
+            'Water Intake',
+            'Vegetable Consumption',
+            'Meal Frequency', 
+            'High-Calorie Food',
+            'Technology Usage',
+            'Family History',
+            'Smoking',
+            'Alcohol Consumption'
+        ]
         
-        # Nilai dari feature_inputs (contoh, sesuaikan dengan data Anda)
+        # Mapping dari feature_inputs ke values radar (0-5 scale)
+        # Sesuaikan dengan cara feature_inputs disimpan
         values = [
-            feature_inputs.get('physical_activity', 3),
-            feature_inputs.get('healthy_eating', 3),
-            feature_inputs.get('sleep_quality', 3),
-            feature_inputs.get('stress_level', 3),
-            feature_inputs.get('water_consumption', 3),
-            feature_inputs.get('screen_time', 3)
+            feature_inputs.get('physical_activity', 3),      # Aktivitas fisik
+            feature_inputs.get('water_intake', 3),           # Konsumsi air
+            feature_inputs.get('vegetable_consumption', 3),  # Sayuran
+            feature_inputs.get('meal_frequency', 3),         # Frekuensi makan
+            feature_inputs.get('high_calorie_food', 3),      # Makanan tinggi kalori
+            feature_inputs.get('technology_usage', 3),       # Penggunaan teknologi
+            feature_inputs.get('family_history', 3),         # Riwayat keluarga
+            feature_inputs.get('smoking', 3),                # Merokok
+            feature_inputs.get('alcohol_consumption', 3)     # Konsumsi alkohol
         ]
         
         fig = go.Figure()
@@ -230,9 +243,10 @@ def create_radar_chart(feature_inputs):
             r=values,
             theta=categories,
             fill='toself',
-            name='Your Health Profile',
+            name='Lifestyle Profile',
             line=dict(color='#FF6B6B', width=2),
-            fillcolor='rgba(255, 107, 107, 0.3)'
+            fillcolor='rgba(255, 107, 107, 0.3)',
+            hovertemplate='<b>%{theta}</b><br>Score: %{r}/5<extra></extra>'
         ))
         
         fig.update_layout(
@@ -240,15 +254,17 @@ def create_radar_chart(feature_inputs):
                 radialaxis=dict(
                     visible=True,
                     range=[0, 5],
-                    tickfont=dict(size=12)
+                    tickvals=[0, 1, 2, 3, 4, 5],
+                    ticktext=['0', '1', '2', '3', '4', '5'],
+                    tickfont=dict(size=11)
                 ),
                 angularaxis=dict(
-                    tickfont=dict(size=11)
+                    tickfont=dict(size=10)
                 )
             ),
-            # 🔥 JUDUL BESAR DI TENGAH - PASTI WORK
-            title_text="🦸‍♂️ YOUR HEALTH PROFILE",
-            title_font_size=26,
+            # JUDUL BESAR DI TENGAH
+            title_text="📊 LIFESTYLE PROFILE RADAR",
+            title_font_size=24,
             title_font_color='#2E86AB',
             title_font_family='Arial',
             title_x=0.5,
@@ -267,8 +283,9 @@ def create_radar_chart(feature_inputs):
         st.error(f"Error creating radar chart: {e}")
         # Fallback simple chart
         fig = go.Figure()
-        fig.add_trace(go.Scatterpolar(r=[3,3,3,3,3,3], theta=categories, fill='toself'))
-        fig.update_layout(title_text="Health Profile", title_x=0.5)
+        categories = ['Activity', 'Water', 'Veggies', 'Meals', 'Calories', 'Tech', 'Family', 'Smoke', 'Alcohol']
+        fig.add_trace(go.Scatterpolar(r=[3,3,3,3,3,3,3,3,3], theta=categories, fill='toself'))
+        fig.update_layout(title_text="Lifestyle Profile", title_x=0.5)
         return fig
 
 def create_donut_chart(pred_proba, class_mapping):
@@ -1343,6 +1360,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
