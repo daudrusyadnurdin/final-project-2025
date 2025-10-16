@@ -730,8 +730,8 @@ feature_inputs["Weight"] = st.sidebar.slider(
 )
 
 # Calculate BMI
-bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
-st.sidebar.metric("BMI", f"{bmi:.1f}")
+#bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
+#st.sidebar.metric("BMI", f"{bmi:.1f}")
 
 feature_inputs["FCVC"] = st.sidebar.slider(
     "Frequency of vegetable consumption", 1.0, 3.0,
@@ -1106,26 +1106,38 @@ with tab1:
                 
                 with col3:
                     st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
-                
+
+                # -------------------------------------
                 # Family History terpisah
                 # Tambahkan sedikit spacing dan border
+                # Handle berbagai kemungkinan
+                # -------------------------------------
+                family_history = feature_inputs.get('FHWO', 'no')
+                family_history = str(family_history).lower().strip()
+                
+                # Pastikan hanya 'yes' atau 'no'
+                if family_history not in ['yes', 'no']:
+                    family_history = 'no'  # default ke 'no' jika value tidak valid
+                
                 st.markdown("---")
                 st.markdown("### 🧬 Family History of Overweight")
                 st.markdown(
-                    f"<h1 style='text-align: center; color: {'#dc3545' if FHWO == 'yes' else '#28a745'}; margin: 20px 0;'>"
-                    f"{'YES ⚠️' if FHWO == 'yes' else 'NO ✅'}"
+                    f"<h1 style='text-align: center; color: {'#dc3545' if family_history == 'yes' else '#28a745'}; margin: 20px 0;'>"
+                    f"{'YES ⚠️' if family_history == 'yes' else 'NO ✅'}"
                     f"</h1>", 
                     unsafe_allow_html=True
                 )
                 st.markdown(
                     f"<p style='text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 30px;'>"
-                    f"{'Higher Obesity Risk' if FHWO == 'yes' else 'Normal Risk'}"
+                    f"{'Higher Obesity Risk' if family_history == 'yes' else 'Normal Risk'}"
                     f"</p>", 
                     unsafe_allow_html=True
                 )
                 st.markdown("---")
-                
+
+                # ----------------------------------
                 # Row 2: Donut Chart dan Radar Chart
+                # ----------------------------------
                 col3, col4 = st.columns(2)
                 
                 with col3:
@@ -1422,4 +1434,5 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
