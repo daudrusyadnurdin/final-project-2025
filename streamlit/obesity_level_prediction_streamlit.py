@@ -337,7 +337,7 @@ def create_donut_chart(pred_proba, class_mapping):
     )])
     
     fig.update_layout(
-        title="Obesity Level Probabilities",
+        #title="Obesity Level Probabilities",
         height=400,
         showlegend=False
     )
@@ -1139,6 +1139,8 @@ with tab1:
                 # ----------------------------------
                 # Row 2: Donut Chart dan Radar Chart
                 # ----------------------------------
+                st.markdown("### 🧬 Obesity Level Probabilities")
+                
                 col3, col4 = st.columns(2)
                 
                 with col3:
@@ -1171,7 +1173,7 @@ with tab1:
                         sns.despine(right=True, top=True)
                     
                         ax.set_ylabel('Probability')
-                        ax.set_title('Obesity Level Probabilities')
+                        #ax.set_title('Obesity Level Probabilities')
                         ax.tick_params(axis='x', rotation=45)
                     
                         for i, bar in enumerate(bars):
@@ -1185,7 +1187,9 @@ with tab1:
                     else:
                         st.error(f"Expected 7 probability values, got {len(pred_proba)}")
                 
+                # -----------------------
                 # Health recommendations
+                # -----------------------
                 st.subheader("💡 Health Recommendations")
                 
                 recommendations = {
@@ -1448,9 +1452,3 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
-
-
-
-
-
-
