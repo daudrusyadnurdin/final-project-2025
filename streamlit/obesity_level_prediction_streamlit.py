@@ -386,7 +386,7 @@ def display_risk_legend_safe(risk_info):
                 unsafe_allow_html=True
             )
 
-def display_ml_model_legend():
+def display_ml_model_legend(risk_info):
     """Menampilkan legend untuk 7 class output model ML"""
     
     st.markdown("### 📊 Model Prediction Classes")
@@ -454,7 +454,7 @@ def display_ml_model_legend():
             )
 
 # Atau versi horizontal scroll yang lebih compact
-def display_horizontal_scroll_legend():
+def display_horizontal_scroll_legend(risk_info):
     """Legend horizontal dengan scroll jika perlu"""
     
     st.markdown("### 📊 Prediction Classes")
@@ -1461,6 +1461,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
