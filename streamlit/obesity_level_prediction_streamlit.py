@@ -1108,12 +1108,22 @@ with tab1:
                     st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
                 
                 # Family History terpisah
+                # Tambahkan sedikit spacing dan border
                 st.markdown("---")
-                family_history = feature_inputs.get('family_history_with_overweight', 'no')
-                st.metric("🧬 Family History of Overweight", 
-                          "Yes" if family_history == 'yes' else "No",
-                          delta="Higher Risk" if family_history == 'yes' else "Normal Risk",
-                          delta_color="inverse")
+                st.markdown("### 🧬 Family History of Overweight")
+                st.markdown(
+                    f"<h1 style='text-align: center; color: {'#dc3545' if family_history == 'yes' else '#28a745'}; margin: 20px 0;'>"
+                    f"{'YES ⚠️' if family_history == 'yes' else 'NO ✅'}"
+                    f"</h1>", 
+                    unsafe_allow_html=True
+                )
+                st.markdown(
+                    f"<p style='text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 30px;'>"
+                    f"{'Higher Obesity Risk' if family_history == 'yes' else 'Normal Risk'}"
+                    f"</p>", 
+                    unsafe_allow_html=True
+                )
+                st.markdown("---")
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
@@ -1121,33 +1131,33 @@ with tab1:
                 with col3:
                     st.plotly_chart(create_donut_chart(pred_proba, class_mapping), 
                                   use_container_width=True)
-                
-                
-                # Row 3: Traditional Bar Chart
-                st.subheader("📈 Probability Distribution")
-                obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(len(pred_proba))]
-                
-                fig, ax = plt.subplots(figsize=(12, 6))
-                colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
-                bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
-                
-                if pred_class < len(bars):
-                    bars[pred_class].set_edgecolor('black')
-                    bars[pred_class].set_linewidth(3)
-                    bars[pred_class].set_alpha(1.0)
-                
-                ax.set_ylabel('Probability')
-                ax.set_title('Obesity Level Probabilities')
-                ax.tick_params(axis='x', rotation=45)
-                
-                for i, bar in enumerate(bars):
-                    height = bar.get_height()
-                    if height > 0.01:
-                        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                               f'{height:.3f}', ha='center', va='bottom', fontweight='bold')
-                
-                plt.tight_layout()
-                st.pyplot(fig)
+                with col4:
+                    # Simple version dengan sns.despine()
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    sns.set_style("whitegrid")
+
+                    colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
+                    bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
+
+                    if pred_class < len(bars):
+                        bars[pred_class].set_edgecolor('black')
+                        bars[pred_class].set_linewidth(3)
+
+                    # 🔥 INI YANG PENTING - hilangkan spines kanan & atas
+                    sns.despine(right=True, top=True)
+
+                    ax.set_ylabel('Probability')
+                    ax.set_title('Obesity Level Probabilities')
+                    ax.tick_params(axis='x', rotation=45)
+
+                    for i, bar in enumerate(bars):
+                        height = bar.get_height()
+                        if height > 0.01:
+                            ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                                   f'{height:.3f}', ha='center', va='bottom')
+
+                    plt.tight_layout()
+                    st.pyplot(fig)
                 
                 # Health recommendations
                 st.subheader("💡 Health Recommendations")
@@ -1412,29 +1422,3 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
