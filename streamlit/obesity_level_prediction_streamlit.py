@@ -320,7 +320,7 @@ def create_risk_meter_with_legend(pred_class):
     )
     
     return fig, risk_info
-
+'''
 def display_color_bar_legend(risk_info):
     """Menampilkan color bar horizontal yang super compact"""
     
@@ -348,44 +348,51 @@ def display_color_bar_legend(risk_info):
         """,
         unsafe_allow_html=True
     )
-
-def display_risk_legend_safe(risk_info):
-    """Menampilkan legend menggunakan Streamlit native yang aman"""
+    '''
+def display_color_bar_legend(risk_info):
+    """Menampilkan color bar horizontal dengan info lengkap"""
     
-    st.markdown("### 📊 Risk Level Guide")
+    st.markdown("**Obesity Risk Spectrum**")
     
-    cols = st.columns(2)
+    # Create color gradient bar
+    color_gradient = "background: linear-gradient(90deg"
+    for risk in risk_info:
+        color_gradient += f", {risk['color']}"
+    color_gradient += ");"
     
-    for i, risk in enumerate(risk_info):
-        with cols[i % 2]:
-            st.markdown(
-                f"""
-                <div style='
-                    background-color: {risk['color']}15; 
-                    padding: 12px; 
-                    border-radius: 8px; 
-                    border-left: 5px solid {risk['color']};
-                    margin: 5px 0;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                '>
-                    <div style='display: flex; align-items: center; margin-bottom: 5px;'>
-                        <div style='
-                            width: 20px; 
-                            height: 20px; 
-                            background-color: {risk['color']}; 
-                            border-radius: 50%; 
-                            margin-right: 10px;
-                        '></div>
-                        <strong style='font-size: 16px;'>Level {risk['level']}: {risk['label']}</strong>
-                    </div>
-                    <div style='color: #666; font-size: 14px; padding-left: 30px;'>
-                        {risk['description']}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
+    # Risk level mapping
+    risk_mapping = {
+        'Insufficient_Weight': 'Very Low',
+        'Normal_Weight': 'Low', 
+        'Overweight_Level_I': 'Medium',
+        'Overweight_Level_II': 'High',
+        'Obesity_Type_I': 'Very High',
+        'Obesity_Type_II': 'Severe',
+        'Obesity_Type_III': 'Critical'
+    }
+    
+    st.markdown(
+        f"""
+        <div style='
+            {color_gradient}
+            height: 20px;
+            border-radius: 4px;
+            margin: 8px 0 4px 0;
+        '></div>
+        
+        <!-- Risk Levels -->
+        <div style='display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 2px;'>
+            {"".join([f"<div style='color: {risk['color']};'>{risk_mapping[risk['label']]}</div>" for risk in risk_info])}
+        </div>
+        
+        <!-- Class Names -->
+        <div style='display: flex; justify-content: space-between; font-size: 8px; color: #666;'>
+            {"".join([f"<div style='text-align: center; width: {100/len(risk_info)}%'>{risk['label'].replace('_', ' ')}</div>" for risk in risk_info])}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
 # =======================================
 # FUNCTIONS OF TAB PERFORMANCE & ANALYSIS
 # =======================================
@@ -1038,7 +1045,6 @@ with tab1:
                 with col2:
                     risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
                     st.plotly_chart(risk_fig, use_container_width=True)
-                    #TEST display_risk_legend_safe(risk_info)
                     display_color_bar_legend(risk_info)
                 
                 # Row 2: Donut Chart dan Radar Chart
@@ -1341,6 +1347,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
