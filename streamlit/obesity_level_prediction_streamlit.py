@@ -555,7 +555,7 @@ def create_performance_metrics():
 # ============================
 
 #Banner
-header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/obelution-forbidden.png"
+header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/obelution-forbidden2.png"
 st.image(header_image_url, use_container_width=True)
 
 # Header aplikasi
@@ -1284,3 +1284,4 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
