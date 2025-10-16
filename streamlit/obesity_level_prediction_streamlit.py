@@ -1251,7 +1251,7 @@ with tab1:
                 rec_list = recommendations.get(rec_key, [])
 
                 # Build HTML sekaligus biar clean
-                recommendations_html = "".join([f'<div style="margin-left: 30px; margin-bottom: 8px;">✅ {rec}</div>' for rec in rec_list])
+                recommendations_html = "".join([f'<div style="margin-left: 40px; margin-bottom: 8px;">✅ {rec}</div>' for rec in rec_list])
 
                 st.markdown(f'<div>{recommendations_html}</div>', unsafe_allow_html=True)
                 
