@@ -209,26 +209,67 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
     return fig
 
 def create_radar_chart(feature_inputs):
-    # Contoh sederhana
-    fig = go.Figure(go.Scatterpolar(
-        r=[3, 4, 2, 5, 3],
-        theta=['A', 'B', 'C', 'D', 'E'],
-        fill='toself'
-    ))
-    
-    fig.update_layout(
-        title=dict(
-            text="📊 TEST BIG TITLE",  # 🔥
-            x=0.5,
-            font=dict(size=26, color='red', weight='bold')  # 🔥 WARNA MERAH BIAR KELIHATAN
-        ),
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0, 5])
+    try:
+        # Contoh data real berdasarkan input user
+        categories = ['Physical Activity', 'Healthy Eating', 'Sleep Quality', 
+                     'Stress Level', 'Water Consumption', 'Screen Time']
+        
+        # Nilai dari feature_inputs (contoh, sesuaikan dengan data Anda)
+        values = [
+            feature_inputs.get('physical_activity', 3),
+            feature_inputs.get('healthy_eating', 3),
+            feature_inputs.get('sleep_quality', 3),
+            feature_inputs.get('stress_level', 3),
+            feature_inputs.get('water_consumption', 3),
+            feature_inputs.get('screen_time', 3)
+        ]
+        
+        fig = go.Figure()
+        
+        fig.add_trace(go.Scatterpolar(
+            r=values,
+            theta=categories,
+            fill='toself',
+            name='Your Health Profile',
+            line=dict(color='#FF6B6B', width=2),
+            fillcolor='rgba(255, 107, 107, 0.3)'
+        ))
+        
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 5],
+                    tickfont=dict(size=12)
+                ),
+                angularaxis=dict(
+                    tickfont=dict(size=11)
+                )
+            ),
+            # 🔥 JUDUL BESAR DI TENGAH - PASTI WORK
+            title_text="🦸‍♂️ YOUR HEALTH PROFILE",
+            title_font_size=26,
+            title_font_color='#2E86AB',
+            title_font_family='Arial',
+            title_x=0.5,
+            title_y=0.95,
+            showlegend=False,
+            margin=dict(t=100, l=80, r=80, b=80),
+            width=700,
+            height=500,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
         )
-    )
-    
-    return fig
-
+        
+        return fig
+        
+    except Exception as e:
+        st.error(f"Error creating radar chart: {e}")
+        # Fallback simple chart
+        fig = go.Figure()
+        fig.add_trace(go.Scatterpolar(r=[3,3,3,3,3,3], theta=categories, fill='toself'))
+        fig.update_layout(title_text="Health Profile", title_x=0.5)
+        return fig
 
 def create_donut_chart(pred_proba, class_mapping):
     """Membuat donut chart untuk probabilities"""
@@ -1302,6 +1343,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
