@@ -872,9 +872,9 @@ with tab1:
             """,
             unsafe_allow_html=True
         )
-        st.write(f"**Family History**: {feature_inputs['FHWO']}")
-        st.write(f"**Smoking**: {feature_inputs['SMOKE']}")
-        st.write(f"**Alcohol**: {feature_inputs['CALC']}")
+        st.write(f"**Family History of Overweight**: {feature_inputs['FHWO']}")
+        st.write(f"**Smoking Habit**: {feature_inputs['SMOKE']}")
+        st.write(f"**Alcohol Consumption**: {feature_inputs['CALC']}")
         
         # BMI Analysis
         st.subheader("⚖️ BMI Analysis")
@@ -1311,6 +1311,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
