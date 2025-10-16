@@ -209,41 +209,27 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
     return fig
 
 def create_radar_chart(feature_inputs):
-    """Create a radar chart for lifestyle factors"""
-    
-    categories = ['Physical Activity', 'Healthy Diet', 'Water Intake', 'Meal Frequency', 'Lifestyle Score']
-    
-    # Normalize values untuk radar chart
-    physical_activity = (feature_inputs['FAF'] / 3.0) * 100
-    healthy_diet = ((feature_inputs['FCVC'] - 1) / 2.0) * 100
-    water_intake = ((feature_inputs['CH2O'] - 1) / 2.0) * 100
-    meal_frequency = ((feature_inputs['NCP'] - 1) / 3.0) * 100
-    
-    # Lifestyle score (composite)
-    lifestyle_score = (physical_activity + healthy_diet + water_intake + meal_frequency) / 4
-    
-    values = [physical_activity, healthy_diet, water_intake, meal_frequency, lifestyle_score]
-    
     fig = go.Figure()
     
-    fig.add_trace(go.Scatterpolar(
-        r=values + [values[0]],
-        theta=categories + [categories[0]],
-        fill='toself',
-        name='Lifestyle Factors',
-        line=dict(color='#1f77b4'),
-        fillcolor='rgba(31, 119, 180, 0.3)'
-    ))
+    # ... your existing radar chart code ...
     
     fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 100]
-            )),
-        showlegend=False,
-        height=400,
-        title="Lifestyle Factors Radar Chart"
+        title=dict(
+            text="📊 Health Profile Radar Chart",
+            x=0.5,
+            xanchor='center',
+            y=0.95,
+            yanchor='top',
+            font=dict(
+                size=26,           # 🔥 Ukuran besar
+                family='Arial',
+                color='#2E86AB',   # Warna biru yang elegan
+                weight='bold'
+            )
+        ),
+        width=700,
+        height=500,
+        # ... other settings ...
     )
     
     return fig
@@ -1320,6 +1306,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
