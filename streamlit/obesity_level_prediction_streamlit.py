@@ -209,30 +209,35 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
     return fig
 
 def create_radar_chart(feature_inputs):
-    fig = go.Figure()
-    
-    # ... your existing radar chart code ...
-    
-    fig.update_layout(
-        title=dict(
-            text="📊 Health Profile Radar Chart",
-            x=0.5,
-            xanchor='center',
-            y=0.95,
-            yanchor='top',
-            font=dict(
-                size=26,           # 🔥 Ukuran besar
-                family='Arial',
-                color='#2E86AB',   # Warna biru yang elegan
-                weight='bold'
-            )
-        ),
-        width=700,
-        height=500,
-        # ... other settings ...
-    )
-    
-    return fig
+    try:
+        st.write("🔍 Debug: Feature inputs received:", feature_inputs)
+        
+        # Basic radar chart dulu
+        categories = ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4', 'Feature 5']
+        values = [3, 4, 2, 5, 3]
+        
+        fig = go.Figure(data=go.Scatterpolar(
+            r=values,
+            theta=categories,
+            fill='toself'
+        ))
+        
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=True, range=[0, 5])
+            ),
+            showlegend=False,
+            title="Simple Radar Chart"
+        )
+        
+        st.success("✅ Radar chart created successfully!")
+        return fig
+        
+    except Exception as e:
+        st.error(f"❌ Error in create_radar_chart: {str(e)}")
+        # Return very simple figure as fallback
+        return go.Figure()
+
 
 def create_donut_chart(pred_proba, class_mapping):
     """Membuat donut chart untuk probabilities"""
