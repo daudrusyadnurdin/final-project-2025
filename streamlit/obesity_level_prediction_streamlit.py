@@ -842,7 +842,16 @@ with tab1:
             st.metric("Weight", f"{feature_inputs["Weight"]} kg")
         
         # Lifestyle Factors
-        st.markdown("**Lifestyle Factors:**")
+        # st.markdown("**Lifestyle Factors:**")
+        st.write(
+            """
+            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
+                Lifestyle Factors
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
         col_d, col_e = st.columns(2)
         with col_d:
             st.write(f"**Physical Activity**: {feature_inputs['FAF']}/3")
@@ -854,7 +863,15 @@ with tab1:
             st.write(f"**High-Calorie Food**: {feature_inputs['FAVC']}")
         
         # Health Indicators
-        st.markdown("**Health Indicators:**")
+        # st.markdown("**Health Indicators:**")
+        st.write(
+            """
+            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
+                Health Indicators
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         st.write(f"**Family History**: {feature_inputs['FHWO']}")
         st.write(f"**Smoking**: {feature_inputs['SMOKE']}")
         st.write(f"**Alcohol**: {feature_inputs['CALC']}")
@@ -1294,4 +1311,5 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
