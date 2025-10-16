@@ -1158,7 +1158,7 @@ with tab1:
                     
                     # Pastikan pred_proba punya 7 elements
                     if len(pred_proba) == 7:
-                        fig, ax = plt.subplots(figsize=(12, 6))
+                        fig, ax = plt.subplots(figsize=(16, 8))
                         sns.set_style("whitegrid")
                     
                         colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
@@ -1448,6 +1448,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
