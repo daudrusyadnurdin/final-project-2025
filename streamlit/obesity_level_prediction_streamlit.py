@@ -386,124 +386,6 @@ def display_risk_legend_safe(risk_info):
                 unsafe_allow_html=True
             )
 
-def display_ml_model_legend():
-    """Menampilkan legend untuk 7 class output model ML"""
-    
-    st.markdown("### 📊 Model Prediction Classes")
-    
-    # Ganti dengan nama class aktual dari model Anda
-    ml_classes = [
-        {'level': 1, 'label': 'Insufficient_Weight', 'color': '#17a2b8', 'description': 'Berat badan kurang'},
-        {'level': 2, 'label': 'Normal_Weight', 'color': '#28a745', 'description': 'Berat badan normal'},
-        {'level': 3, 'label': 'Overweight_Level_I', 'color': '#ffc107', 'description': 'Kelebihan berat tingkat I'},
-        {'level': 4, 'label': 'Overweight_Level_II', 'color': '#ff9800', 'description': 'Kelebihan berat tingkat II'},
-        {'level': 5, 'label': 'Obesity_Type_I', 'color': '#fd7e14', 'description': 'Obesitas tipe I'},
-        {'level': 6, 'label': 'Obesity_Type_II', 'color': '#dc3545', 'description': 'Obesitas tipe II'},
-        {'level': 7, 'label': 'Obesity_Type_III', 'color': '#6f42c1', 'description': 'Obesitas tipe III'}
-    ]
-    
-    # Tampilkan dalam 2 baris untuk menghemat space
-    cols = st.columns(4)  # 4 kolom untuk baris pertama
-    
-    for i, class_info in enumerate(ml_classes[:4]):  # 4 pertama
-        with cols[i]:
-            st.markdown(
-                f"""
-                <div style='
-                    text-align: center; 
-                    padding: 8px 4px; 
-                    border-radius: 6px; 
-                    background-color: {class_info['color']}20;
-                    border: 2px solid {class_info['color']};
-                    margin: 2px;
-                '>
-                    <div style='font-size: 12px; font-weight: bold; color: {class_info['color']};'>
-                        {class_info['label'].replace('_', ' ')}
-                    </div>
-                    <div style='font-size: 10px; color: #666;'>
-                        Level {class_info['level']}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-    
-    cols2 = st.columns(3)  # 3 kolom untuk baris kedua (3 terakhir)
-    
-    for i, class_info in enumerate(ml_classes[4:]):  # 3 terakhir
-        with cols2[i]:
-            st.markdown(
-                f"""
-                <div style='
-                    text-align: center; 
-                    padding: 8px 4px; 
-                    border-radius: 6px; 
-                    background-color: {class_info['color']}20;
-                    border: 2px solid {class_info['color']};
-                    margin: 2px;
-                '>
-                    <div style='font-size: 12px; font-weight: bold; color: {class_info['color']};'>
-                        {class_info['label'].replace('_', ' ')}
-                    </div>
-                    <div style='font-size: 10px; color: #666;'>
-                        Level {class_info['level']}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-# Atau versi horizontal scroll yang lebih compact
-def display_horizontal_scroll_legend():
-    """Legend horizontal dengan scroll jika perlu"""
-    
-    st.markdown("### 📊 Prediction Classes")
-    
-    ml_classes = [
-        {'level': 1, 'label': 'Insufficient_Weight', 'color': '#17a2b8'},
-        {'level': 2, 'label': 'Normal_Weight', 'color': '#28a745'},
-        {'level': 3, 'label': 'Overweight_Level_I', 'color': '#ffc107'},
-        {'level': 4, 'label': 'Overweight_Level_II', 'color': '#ff9800'},
-        {'level': 5, 'label': 'Obesity_Type_I', 'color': '#fd7e14'},
-        {'level': 6, 'label': 'Obesity_Type_II', 'color': '#dc3545'},
-        {'level': 7, 'label': 'Obesity_Type_III', 'color': '#6f42c1'}
-    ]
-    
-    # Gunakan container dengan horizontal scroll
-    st.markdown(
-        f"""
-        <div style='
-            display: flex;
-            overflow-x: auto;
-            gap: 8px;
-            padding: 10px 0;
-            margin-bottom: 20px;
-        '>
-            {"".join([
-                f"""
-                <div style='
-                    min-width: 120px;
-                    text-align: center; 
-                    padding: 8px 6px; 
-                    border-radius: 6px; 
-                    background-color: {class_info['color']}20;
-                    border: 2px solid {class_info['color']};
-                    flex-shrink: 0;
-                '>
-                    <div style='font-size: 11px; font-weight: bold; color: {class_info['color']}; margin-bottom: 2px;'>
-                        {class_info['label'].replace('_', ' ')}
-                    </div>
-                    <div style='font-size: 9px; color: #666;'>
-                        Class {class_info['level']}
-                    </div>
-                </div>
-                """ for class_info in ml_classes
-            ])}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
 # =======================================
 # FUNCTIONS OF TAB PERFORMANCE & ANALYSIS
 # =======================================
@@ -1157,9 +1039,7 @@ with tab1:
                     risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
                     st.plotly_chart(risk_fig, use_container_width=True)
                     #TEST display_risk_legend_safe(risk_info)
-                    #display_color_bar_legend(risk_info)
-                    display_horizontal_scroll_legend()
-                    #display_ml_model_legend()
+                    display_color_bar_legend(risk_info)
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
@@ -1461,6 +1341,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
