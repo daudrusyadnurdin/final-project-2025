@@ -253,7 +253,7 @@ def create_dietary_radar(feature_inputs):
         polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
         title_text="🍽️ DIETARY HABITS",
         title_font_size=20,
-        title_x=0.5,
+        title_x=0.0,
         height=400
     )
     return fig
@@ -286,7 +286,7 @@ def create_lifestyle_radar(feature_inputs):
         polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
         title_text="🏃‍♂️ LIFESTYLE FACTORS", 
         title_font_size=20,
-        title_x=0.5,
+        title_x=0.0,
         height=400
     )
     return fig
@@ -315,7 +315,7 @@ def create_health_radar(feature_inputs):
         polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
         title_text="❤️ HEALTH INDICATORS",
         title_font_size=20,
-        title_x=0.5,
+        title_x=0.0,
         height=400
     )
     return fig
@@ -1412,6 +1412,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
