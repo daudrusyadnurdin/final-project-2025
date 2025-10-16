@@ -1145,32 +1145,45 @@ with tab1:
                     st.plotly_chart(create_donut_chart(pred_proba, class_mapping), 
                                   use_container_width=True)
                 with col4:
-                    # Simple version dengan sns.despine()
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    sns.set_style("whitegrid")
-
-                    colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
-                    bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
-
-                    if pred_class < len(bars):
-                        bars[pred_class].set_edgecolor('black')
-                        bars[pred_class].set_linewidth(3)
-
-                    # 🔥 INI YANG PENTING - hilangkan spines kanan & atas
-                    sns.despine(right=True, top=True)
-
-                    ax.set_ylabel('Probability')
-                    ax.set_title('Obesity Level Probabilities')
-                    ax.tick_params(axis='x', rotation=45)
-
-                    for i, bar in enumerate(bars):
-                        height = bar.get_height()
-                        if height > 0.01:
-                            ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                   f'{height:.3f}', ha='center', va='bottom')
-
-                    plt.tight_layout()
-                    st.pyplot(fig)
+                    # Langsung definisikan obesity_levels
+                    obesity_levels = [
+                        'Insufficient Weight',
+                        'Normal Weight', 
+                        'Overweight Level I',
+                        'Overweight Level II',
+                        'Obesity Type I',
+                        'Obesity Type II', 
+                        'Obesity Type III'
+                    ]
+                    
+                    # Pastikan pred_proba punya 7 elements
+                    if len(pred_proba) == 7:
+                        fig, ax = plt.subplots(figsize=(12, 6))
+                        sns.set_style("whitegrid")
+                    
+                        colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
+                        bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
+                    
+                        if pred_class < len(bars):
+                            bars[pred_class].set_edgecolor('black')
+                            bars[pred_class].set_linewidth(3)
+                    
+                        sns.despine(right=True, top=True)
+                    
+                        ax.set_ylabel('Probability')
+                        ax.set_title('Obesity Level Probabilities')
+                        ax.tick_params(axis='x', rotation=45)
+                    
+                        for i, bar in enumerate(bars):
+                            height = bar.get_height()
+                            if height > 0.01:
+                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                                       f'{height:.3f}', ha='center', va='bottom')
+                    
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                    else:
+                        st.error(f"Expected 7 probability values, got {len(pred_proba)}")
                 
                 # Health recommendations
                 st.subheader("💡 Health Recommendations")
@@ -1435,6 +1448,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
