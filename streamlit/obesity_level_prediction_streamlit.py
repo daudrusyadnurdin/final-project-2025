@@ -1249,15 +1249,10 @@ with tab1:
 
                 rec_key = class_mapping[pred_class]
 
-                html_content = """
-                <div style='margin-left: 40px;'>
-                    <h3>💡 Health Recommendations</h3>
-                """
+                st.markdown("<div style='margin-left: 40px;'>", unsafe_allow_html=True)
                 for rec in recommendations.get(rec_key, []):
-                    html_content += f"<p style='margin: 12px 0;'>✅ {rec}</p>"
-                html_content += "</div>"
-
-                st.markdown(html_content, unsafe_allow_html=True)
+                    st.markdown(f"✅ {rec}")
+                st.markdown("</div>", unsafe_allow_html=True)
                 
             except Exception as e:
                 st.error(f"❌ Prediction error: {str(e)}")
