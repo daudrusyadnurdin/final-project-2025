@@ -1039,7 +1039,7 @@ with tab1:
                     risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
                     st.plotly_chart(risk_fig, use_container_width=True)
                     #TEST display_risk_legend_safe(risk_info)
-                    display_chart_with_mini_legend(risk_info)
+                    display_color_bar_legend(risk_info)
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
@@ -1341,6 +1341,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
