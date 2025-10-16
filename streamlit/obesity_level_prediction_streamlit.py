@@ -822,7 +822,15 @@ with tab1:
         st.subheader("📋 Your Input Summary")
         
         # Personal Information
-        st.markdown("**Personal Information:**")
+        #st.markdown("**Personal Information:**")
+        st.write(
+            """
+            <div style='background-color: #D3D3D3; padding: 10px; border-radius: 5px; color: black;'>
+                Personal Information
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         col_a, col_b, col_c, col_d = st.columns(4)
         with col_a:
             st.metric("Gender", feature_inputs["Gender"])
