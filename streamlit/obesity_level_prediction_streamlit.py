@@ -92,7 +92,7 @@ def load_model():
 # ============================
 
 def calculate_health_score(feature_inputs):
-    """Hitung health score sederhana berdasarkan input user"""
+    """Calculate a simple health score based on user input"""
     
     score = 0
     
@@ -123,7 +123,7 @@ def calculate_health_score(feature_inputs):
     return max(0, min(100, score))
 
 def get_health_interpretation(score):
-    """Interpretasi health score"""
+    """Interpretation of the health score"""
     if score >= 80:
         return "Excellent", "🟢", "health-score-excellent"
     elif score >= 60:
@@ -134,7 +134,7 @@ def get_health_interpretation(score):
         return "Needs Improvement", "🔴", "health-score-poor"
 
 def create_gauge_chart(pred_class, pred_proba, class_mapping):
-    """Membuat gauge chart yang menarik"""
+    """Create an engaging gauge chart"""
     
     obesity_levels = list(class_mapping.values())
     current_level = obesity_levels[pred_class]
@@ -186,7 +186,7 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
     return fig
 
 def create_radar_chart(feature_inputs):
-    """Membuat radar chart untuk lifestyle factors"""
+    """Create a radar chart for lifestyle factors"""
     
     categories = ['Physical Activity', 'Healthy Diet', 'Water Intake', 'Meal Frequency', 'Lifestyle Score']
     
@@ -335,9 +335,9 @@ def display_risk_legend_safe(risk_info):
                 unsafe_allow_html=True
             )
 
-# ============================
-# FUNGSI UNTUK TAB PERFORMANCE & ANALYSIS
-# ============================
+# =======================================
+# FUNCTIONS OF TAB PERFORMANCE & ANALYSIS
+# =======================================
 
 def create_real_feature_importance():
     """Feature importance realistic berdasarkan domain knowledge"""
@@ -1109,38 +1109,38 @@ with tab3:
     
     with col1:
         st.subheader("📈 Feature Importance")
-        st.write("**Faktor paling berpengaruh dalam prediksi obesity:**")
+        st.write("**The most influential factor in predicting obesity:**")
         
         importance_fig = create_real_feature_importance()
         st.pyplot(importance_fig)
         
         st.markdown("""
         **Interpretasi:**
-        - **Weight & Height**: Faktor fisik paling dominan (BMI calculation)
-        - **Age & Physical Activity**: Lifestyle factors yang sangat berpengaruh
-        - **Dietary Habits**: Pola makan menentukan asupan kalori
+        - **Weight & Height**: The most dominant physical factor (BMI calculation)
+        - **Age & Physical Activity**: Lifestyle factors with significant influence
+        - **Dietary Habits**: Dietary patterns determine calorie intake
         """)
         
         st.subheader("🔄 Lifestyle Comparison")
-        st.write("Perbandingan gaya hidup Anda dengan target sehat:")
+        st.write("Comparison of your lifestyle with healthy targets:")
         st.pyplot(create_lifestyle_comparison_chart(feature_inputs))
     
     with col2:
         st.subheader("⚖️ BMI Context")
-        st.write("Posisi BMI Anda dalam distribusi populasi:")
+        st.write("Your BMI position within the population distribution:")
         
         if 'pred_class' in locals():
             st.pyplot(create_bmi_distribution_chart(bmi, pred_class))
         else:
-            st.info("Lakukan prediksi terlebih dahulu untuk melihat BMI distribution")
+            st.info("Perform a prediction first to analyze the BMI distribution.")
         
         st.subheader("🎯 Risk Factors Breakdown")
         risk_chart = create_health_risk_breakdown(feature_inputs)
         if risk_chart:
-            st.write("**Faktor risiko spesifik berdasarkan input Anda:**")
+            st.write("**Specific risk factors based on your input:**")
             st.pyplot(risk_chart)
         else:
-            st.success("✅ Tidak ada faktor risiko signifikan yang teridentifikasi!")
+            st.success("✅ No significant risk factors have been identified.")
     
     # Insights & Recommendations
     st.subheader("💡 Personalized Action Plan")
@@ -1148,22 +1148,22 @@ with tab3:
     personalized_recs = []
     
     if feature_inputs['FAF'] < 1.5:
-        personalized_recs.append("🚶 **Tingkatkan aktivitas fisik**: Targetkan minimal 30 menit per hari, 5x seminggu")
+        personalized_recs.append("🚶 **Enhance physical activity levels**: Target a minimum of 30 minutes of moderate exercise daily, five times per week.")
     
     if feature_inputs['FCVC'] < 2:
-        personalized_recs.append("🥦 **Tingkatkan konsumsi sayuran**: Tambah porsi sayur dalam setiap makan")
+        personalized_recs.append("🥦 **Eat more greens**: Make sure every meal includes a generous portion of vegetables.")
     
     if feature_inputs['CH2O'] < 2:
-        personalized_recs.append("💧 **Perbanyak minum air**: Targetkan 2-3 liter air per hari")
+        personalized_recs.append("💧 **Stay hydrated**: Drink at least 2–3 liters of water every day to keep your body functioning optimally.")
     
     if feature_inputs['TUE'] > 1.5:
-        personalized_recs.append("📱 **Kurangi screen time**: Batasi penggunaan gadget dan lebih banyak bergerak")
+        personalized_recs.append("📱 **Cut down on screen time**: Spend less time on gadgets and stay more active during the day.")
     
     if feature_inputs['FAVC'] == 'yes':
-        personalized_recs.append("🍔 **Kurangi makanan tinggi kalori**: Ganti dengan alternatif yang lebih sehat")
+        personalized_recs.append("🍔 **Cut back on high-calorie foods**: fuel your body with healthier, energizing choices that help you feel your best!")
     
     if not personalized_recs:
-        personalized_recs.append("✅ **Pertahankan gaya hidup sehat** yang sudah dilakukan!")
+        personalized_recs.append("✅ **Keep up your healthy habits and stay consistent!**")
     
     for i, rec in enumerate(personalized_recs, 1):
         st.write(f"{i}. {rec}")
