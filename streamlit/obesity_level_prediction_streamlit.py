@@ -878,7 +878,7 @@ with tab1:
         
         # BMI Analysis
         st.subheader("⚖️ BMI Analysis")
-        st.metric("Body Mass Index", f"{bmi:.1f}")
+        st.metric("Body Mass Index", f"{bmi:.1f} kg/m²")
         if bmi < 18.5:
             st.info("📊 **Category**: Underweight")
             st.progress(0.3)
@@ -928,7 +928,8 @@ with tab1:
         
         # Risk Indicators
         st.subheader("⚠️ Risk Indicators")
-        
+
+        # Check info of Risk factors
         risk_factors = []
         if feature_inputs['FAVC'] == 'yes':
             risk_factors.append("High-calorie diet")
@@ -1311,6 +1312,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
