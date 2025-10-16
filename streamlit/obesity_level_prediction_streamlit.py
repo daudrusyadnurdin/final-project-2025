@@ -350,9 +350,12 @@ def display_color_bar_legend(risk_info):
     )
     '''
 def display_color_bar_legend(risk_info):
-    """Menampilkan color bar horizontal dengan info lengkap"""
+    """Menampilkan color bar horizontal dengan debug info"""
     
     st.markdown("**Obesity Risk Spectrum**")
+    
+    # Debug: Tampilkan risk_info untuk melihat struktur sebenarnya
+    st.write("🔍 Debug risk_info:", [risk['label'] for risk in risk_info])
     
     # Create color gradient bar
     color_gradient = "background: linear-gradient(90deg"
@@ -360,16 +363,8 @@ def display_color_bar_legend(risk_info):
         color_gradient += f", {risk['color']}"
     color_gradient += ");"
     
-    # Risk level mapping
-    risk_mapping = {
-        'Insufficient_Weight': 'Very Low',
-        'Normal_Weight': 'Low', 
-        'Overweight_Level_I': 'Medium',
-        'Overweight_Level_II': 'High',
-        'Obesity_Type_I': 'Very High',
-        'Obesity_Type_II': 'Severe',
-        'Obesity_Type_III': 'Critical'
-    }
+    # Risk levels berdasarkan urutan saja
+    risk_levels = ['Very Low', 'Low', 'Medium', 'High', 'Very High', 'Severe', 'Critical']
     
     st.markdown(
         f"""
@@ -382,12 +377,12 @@ def display_color_bar_legend(risk_info):
         
         <!-- Risk Levels -->
         <div style='display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 2px;'>
-            {"".join([f"<div style='color: {risk['color']};'>{risk_mapping[risk['label']]}</div>" for risk in risk_info])}
+            {"".join([f"<div style='color: {risk_info[i]['color']};'>{risk_levels[i]}</div>" for i in range(len(risk_info))])}
         </div>
         
         <!-- Class Names -->
         <div style='display: flex; justify-content: space-between; font-size: 8px; color: #666;'>
-            {"".join([f"<div style='text-align: center; width: {100/len(risk_info)}%'>{risk['label'].replace('_', ' ')}</div>" for risk in risk_info])}
+            {"".join([f"<div style='text-align: center; width: {100/len(risk_info)}%'>{risk['label']}</div>" for risk in risk_info])}
         </div>
         """,
         unsafe_allow_html=True
@@ -1347,6 +1342,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
