@@ -296,7 +296,7 @@ def create_health_radar(feature_inputs):
     """Radar chart khusus Health Indicators"""
     categories = [
         'Smoking (SMOKE)',
-        'Alcohol (CALC)'
+        'Alcohol (CALC)',
         'Family History (FHWO)'
     ]
     
