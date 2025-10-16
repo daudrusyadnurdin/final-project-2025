@@ -210,32 +210,46 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
 
 def create_radar_chart(feature_inputs):
     try:
-        # FEATURES SESUAI DENGAN MODEL ANDA
         categories = [
-            'Physical Activity', 
-            'Water Intake',
-            'Vegetable Consumption',
-            'Meal Frequency', 
-            'High-Calorie Food',
-            'Technology Usage',
-            'Family History',
-            'Smoking',
-            'Alcohol Consumption'
+            'Physical Activity (FAF)',
+            'Tech Usage (TUE)', 
+            'Water Intake (CH2O)',
+            'High-Calorie Food (FAVC)',
+            'Vegetable Consumption (FCVC)',
+            'Meal Frequency (NCP)',
+            'Smoking (SMOKE)',
+            'Alcohol (CALC)'
         ]
         
-        # Mapping dari feature_inputs ke values radar (0-5 scale)
-        # Sesuaikan dengan cara feature_inputs disimpan
+        # SCALING YANG BENAR BERDASARKAN RANGE SEBENARNYA
         values = [
-            feature_inputs.get('physical_activity', 3),      # Aktivitas fisik
-            feature_inputs.get('water_intake', 3),           # Konsumsi air
-            feature_inputs.get('vegetable_consumption', 3),  # Sayuran
-            feature_inputs.get('meal_frequency', 3),         # Frekuensi makan
-            feature_inputs.get('high_calorie_food', 3),      # Makanan tinggi kalori
-            feature_inputs.get('technology_usage', 3),       # Penggunaan teknologi
-            feature_inputs.get('family_history', 3),         # Riwayat keluarga
-            feature_inputs.get('smoking', 3),                # Merokok
-            feature_inputs.get('alcohol_consumption', 3)     # Konsumsi alkohol
+            # FAF: 0-3 → Scale to 0-5
+            (feature_inputs.get('FAF', 1.5) / 3) * 5,
+            
+            # TUE: 0-2 → Scale to 0-5  
+            (feature_inputs.get('TUE', 1) / 2) * 5,
+            
+            # CH2O: 1-3 → Scale to 0-5
+            ((feature_inputs.get('CH2O', 2) - 1) / 2) * 5,
+            
+            # FAVC: Binary 0-1 → Scale to 0-5
+            feature_inputs.get('FAVC', 0.5) * 5,
+            
+            # FCVC: 1-3 → Scale to 0-5
+            ((feature_inputs.get('FCVC', 2) - 1) / 2) * 5,
+            
+            # NCP: 1-4 → Scale to 0-5
+            ((feature_inputs.get('NCP', 2.5) - 1) / 3) * 5,
+            
+            # SMOKE: Binary 0-1 → Scale to 0-5
+            feature_inputs.get('SMOKE', 0.5) * 5,
+            
+            # CALC: 0-3 → Scale to 0-5
+            (feature_inputs.get('CALC', 1.5) / 3) * 5
         ]
+        
+        # Ensure values are within 0-5 range
+        values = [max(0, min(5, v)) for v in values]
         
         fig = go.Figure()
         
@@ -243,10 +257,10 @@ def create_radar_chart(feature_inputs):
             r=values,
             theta=categories,
             fill='toself',
-            name='Lifestyle Profile',
+            name='Health & Lifestyle Profile',
             line=dict(color='#FF6B6B', width=2),
             fillcolor='rgba(255, 107, 107, 0.3)',
-            hovertemplate='<b>%{theta}</b><br>Score: %{r}/5<extra></extra>'
+            hovertemplate='<b>%{theta}</b><br>Normalized Score: %{r:.1f}/5<extra></extra>'
         ))
         
         fig.update_layout(
@@ -262,8 +276,7 @@ def create_radar_chart(feature_inputs):
                     tickfont=dict(size=10)
                 )
             ),
-            # JUDUL BESAR DI TENGAH
-            title_text="📊 LIFESTYLE PROFILE RADAR",
+            title_text="📊 HEALTH & LIFESTYLE PROFILE",
             title_font_size=24,
             title_font_color='#2E86AB',
             title_font_family='Arial',
@@ -272,20 +285,17 @@ def create_radar_chart(feature_inputs):
             showlegend=False,
             margin=dict(t=100, l=80, r=80, b=80),
             width=700,
-            height=500,
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
+            height=500
         )
         
         return fig
         
     except Exception as e:
         st.error(f"Error creating radar chart: {e}")
-        # Fallback simple chart
-        fig = go.Figure()
-        categories = ['Activity', 'Water', 'Veggies', 'Meals', 'Calories', 'Tech', 'Family', 'Smoke', 'Alcohol']
-        fig.add_trace(go.Scatterpolar(r=[3,3,3,3,3,3,3,3,3], theta=categories, fill='toself'))
-        fig.update_layout(title_text="Lifestyle Profile", title_x=0.5)
+        # Fallback
+        categories = ['Activity', 'Tech', 'Water', 'Calories', 'Veggies', 'Meals', 'Smoke', 'Alcohol']
+        fig = go.Figure(go.Scatterpolar(r=[3,3,3,3,3,3,3,3], theta=categories, fill='toself'))
+        fig.update_layout(title_text="Health & Lifestyle Profile", title_x=0.5)
         return fig
 
 def create_donut_chart(pred_proba, class_mapping):
@@ -1360,6 +1370,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
