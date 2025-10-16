@@ -208,6 +208,23 @@ def create_gauge_chart(pred_class, pred_proba, class_mapping):
     
     return fig
 
+def safe_float_convert(value, default=0):
+    """Safe conversion to float dengan handling yes/no"""
+    try:
+        if isinstance(value, str):
+            value = value.lower().strip()
+            if value in ['yes', 'true', '1', 'always']:
+                return 1.0
+            elif value in ['no', 'false', '0', 'never']:
+                return 0.0
+            elif value in ['sometimes']:
+                return 0.5
+            elif value in ['frequently']:
+                return 0.8
+        return float(value)
+    except (ValueError, TypeError):
+        return float(default)
+
 def create_radar_chart(feature_inputs):
     try:
         categories = [
@@ -221,34 +238,33 @@ def create_radar_chart(feature_inputs):
             'Alcohol (CALC)'
         ]
         
-        # CONVERT TO FLOAT DULU SEBELUM SCALING
+        # PAKAI SAFE CONVERSION DENGAN HANDLING YES/NO
         values = [
-            # FAF: 0-3 → Scale to 0-5
-            (float(feature_inputs.get('FAF', 1.5)) / 3) * 5,
+            # FAF: Continuous 0-3
+            (safe_float_convert(feature_inputs.get('FAF', 1.5)) / 3) * 5,
             
-            # TUE: 0-2 → Scale to 0-5  
-            (float(feature_inputs.get('TUE', 1)) / 2) * 5,
+            # TUE: Integer 0-2
+            (safe_float_convert(feature_inputs.get('TUE', 1)) / 2) * 5,
             
-            # CH2O: 1-3 → Scale to 0-5
-            ((float(feature_inputs.get('CH2O', 2)) - 1) / 2) * 5,
+            # CH2O: Continuous 1-3
+            ((safe_float_convert(feature_inputs.get('CH2O', 2)) - 1) / 2) * 5,
             
-            # FAVC: Binary 0-1 → Scale to 0-5
-            float(feature_inputs.get('FAVC', 0.5)) * 5,
+            # FAVC: Binary (yes/no) → Convert to 1/0
+            safe_float_convert(feature_inputs.get('FAVC', 'no')) * 5,  # 'no'=0, 'yes'=5
             
-            # FCVC: 1-3 → Scale to 0-5
-            ((float(feature_inputs.get('FCVC', 2)) - 1) / 2) * 5,
+            # FCVC: Integer 1-3
+            ((safe_float_convert(feature_inputs.get('FCVC', 2)) - 1) / 2) * 5,
             
-            # NCP: 1-4 → Scale to 0-5
-            ((float(feature_inputs.get('NCP', 2.5)) - 1) / 3) * 5,
+            # NCP: Continuous 1-4
+            ((safe_float_convert(feature_inputs.get('NCP', 2.5)) - 1) / 3) * 5,
             
-            # SMOKE: Binary 0-1 → Scale to 0-5
-            float(feature_inputs.get('SMOKE', 0.5)) * 5,
+            # SMOKE: Binary (yes/no) → Convert to 1/0
+            safe_float_convert(feature_inputs.get('SMOKE', 'no')) * 5,  # 'no'=0, 'yes'=5
             
-            # CALC: 0-3 → Scale to 0-5
-            (float(feature_inputs.get('CALC', 1.5)) / 3) * 5
+            # CALC: Categorical (no/sometimes/frequently/always)
+            safe_float_convert(feature_inputs.get('CALC', 'no')) * 5
         ]
         
-        # Ensure values are within 0-5 range
         values = [max(0, min(5, v)) for v in values]
         
         fig = go.Figure()
@@ -293,9 +309,8 @@ def create_radar_chart(feature_inputs):
     except Exception as e:
         st.error(f"Error creating radar chart: {e}")
         
-        # DEBUG: Tampilkan feature_inputs untuk troubleshooting
+        # DEBUG
         st.write("🔍 Debug - Feature Inputs:", feature_inputs)
-        st.write("🔍 Debug - Feature Inputs Types:", {k: type(v) for k, v in feature_inputs.items()})
         
         # Fallback
         categories = ['Activity', 'Tech', 'Water', 'Calories', 'Veggies', 'Meals', 'Smoke', 'Alcohol']
@@ -1375,6 +1390,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
