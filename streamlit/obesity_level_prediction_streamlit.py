@@ -31,7 +31,7 @@ import plotly.express as px
 # Set page config
 # -------------------------------------------
 st.set_page_config(
-    page_title="Obesity Risk Prediction App", 
+    page_title="Obesity Levels Prediction App", 
     layout="wide",
     page_icon="🏥"
 )
@@ -320,6 +320,34 @@ def create_risk_meter_with_legend(pred_class):
     )
     
     return fig, risk_info
+
+def display_color_bar_legend(risk_info):
+    """Menampilkan color bar horizontal yang super compact"""
+    
+    st.markdown("**Risk Spectrum:**")
+    
+    # Create color gradient bar
+    color_gradient = "background: linear-gradient(90deg"
+    for risk in risk_info:
+        color_gradient += f", {risk['color']}"
+    color_gradient += ");"
+    
+    st.markdown(
+        f"""
+        <div style='
+            {color_gradient}
+            height: 25px;
+            border-radius: 5px;
+            margin: 5px 0;
+            position: relative;
+        '>
+        </div>
+        <div style='display: flex; justify-content: space-between; font-size: 10px; margin-top: -5px;'>
+            {"".join([f"<div style='color: {risk['color']}; font-weight: bold;'>{risk['label']}</div>" for risk in risk_info])}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 def display_risk_legend_safe(risk_info):
     """Menampilkan legend menggunakan Streamlit native yang aman"""
@@ -1011,6 +1039,7 @@ with tab1:
                     risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
                     st.plotly_chart(risk_fig, use_container_width=True)
                     #TEST display_risk_legend_safe(risk_info)
+                    display_chart_with_mini_legend(risk_info)
                 
                 # Row 2: Donut Chart dan Radar Chart
                 col3, col4 = st.columns(2)
@@ -1312,6 +1341,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
 
 
 
