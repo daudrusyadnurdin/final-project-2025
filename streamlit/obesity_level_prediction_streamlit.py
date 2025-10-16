@@ -296,7 +296,7 @@ def create_health_radar(feature_inputs):
     """Radar chart khusus Health Indicators"""
     categories = [
         'Smoking (SMOKE)',
-        'Alcohol (CALC)',
+        'Alcohol (CALC)',  
         'Family History (FHWO)'
     ]
     
@@ -305,9 +305,9 @@ def create_health_radar(feature_inputs):
         (1 - safe_float_convert(feature_inputs.get('SMOKE', 'no'))) * 5,
         
         # CALC: Lower is better (0-3 → 0-5, reversed)
-        (1 - (safe_float_convert(feature_inputs.get('CALC', 'no')) / 3)) * 5
+        (1 - (safe_float_convert(feature_inputs.get('CALC', 'no')) / 3)) * 5,
         
-        # FHWO: Lower is better (binary, reversed)
+        # FHWO: Lower is better (binary, reversed)  
         (1 - safe_float_convert(feature_inputs.get('FHWO', 'no'))) * 5,
     ]
     
@@ -320,7 +320,7 @@ def create_health_radar(feature_inputs):
         polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
         title_text="❤️ HEALTH INDICATORS",
         title_font_size=20,
-        title_x=0.0,
+        title_x=0.5,  # 🔥 Biar judulnya di tengah
         height=400
     )
     return fig
