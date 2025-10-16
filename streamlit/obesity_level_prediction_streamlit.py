@@ -825,7 +825,7 @@ with tab1:
         #st.markdown("**Personal Information:**")
         st.write(
             """
-            <div style='background-color: #D3D3D3; padding: 10px; border-radius: 5px; color: black;'>
+            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
                 Personal Information
             </div>
             """,
@@ -1294,3 +1294,4 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
