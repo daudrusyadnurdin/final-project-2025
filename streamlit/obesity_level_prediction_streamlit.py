@@ -898,16 +898,17 @@ def correct_preprocessing(feature_dict):
 
 tab1, tab2, tab3, tab4 = st.tabs(["🎯 Prediction", "📊 Model Performance", "🔍 Health Analysis", "ℹ️ About"])
 
-with tab1:
-    #st.header("📈 Prediction Results")
+with tab1: # Main tab: Prediction of model
     
     col1, col2 = st.columns(2)
     
     with col1:
+        # ----------------------------------------
+        # Summary information of input parameters
+        # ----------------------------------------
         st.subheader("📋 Your Input Summary")
         
         # Personal Information
-        #st.markdown("**Personal Information:**")
         st.write(
             """
             <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
@@ -920,14 +921,13 @@ with tab1:
         with col_a:
             st.metric("Gender", feature_inputs["Gender"])
         with col_b:
-            st.metric("Age", f"{feature_inputs['Age']} y.o.")
+            st.metric("Age (y.o)", f"{feature_inputs['Age']}")
         with col_c:
-            st.metric("Height", f"{feature_inputs["Height"]} cm")
+            st.metric("Height (cm)", f"{feature_inputs["Height"]}")
         with col_d:
-            st.metric("Weight", f"{feature_inputs["Weight"]} kg")
+            st.metric("Weight (kg)", f"{feature_inputs["Weight"]}")
         
         # Lifestyle Factors
-        # st.markdown("**Lifestyle Factors:**")
         st.write(
             """
             <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
@@ -948,7 +948,6 @@ with tab1:
             st.write(f"**High-Calorie Food**: {feature_inputs['FAVC']}")
         
         # Health Indicators
-        # st.markdown("**Health Indicators:**")
         st.write(
             """
             <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
@@ -961,9 +960,11 @@ with tab1:
         st.write(f"**Smoking Habit**: {feature_inputs['SMOKE']}")
         st.write(f"**Alcohol Consumption**: {feature_inputs['CALC']}")
         
+        # -------------
         # BMI Analysis
-        st.subheader("⚖️ BMI Analysis")
-        st.metric("Body Mass Index", f"{bmi:.1f} kg/m²")
+        # -------------
+        st.subheader("⚖️ BMI Analysis (kg/m²)")
+        st.metric("Body Mass Index", f"{bmi:.1f}")
         if bmi < 18.5:
             st.info("📊 **Category**: Underweight")
             st.progress(0.3)
@@ -1031,7 +1032,9 @@ with tab1:
         else:
             st.success("No significant risk factors identified!")
     
+    # ------------------
     # Prediction button
+    # ------------------
     if st.button("🎯 Predict Obesity Level", type="primary", use_container_width=True):
         with st.spinner("Analyzing features and making prediction..."):
             try:
@@ -1139,7 +1142,7 @@ with tab1:
                     if len(pred_proba) == 7:
                         colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
                         
-                        # 🔥 BUAT BAR CHART DENGAN PLOTLY - Lebih responsive
+                        # BUAT BAR CHART DENGAN PLOTLY - Lebih responsive
                         fig = go.Figure()
                         
                         for i, (level, prob, color) in enumerate(zip(obesity_levels, pred_proba, colors)):
@@ -1163,8 +1166,8 @@ with tab1:
                             xaxis_title="Obesity Levels",
                             yaxis_title="Probability",
                             showlegend=False,
-                            height=500,  # 🔥 Tinggi optimal
-                            margin=dict(t=50, l=50, r=50, b=100),  # 🔥 Margin untuk label panjang
+                            height=500,  # Tinggi optimal
+                            margin=dict(t=50, l=50, r=50, b=100),  # Margin untuk label panjang
                             xaxis=dict(tickangle=45)
                         )
                         
