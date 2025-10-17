@@ -636,7 +636,7 @@ def create_performance_metrics():
     }
 
 # ============================
-# MAIN APPLICATION
+# MAIN PROGRAM
 # ============================
 
 #Banner
@@ -926,27 +926,7 @@ with tab1: # Main tab: Prediction of model
             st.metric("Height (cm)", f"{feature_inputs["Height"]}")
         with col_d:
             st.metric("Weight (kg)", f"{feature_inputs["Weight"]}")
-        
-        # Lifestyle Factors
-        st.write(
-            """
-            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
-                Lifestyle Factors
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        col_d, col_e = st.columns(2)
-        with col_d:
-            st.write(f"**Physical Activity**: {feature_inputs['FAF']}/3.0")
-            st.write(f"**Vegetable Intake**: {feature_inputs['FCVC']}/3.0")
-            st.write(f"**Water Consumption**: {feature_inputs['CH2O']}/3.0")
-        with col_e:
-            st.write(f"**Meals per Day**: {feature_inputs['NCP']}")
-            st.write(f"**Screen Time**: {feature_inputs['TUE']}/2.0")
-            st.write(f"**High-Calorie Food**: {feature_inputs['FAVC']}")
-        
+            
         # Health Indicators
         st.write(
             """
@@ -960,11 +940,48 @@ with tab1: # Main tab: Prediction of model
         st.write(f"**Smoking Habit**: {feature_inputs['SMOKE']}")
         st.write(f"**Alcohol Consumption**: {feature_inputs['CALC']}")
         
+        # Dietary habit
+        st.write(
+            """
+            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
+                Dietary Habits
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.write(f"**Vegetable Intake**: {feature_inputs['FCVC']}/3.0")
+            st.write(f"**Meals per Day**: {feature_inputs['NCP']}/4.0")
+            st.write(f"**High-Calorie Food**: {feature_inputs['FAVC']}")                      
+        with col_b:           
+            st.write(f"**Food between meals**: {feature_inputs['CAEC']}")
+            st.write(f"**Calorie monitoring**: {feature_inputs['SCC']}")
+        
+        # Lifestyle Factors
+        st.write(
+            """
+            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
+                Lifestyle Factors
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.write(f"**Physical Activity**: {feature_inputs['FAF']}/3.0")
+            st.write(f"**Water Consumption**: {feature_inputs['CH2O']}/3.0")
+        with col_b:
+            st.write(f"**Screen Time**: {feature_inputs['TUE']}/2.0")
+            st.write(f"**Transportation**: {feature_inputs['MTRANS']}")
+                 
         # -------------
         # BMI Analysis
         # -------------
-        st.subheader("⚖️ BMI Analysis (kg/m²)")
-        st.metric("Body Mass Index", f"{bmi:.1f}")
+        st.subheader("⚖️ BMI Analysis")
+        st.metric("Body Mass Index (kg/m²)", f"{bmi:.1f}")
         if bmi < 18.5:
             st.info("📊 **Category**: Underweight")
             st.progress(0.3)
@@ -1378,17 +1395,16 @@ with tab4:
     st.header("ℹ️ About This Application")
     
     st.markdown("""
-    ### 🏥 Obesity Risk Prediction System
-    
-    This application predicts obesity levels based on lifestyle and physical characteristics 
+    ### 🏥 Obesity levels Prediction App 
+    This application predicts obesity levels based on physical condition, health indicators, dietary habits, and lifestyle factors
     using a trained XGBoost machine learning model.
     
     #### 📋 Features Used:
     - **Personal Information**: Gender, Age, Height, Weight
+    - **Health Indicators**: Family history with overweight, Smoking habit, alcohol consumption
     - **Dietary Habits**: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
     - **Lifestyle Factors**: Physical activity, Water intake, Technology usage, Transportation
-    - **Health Indicators**: Family history with overweight, Smoking habit, alcohol consumption
-    
+  
     #### 🎯 Obesity Levels:
     - Insufficient Weight
     - Normal Weight  
