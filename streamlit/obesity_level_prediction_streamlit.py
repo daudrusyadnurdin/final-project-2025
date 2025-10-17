@@ -936,9 +936,13 @@ with tab1: # Main tab: Prediction of model
             """,
             unsafe_allow_html=True
         )
-        st.write(f"**Family History of Overweight**: {feature_inputs['FHWO']}")
-        st.write(f"**Smoking Habit**: {feature_inputs['SMOKE']}")
-        st.write(f"**Alcohol Consumption**: {feature_inputs['CALC']}")
+        
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.write(f"**Family History of Overweight**: {feature_inputs['FHWO']}")
+            st.write(f"**Smoking Habit**: {feature_inputs['SMOKE']}")
+        with col_b:
+            st.write(f"**Alcohol Consumption**: {feature_inputs['CALC']}")
         
         # Dietary habit
         st.write(
