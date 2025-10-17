@@ -1382,9 +1382,9 @@ with tab4:
     
     #### 📋 Features Used:
     - **Personal Information**: Gender, Age, Height, Weight
-    - **Dietary Habits**: Vegetable consumption, meal frequency, high-calorie food intake
-    - **Lifestyle Factors**: Physical activity, water intake, technology usage
-    - **Health Indicators**: Family history, smoking, alcohol consumption
+    - **Dietary Habits**: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
+    - **Lifestyle Factors**: Physical activity, Water intake, Technology usage, Transportation
+    - **Health Indicators**: Family history with overweight, Smoking habit, alcohol consumption
     
     #### 🎯 Obesity Levels:
     - Insufficient Weight
