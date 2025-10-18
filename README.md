@@ -1,4 +1,4 @@
-# Final Project 2025: Obesity Level Prediction
+# Final Project 2025: Obesity Levels Prediction
 Here are all files of my final project at DA/DS bootcamp class batch 34 at [dibimbing.id](https://dibimbing.id/).
 Please click, here is [my streamlit data science final project work](https://final-project-2025-obesity-level-prediction.streamlit.app/), has been deployed on streamlit cloud.
 
