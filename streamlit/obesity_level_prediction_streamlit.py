@@ -31,6 +31,8 @@ import seaborn as sns
 # -------------------------------------------
 # Set page config
 # -------------------------------------------
+st.cache_data.clear()
+
 st.set_page_config(
     page_title="Obesity Levels Prediction App", 
     layout="wide",
