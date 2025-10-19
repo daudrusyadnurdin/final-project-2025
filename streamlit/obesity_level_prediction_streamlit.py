@@ -1020,7 +1020,9 @@ with tab1: # Main tab: Prediction of model
         with col_b:
             st.write(f"**Screen Time**: {feature_inputs['TUE']}/2.0")
             st.write(f"**Transportation**: {feature_inputs['MTRANS']}")
-                 
+    
+    with col2:
+    
         # -------------
         # BMI Analysis
         # -------------
@@ -1039,59 +1041,6 @@ with tab1: # Main tab: Prediction of model
             st.error("📊 **Category**: Obesity")
             st.progress(0.9)
     
-    with col2:
-        st.subheader("🎯 Quick Health Assessment")
-        
-        health_score = calculate_health_score(feature_inputs)
-        health_level, health_icon, health_class = get_health_interpretation(health_score)
-        
-        st.metric("Overall Health Score", f"{health_score:.0f}/100")
-        
-        st.markdown(f"**Health Level**: <span class='{health_class}'>{health_icon} {health_level}</span>", unsafe_allow_html=True)
-        
-        if health_score >= 80:
-            st.success("Excellent health habits! Keep it up! 🎉")
-        elif health_score >= 60:
-            st.info("Good overall health with some areas for improvement 💪")
-        elif health_score >= 40:
-            st.warning("Fair health - consider lifestyle adjustments 📊")
-        else:
-            st.error("Health needs improvement - focus on key areas 🚨")
-        
-        # Progress bars untuk faktor kunci
-        st.write("**Key Health Factors:**")
-        
-        activity_level = (feature_inputs['FAF'] / 3.0) * 100
-        st.write(f"Physical Activity: {activity_level:.0f}%")
-        st.progress(activity_level/100)
-        
-        diet_score = (feature_inputs['FCVC'] / 3.0) * 100
-        st.write(f"Diet Quality: {diet_score:.0f}%")
-        st.progress(diet_score/100)
-        
-        lifestyle_score = 100 - (feature_inputs['TUE'] / 2.0) * 100
-        st.write(f"Active Lifestyle: {lifestyle_score:.0f}%")
-        st.progress(lifestyle_score/100)
-        
-        # Risk Indicators
-        st.subheader("⚠️ Risk Indicators")
-
-        # Check info of Risk factors
-        risk_factors = []
-        if feature_inputs['FAVC'] == 'yes':
-            risk_factors.append("High-calorie diet")
-        if feature_inputs['FAF'] < 1.0:
-            risk_factors.append("Low physical activity")
-        if feature_inputs['FHWO'] == 'yes':
-            risk_factors.append("Family history")
-        if feature_inputs['FCVC'] < 2.0:
-            risk_factors.append("Low vegetable intake")
-        
-        if risk_factors:
-            for factor in risk_factors:
-                st.write(f"• {factor}")
-        else:
-            st.success("No significant risk factors identified!")
     
     # ------------------
     # Prediction button
