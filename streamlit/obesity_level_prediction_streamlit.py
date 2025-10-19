@@ -86,7 +86,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ------------------------------------------------
-# Load model dengan error handling yang lebih baik
+# Load model with error handling 
 # ------------------------------------------------
 @st.cache_resource
 def load_model():
@@ -639,11 +639,15 @@ def create_performance_metrics():
 # MAIN PROGRAM
 # ============================
 
-#Banner
+# -------------------
+# Banner: aksesoris
+# -------------------
 header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/obelution-forbidden2.png"
 st.image(header_image_url, use_container_width=True)
 
+# -------------------
 # Header aplikasi
+# -------------------
 st.markdown('<h1 class="main-header">🏥 Obesity Level Prediction App</h1>', unsafe_allow_html=True)
 
 st.markdown(
@@ -653,14 +657,18 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# -------------------
 # Load model
+# -------------------
 model = load_model()
 
 if model is None:
     st.error("Failed to load model. Please check the model URL.")
     st.stop()
 
+# -------------------
 # Default values
+# -------------------
 default_values = {
     "Gender": "Male",
     "Age": 24.0,
@@ -699,18 +707,9 @@ if st.sidebar.button("🔄 Reset to Default"):
 # --------------------
 # Collect user inputs
 # --------------------
-
-#    Age: min = 14.0, max = 61.0
-#    Height: min = 1.45, max = 1.98
-#    Weight: min = 39.0, max = 173.0
-#    FCVC: min = 1.0, max = 3.0
-#    NCP: min = 1.0, max = 4.0
-#    CH2O: min = 1.0, max = 3.0
-#    FAF: min = 0.0, max = 3.0
-#    TUE: min = 0.0, max = 2.0
-
 feature_inputs = {} # Initial state
 
+# Personal information
 feature_inputs["Gender"] = st.sidebar.selectbox(
     "Gender", ["Male", "Female"],
     index=0 if st.session_state.get("Gender", default_values["Gender"]) == "Male" else 1
@@ -734,10 +733,34 @@ feature_inputs["Weight"] = st.sidebar.slider(
     step=1.0
 )
 
+
 # Calculate BMI
 bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
-#st.sidebar.metric("BMI", f"{bmi:.1f}")
 
+
+# Health Indicators: Family history with overweight, Smoking habit, alcohol consumption
+fhwo_options = ["no", "yes"]
+feature_inputs["FHWO"] = st.sidebar.selectbox(
+    "Family history of overweight", 
+    fhwo_options,
+    index=fhwo_options.index(st.session_state.get("FHWO", default_values["FHWO"]))
+)
+
+smoke_options = ["no", "yes"]
+feature_inputs["SMOKE"] = st.sidebar.selectbox(
+    "Smoking habit", 
+    smoke_options,
+    index=smoke_options.index(st.session_state.get("SMOKE", default_values["SMOKE"]))
+)
+
+calc_options = ["no", "Sometimes", "Frequently", "Always"]
+feature_inputs["CALC"] = st.sidebar.selectbox(
+    "Alcohol consumption", 
+    calc_options,
+    index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
+)
+
+# Dietary Habits: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
 feature_inputs["FCVC"] = st.sidebar.slider(
     "Frequency of vegetable consumption", 1.0, 3.0,
     value=float(st.session_state.get("FCVC", default_values["FCVC"])),
@@ -750,13 +773,6 @@ feature_inputs["NCP"] = st.sidebar.slider(
     step=0.1
 )
 
-caec_options = ["no", "Sometimes", "Frequently", "Always"]
-feature_inputs["CAEC"] = st.sidebar.selectbox(
-    "Consumption of food between meals", 
-    caec_options,
-    index=caec_options.index(st.session_state.get("CAEC", default_values["CAEC"]))
-)
-
 favc_options = ["no", "yes"]
 feature_inputs["FAVC"] = st.sidebar.selectbox(
     "Frequent consumption of high caloric food", 
@@ -764,22 +780,30 @@ feature_inputs["FAVC"] = st.sidebar.selectbox(
     index=favc_options.index(st.session_state.get("FAVC", default_values["FAVC"]))
 )
 
-feature_inputs["CH2O"] = st.sidebar.slider(
-    "Water consumption (1-3 scale)", 1.0, 3.0,
-    value=float(st.session_state.get("CH2O", default_values["CH2O"])),
-    step=0.1
+caec_options = ["no", "Sometimes", "Frequently", "Always"]
+feature_inputs["CAEC"] = st.sidebar.selectbox(
+    "Consumption of food between meals", 
+    caec_options,
+    index=caec_options.index(st.session_state.get("CAEC", default_values["CAEC"]))
 )
 
-calc_options = ["no", "Sometimes", "Frequently", "Always"]
-feature_inputs["CALC"] = st.sidebar.selectbox(
-    "Alcohol consumption", 
-    calc_options,
-    index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
+scc_options = ["no", "yes"]
+feature_inputs["SCC"] = st.sidebar.selectbox(
+    "Monitor calorie consumption", 
+    scc_options,
+    index=scc_options.index(st.session_state.get("SCC", default_values["SCC"]))
 )
 
+# Lifestyle Factors: Physical activity, Water intake, Technology usage, Transportation
 feature_inputs["FAF"] = st.sidebar.slider(
     "Physical activity frequency", 0.0, 3.0,
     value=float(st.session_state.get("FAF", default_values["FAF"])),
+    step=0.1
+)
+
+feature_inputs["CH2O"] = st.sidebar.slider(
+    "Water consumption (1-3 scale)", 1.0, 3.0,
+    value=float(st.session_state.get("CH2O", default_values["CH2O"])),
     step=0.1
 )
 
@@ -796,36 +820,17 @@ feature_inputs["MTRANS"] = st.sidebar.selectbox(
     index=mtrans_options.index(st.session_state.get("MTRANS", default_values["MTRANS"]))
 )
 
-scc_options = ["no", "yes"]
-feature_inputs["SCC"] = st.sidebar.selectbox(
-    "Monitor calorie consumption", 
-    scc_options,
-    index=scc_options.index(st.session_state.get("SCC", default_values["SCC"]))
-)
-
-fhwo_options = ["no", "yes"]
-feature_inputs["FHWO"] = st.sidebar.selectbox(
-    "Family history of overweight", 
-    fhwo_options,
-    index=fhwo_options.index(st.session_state.get("FHWO", default_values["FHWO"]))
-)
-
-smoke_options = ["no", "yes"]
-feature_inputs["SMOKE"] = st.sidebar.selectbox(
-    "Smoking habit", 
-    smoke_options,
-    index=smoke_options.index(st.session_state.get("SMOKE", default_values["SMOKE"]))
-)
 
 # Update session state
 for k, v in feature_inputs.items():
     st.session_state[k] = v
 
-# Fungsi preprocessing
+# Fungsi preprocessing > disesuaikan dengan proses encoding
 def correct_preprocessing(feature_dict):
     """Preprocessing yang sesuai dengan expected features model"""
     
-    categorical_to_numerical = {
+    categorical_to_numerical = { # add Gender > wrong encoding before
+        #"Gender": {"Male": 0, "yes": 1},
         "FHWO": {"no": 0, "yes": 1},
         "FAVC": {"no": 0, "yes": 1},
         "CAEC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3},
@@ -834,6 +839,7 @@ def correct_preprocessing(feature_dict):
         "CALC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3}
     }
     
+    # Posisi Gender: remainder__Gender
     expected_features = [
         'ohe__Gender_Male', 'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
         'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking', 
@@ -846,7 +852,7 @@ def correct_preprocessing(feature_dict):
     
     processed_data = {feature: 0.0 for feature in expected_features}
     
-    # Set one-hot encoding untuk Gender
+    # Set one-hot encoding untuk Gender >> nantinya dibuang, jadi lebih simple
     if feature_dict["Gender"] == "Male":
         processed_data["ohe__Gender_Male"] = 1.0
     else:
@@ -880,7 +886,7 @@ def correct_preprocessing(feature_dict):
     processed_data["remainder__FAF"] = float(feature_dict["FAF"])
     processed_data["remainder__TUE"] = float(feature_dict["TUE"])
     
-    # Set encoded categorical features
+    # Set encoded categorical features >> sisipkan Gender di sini!
     processed_data["remainder__FHWO"] = categorical_to_numerical["FHWO"][feature_dict["FHWO"]]
     processed_data["remainder__FAVC"] = categorical_to_numerical["FAVC"][feature_dict["FAVC"]]
     processed_data["remainder__CAEC"] = categorical_to_numerical["CAEC"][feature_dict["CAEC"]]
@@ -1106,7 +1112,9 @@ with tab1: # Main tab: Prediction of model
                 </div>
                 """, unsafe_allow_html=True)
                 
+                # --------------
                 # VISUALISASI
+                # --------------
                 st.subheader("📊 Advanced Visualization Dashboard")
                 
                 # Row 1: Gauge Chart dan Risk Meter
