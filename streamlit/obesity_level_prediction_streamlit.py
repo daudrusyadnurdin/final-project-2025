@@ -1296,6 +1296,7 @@ with tab2:
     
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
     st.image(header_image_url, use_container_width=True)
+    st.image(header_image_url, width=600, caption="Confusion Matrix - XGBoost Model")
     
     #cm_fig = create_confusion_matrix_plot()
     #st.pyplot(cm_fig)
