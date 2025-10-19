@@ -676,7 +676,7 @@ def create_performance_metrics():
 # -------------------
 # Banner: aksesoris
 # -------------------
-header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/obelution-forbidden2.png"
+header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/obelution-forbidden-bw.png"
 st.image(header_image_url, use_container_width=True)
 
 # -------------------
