@@ -1280,9 +1280,7 @@ with tab2:
     st.subheader("🏆 Top 10 Important Features")
     
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/importances.png"
-    st.image(header_image_url, width=800)
-    
-    
+    st.image(header_image_url, width=800)  
     
     # ---------------------------------
     # Class-wise Performance
@@ -1301,9 +1299,22 @@ with tab2:
     # next panggil file 
     
     perf_df = pd.DataFrame(class_performance)
-    st.dataframe(perf_df, use_container_width=True)
+    #st.dataframe(perf_df, use_container_width=True)
     
+    st.data_editor(
+        perf_df,
+        column_config={
+            "precision": st.column_config.NumberColumn(width="small"),
+            "recall": st.column_config.NumberColumn(width="small"),
+            "f1-score": st.column_config.NumberColumn(width="small"),
+            "support": st.column_config.NumberColumn(width="medium")
+        },
+        use_container_width=True
+    )
+    
+    # ---------------------------------
     # Model Analysis
+    # ---------------------------------
     st.subheader("🔍 Model Analysis")
     
     col1, col2 = st.columns(2)
