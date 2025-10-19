@@ -1263,11 +1263,10 @@ with tab2:
         header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
         st.image(header_image_url, width=700)
     with col2:
-        st.write("""
-        <br><br><br>
-        **Obesity Level:**
-        0 : Insufficient Weight
-        1 : Normal Weight
+        st.write("""      
+        ##**Obesity Level:**
+        - 0 : Insufficient Weight
+        - 1 : Normal Weight
         - 2 : Overweight Level I 
         - 3 : Overweight Level II
         - 4 : Obesity Type I
