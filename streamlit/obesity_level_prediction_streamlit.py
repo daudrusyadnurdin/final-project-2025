@@ -1264,9 +1264,10 @@ with tab2:
         st.image(header_image_url, width=700)
     with col2:
         st.write("""
+        <br><br><br>
         **Obesity Level:**
-        - 0 : Insufficient Weight
-        - 1 : Normal Weight
+        0 : Insufficient Weight
+        1 : Normal Weight
         - 2 : Overweight Level I 
         - 3 : Overweight Level II
         - 4 : Obesity Type I
