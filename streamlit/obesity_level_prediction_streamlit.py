@@ -485,9 +485,16 @@ def create_real_feature_importance():
     fig, ax = plt.subplots(figsize=(10, 8))
     y_pos = np.arange(len(features_reversed))
     
-    # Create color gradient - DARKEST at TOP
-    # Use normal order for colors (tidak perlu reverse karena data sudah reversed)
-    colors = plt.cm.Blues(np.linspace(0.8, 0.3, len(features_reversed)))
+    # Create colors based on ACTUAL importance values, not position
+    max_importance = max(importance_values)
+    min_importance = min(importance_values)
+    
+    colors = []
+    for importance in importance_reversed:
+        # Normalize importance to colormap range (0.2 to 0.8)
+        normalized = 0.2 + (importance - min_importance) / (max_importance - min_importance) * 0.6
+        color = plt.cm.Blues(normalized)
+        colors.append(color)
     
     bars = ax.barh(y_pos, importance_reversed, color=colors)
     ax.set_yticks(y_pos)
