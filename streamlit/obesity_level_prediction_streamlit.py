@@ -478,12 +478,26 @@ def create_real_feature_importance():
     
     importance_values = [85, 78, 65, 58, 55, 52, 48, 45, 42, 38, 35, 32, 28, 25, 22, 18]
     
-    fig, ax = plt.subplots(figsize=(10, 8))
-    y_pos = np.arange(len(features))
+    # Reverse the order - highest importance at the top
+    features_reversed = features[::-1]
+    importance_reversed = importance_values[::-1]
     
-    bars = ax.barh(y_pos, importance_values, color='skyblue')
+    fig, ax = plt.subplots(figsize=(10, 8))
+    y_pos = np.arange(len(features_reversed))
+    
+    # Create color gradient from dark to light (blue theme)
+    base_color = np.array([0.2, 0.4, 0.8])  # Dark blue base
+    colors = []
+    
+    for i in range(len(features_reversed)):
+        # Calculate lightness factor (0.3 to 1.0)
+        lightness = 0.3 + (i / len(features_reversed)) * 0.7
+        color = base_color * lightness
+        colors.append(color)
+    
+    bars = ax.barh(y_pos, importance_reversed, color=colors)
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(features)
+    ax.set_yticklabels(features_reversed)
     ax.set_xlabel('Feature Importance Score')
     ax.set_title('Feature Importance in Obesity Prediction')
     
