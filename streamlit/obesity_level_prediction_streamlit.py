@@ -1256,7 +1256,7 @@ with tab2:
     """)
     
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
-    st.image(header_image_url, width=800)
+    st.image(header_image_url, width=700)
     
     # ---------------------------------
     # Top 10 Important Features
