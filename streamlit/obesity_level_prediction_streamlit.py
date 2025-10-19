@@ -1243,22 +1243,23 @@ with tab2:
         with cols[i % 3]:
             st.metric(label=name, value=value)
     
+
+    
+    # ---------------------------------
+    # Confusion Matrix: Upload png file
+    # ---------------------------------
+    st.subheader("🎯 Confusion Matrix from Model Training")
+    st.write("""
+    **How to read this matrix:**
+    - **Diagonal (blue squares)**: Correct predictions  
+    - **Off-diagonal**: Misclassifications
+    - **Rows**: True obesity classes
+    - **Columns**: Predicted obesity classes
+    """)
     
     col1, col2 = st.columns(2)
     
     with col1:
-        # ---------------------------------
-        # Confusion Matrix: Upload png file
-        # ---------------------------------
-        st.subheader("🎯 Confusion Matrix from Model Training")
-        st.write("""
-        **How to read this matrix:**
-        - **Diagonal (blue squares)**: Correct predictions  
-        - **Off-diagonal**: Misclassifications
-        - **Rows**: True obesity classes
-        - **Columns**: Predicted obesity classes
-        """)
-        
         header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
         st.image(header_image_url, width=700)
     with col2:
