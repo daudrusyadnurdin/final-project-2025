@@ -1,21 +1,3 @@
-'''
-    This application program is dedicated to study purposes during 
-    the Data Analytics/Data Science bootcamp batch 34 at Dibimbing.id. 
-    This program was created as a final project as one of the graduation requirements.
-
-    The program's objective: to predict obesity levels (7 levels) using 
-    a trained machine learning model that has been tested and is the best.
-    With this program, learners are expected to see how the model 
-    would be implemented in a web-based application, such as Streamlit.
-
-    Input: all features provided in the data.
-    Output: The model's predicted obesity levels.
-
-    (c) daudrusyadnurdin@gmail.com, 2025-10
-'''
-# -------------------------------
-# Library used
-# -------------------------------
 import streamlit as st
 import pandas as pd
 import xgboost as xgb
@@ -24,24 +6,15 @@ import requests
 import tempfile
 import os
 import numpy as np
-import plotly.graph_objects as go
-import plotly.express as px
-import seaborn as sns
 
-# -------------------------------------------
 # Set page config
-# -------------------------------------------
-st.cache_data.clear()
-
 st.set_page_config(
-    page_title="Obesity Levels Prediction App", 
+    page_title="Obesity Risk Prediction", 
     layout="wide",
     page_icon="🏥"
 )
 
-# -------------------------------------------
 # Custom CSS untuk styling
-# -------------------------------------------
 st.markdown("""
 <style>
     .main-header {
@@ -72,24 +45,10 @@ st.markdown("""
         background-color: #f8d7da;
         border: 2px solid #f5c6cb;
     }
-    .risk-legend-item {
-        background: white;
-        padding: 10px;
-        margin: 5px 0;
-        border-radius: 5px;
-        border-left: 5px solid;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .health-score-excellent { color: #28a745; font-weight: bold; }
-    .health-score-good { color: #ffc107; font-weight: bold; }
-    .health-score-fair { color: #fd7e14; font-weight: bold; }
-    .health-score-poor { color: #dc3545; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
-# ------------------------------------------------
-# Load model with error handling 
-# ------------------------------------------------
+# Load model dengan error handling yang lebih baik
 @st.cache_resource
 def load_model():
     url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
@@ -114,558 +73,18 @@ def load_model():
         st.error(f"❌ Error loading model: {e}")
         return None
 
-# ----------------------------
-# Main functions defined
-# ----------------------------
-def calculate_health_score(feature_inputs):
-    """Calculate a simple health score based on user input"""
-    
-    score = 0
-    
-    # Physical Activity (30 points max)
-    activity_score = (feature_inputs['FAF'] / 3.0) * 30
-    score += activity_score
-    
-    # Diet Quality (30 points max)
-    diet_score = (feature_inputs['FCVC'] / 3.0) * 20
-    if feature_inputs['FAVC'] == 'no':
-        diet_score += 10
-    else:
-        diet_score += 5
-    score += diet_score
-    
-    # Healthy Habits (20 points max)
-    habits_score = 0
-    if feature_inputs['SMOKE'] == 'no':
-        habits_score += 10
-    if feature_inputs['CALC'] in ['no', 'Sometimes']:
-        habits_score += 10
-    score += habits_score
-    
-    # Lifestyle Balance (20 points max)
-    lifestyle_score = (1 - feature_inputs['TUE'] / 2.0) * 20
-    score += lifestyle_score
-    
-    return max(0, min(100, score))
-
-def get_health_interpretation(score):
-    """Interpretation of the health score"""
-    if score >= 80:
-        return "Excellent", "🟢", "health-score-excellent"
-    elif score >= 60:
-        return "Good", "🟡", "health-score-good"
-    elif score >= 40:
-        return "Fair", "🟠", "health-score-fair"
-    else:
-        return "Needs Improvement", "🔴", "health-score-poor"
-
-def create_gauge_chart(pred_class, pred_proba, class_mapping):
-    """Create an engaging gauge chart"""
-    
-    obesity_levels = list(class_mapping.values())
-    current_level = obesity_levels[pred_class]
-    confidence = pred_proba[pred_class] * 100
-    
-    # Warna untuk setiap level
-    color_map = {
-        'Insufficient_Weight': '#4ECDC4',
-        'Normal_Weight': '#45B7D1', 
-        'Overweight_Level_I': '#FFD166',
-        'Overweight_Level_II': '#FF9F1C',
-        'Obesity_Type_I': '#FF6B6B',
-        'Obesity_Type_II': '#EE4266',
-        'Obesity_Type_III': '#C44569'
-    }
-    
-    fig = go.Figure()
-    
-    # Gauge chart
-    fig.add_trace(go.Indicator(
-        mode = "gauge+number+delta",
-        value = confidence,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': f"Confidence: {current_level.replace('_', ' ')}", 'font': {'size': 20}},
-        delta = {'reference': 50, 'increasing': {'color': "red"}},
-        gauge = {
-            'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkblue"},
-            'bar': {'color': color_map[current_level]},
-            'bgcolor': "white",
-            'borderwidth': 2,
-            'bordercolor': "gray",
-            'steps': [
-                {'range': [0, 20], 'color': '#e3f2fd'},
-                {'range': [20, 40], 'color': '#bbdefb'},
-                {'range': [40, 60], 'color': '#90caf9'},
-                {'range': [60, 80], 'color': '#64b5f6'},
-                {'range': [80, 100], 'color': '#42a5f5'}],
-            'threshold': {
-                'line': {'color': "red", 'width': 4},
-                'thickness': 0.75,
-                'value': 90}}))
-    
-    fig.update_layout(
-        height=300,
-        margin=dict(l=20, r=20, t=50, b=20),
-        font={'color': "darkblue", 'family': "Arial"}
-    )
-    
-    return fig
-
-def safe_float_convert(value, default=0):
-    """Safe conversion to float dengan handling yes/no"""
-    try:
-        if isinstance(value, str):
-            value = value.lower().strip()
-            if value in ['yes', 'true', '1', 'always']:
-                return 1.0
-            elif value in ['no', 'false', '0', 'never']:
-                return 0.0
-            elif value in ['sometimes']:
-                return 0.5
-            elif value in ['frequently']:
-                return 0.8
-        return float(value)
-    except (ValueError, TypeError):
-        return float(default)
-
-# -----------------
-# Radam diagram
-# -----------------
-def create_health_radar(feature_inputs):
-    """Radar chart khusus Health Indicators"""
-    categories = [
-        'Smoking (SMOKE)',
-        'Alcohol (CALC)',  
-        'Family History (FHWO)'
-    ]
-    
-    values = [
-        # SMOKE: Lower is better (binary, reversed)
-        (1 - safe_float_convert(feature_inputs.get('SMOKE', 'no'))) * 5,
-        
-        # CALC: Lower is better (0-3 → 0-5, reversed)
-        (1 - (safe_float_convert(feature_inputs.get('CALC', 'no')) / 3)) * 5,
-        
-        # FHWO: Lower is better (binary, reversed)  
-        (1 - safe_float_convert(feature_inputs.get('FHWO', 'no'))) * 5,
-    ]
-    
-    #ax.set_theta_offset(np.pi / 2)
-    
-    fig = go.Figure(go.Scatterpolar(
-        r=values, theta=categories, fill='toself',
-        line=dict(color='#dc3545'), fillcolor='rgba(220, 53, 69, 0.3)'
-    ))
-    
-    fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
-        title_text="❤️ HEALTH INDICATORS",
-        title_font_size=20,
-        title_x=0.0, 
-        height=400
-    )
-    return fig
-
-# Dietary Habits: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
-def create_dietary_radar(feature_inputs):
-    """Radar chart khusus Dietary Habits"""
-    categories = [
-        'Vegetable Consumption (FCVC)',
-        'Meal Frequency (NCP)', 
-        'High-Calorie Food (FAVC)',
-        'Snacking (CAEC)',           
-        'Calorie Monitoring (SCC)'   
-    ]
-    
-    values = [
-        # FCVC: Higher is better (1-3 → 0-5)
-        ((safe_float_convert(feature_inputs.get('FCVC', 2)) - 1) / 2) * 5,
-        
-        # NCP: Optimal around middle (1-4 → 0-5)
-        ((safe_float_convert(feature_inputs.get('NCP', 2.5)) - 1) / 3) * 5,
-        
-        # FAVC: Lower is better (binary, reversed)
-        (1 - safe_float_convert(feature_inputs.get('FAVC', 'no'))) * 5,
-        
-        # CAEC: Lower is better (0-3 → 0-5, reversed)
-        (1 - (safe_float_convert(feature_inputs.get('CAEC', 'no')) / 3)) * 5,
-        
-        # SCC: Lower is better (binary, reversed)
-        (1 - safe_float_convert(feature_inputs.get('SCC', 'no'))) * 5  
-    ]
-    
-    fig = go.Figure(go.Scatterpolar(
-        r=values, theta=categories, fill='toself',
-        line=dict(color='#28a745'), fillcolor='rgba(40, 167, 69, 0.3)'
-    ))
-    
-    fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
-        title_text="🍽️ DIETARY HABITS",
-        title_font_size=20,
-        title_x=0.0,
-        height=400
-    )
-    return fig
-    
-# Lifestyle Factors: Physical activity, Water intake, Technology usage, Transportation
-def create_lifestyle_radar(feature_inputs):
-    """Radar chart khusus Lifestyle Factors"""
-    categories = [
-        'Physical Activity (FAF)',
-        'Water Intake (CH2O)',
-        'Technology Usage (TUE)',
-        'Transportation (MTRANS)'
-    ]
-    
-    values = [
-        # FAF: Higher is better (0-3 → 0-5)
-        (safe_float_convert(feature_inputs.get('FAF', 1.5)) / 3) * 5,
-        
-        # CH2O: Higher is better (1-3 → 0-5)
-        ((safe_float_convert(feature_inputs.get('CH2O', 2)) - 1) / 2) * 5,
-        
-        # TUE: Lower is better (0-2 → 0-5, reversed)
-        (1 - (safe_float_convert(feature_inputs.get('TUE', 1)) / 2)) * 5
-    ]
-    
-    fig = go.Figure(go.Scatterpolar(
-        r=values, theta=categories, fill='toself', 
-        line=dict(color='#17a2b8'), fillcolor='rgba(23, 162, 184, 0.3)'
-    ))
-    
-    fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
-        title_text="🏃‍♂️ LIFESTYLE FACTORS", 
-        title_font_size=20,
-        title_x=0.0,
-        height=400
-    )
-    return fig
-
-# -----------------
-# Donut diagram
-# -----------------
-def create_donut_chart(pred_proba, class_mapping):
-    """Membuat donut chart untuk probabilities"""
-    
-    obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(len(pred_proba))]
-    colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
-    
-    fig = go.Figure(data=[go.Pie(
-        labels=obesity_levels,
-        values=pred_proba,
-        hole=.5,
-        marker_colors=colors,
-        textinfo='label+percent',
-        insidetextorientation='radial'
-    )])
-    
-    fig.update_layout(
-        #title="Obesity Level Probabilities",
-        height=400,
-        showlegend=False
-    )
-    
-    return fig
-
-def create_risk_meter_with_legend(pred_class):
-    """Membuat risk meter visual dengan legend"""
-    
-    risk_info = [
-        {'level': 0, 'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
-        {'level': 1, 'label': 'Low', 'color': '#45B7D1', 'description': 'Normal Weight'},
-        {'level': 2, 'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight I'},
-        {'level': 3, 'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight II'},
-        {'level': 4, 'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity I'},
-        {'level': 5, 'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity II'},
-        {'level': 6, 'label': 'Critical', 'color': '#C44569', 'description': 'Obesity III'}
-    ]
-    
-    current_risk = risk_info[pred_class]
-    
-    fig = go.Figure(go.Indicator(
-        mode = "number+gauge+delta",
-        value = pred_class,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        delta = {'reference': 1},
-        number = {
-            'font': {'size': 24, 'color': current_risk['color']},
-            'prefix': 'Level ',
-            'suffix': f" - {current_risk['label']}"
-        },
-        gauge = {
-            'shape': "bullet",
-            'axis': {'range': [0, 6], 'tickwidth': 1, 'tickvals': list(range(7))},
-            'threshold': {
-                'line': {'color': "black", 'width': 3},
-                'thickness': 0.8,
-                'value': pred_class},
-            'steps': [
-                {'range': [0, 1], 'color': '#4ECDC4'},
-                {'range': [1, 2], 'color': '#45B7D1'},
-                {'range': [2, 3], 'color': '#FFD166'},
-                {'range': [3, 4], 'color': '#FF9F1C'},
-                {'range': [4, 5], 'color': '#FF6B6B'},
-                {'range': [5, 6], 'color': '#EE4266'},
-                {'range': [6, 7], 'color': '#C44569'}],
-            'bar': {'color': "black", 'thickness': 0.8}}))
-    
-    fig.update_layout(
-        height=250,
-        margin=dict(l=10, r=10, t=60, b=10),
-        title=f"Obesity Level: {current_risk['description']}"
-    )
-    
-    return fig, risk_info
-
-def display_color_bar_legend(risk_info):
-    """Menampilkan color bar horizontal yang informatif"""
-    
-    st.markdown("**Obesity Classification**")
-    
-    # Create color gradient bar
-    color_gradient = "background: linear-gradient(90deg"
-    for risk in risk_info:
-        color_gradient += f", {risk['color']}"
-    color_gradient += ");"
-    
-    # Mapping yang jelas
-    class_mapping = {
-        'Very Low': 'Insufficient Weight',
-        'Low': 'Normal Weight', 
-        'Moderate': 'Overweight I',
-        'High': 'Overweight II',
-        'Very High': 'Obesity I',
-        'Severe': 'Obesity II',
-        'Critical': 'Obesity III'
-    }
-    
-    st.markdown(
-        f"""
-        <div style='
-            {color_gradient}
-            height: 20px;
-            border-radius: 4px;
-            margin: 8px 0 2px 0;
-            border: 1px solid #ddd;
-        '></div>
-        
-        <!-- Risk Levels (Top Row) -->
-        <div style='display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin: 5px 0 2px 0;'>
-            {"".join([f"<div style='color: {risk['color']}; text-align: center; width: {100/len(risk_info)}%'>{risk['label']}</div>" for risk in risk_info])}
-        </div>
-        
-        <!-- Obesity Classes (Bottom Row) -->
-        <div style='display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-bottom: 10px;'>
-            {"".join([f"<div style='text-align: center; width: {100/len(risk_info)}%'>{class_mapping[risk['label']]}</div>" for risk in risk_info])}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-# =======================================
-# FUNCTIONS OF TAB PERFORMANCE & ANALYSIS
-# =======================================
-
-def create_real_feature_importance():
-    """Feature importance realistic berdasarkan domain knowledge"""
-    
-    features = [
-        'Weight', 'Height', 'Age', 'Physical Activity', 'High Caloric Food',
-        'Vegetable Consumption', 'Meal Frequency', 'Water Intake', 
-        'Screen Time', 'Between Meals', 'Family History', 'Alcohol Consumption',
-        'Calorie Monitoring', 'Transportation', 'Gender', 'Smoking'
-    ]
-    
-    importance_values = [85, 78, 65, 58, 55, 52, 48, 45, 42, 38, 35, 32, 28, 25, 22, 18]
-    
-    # Reverse the order - highest importance at the top
-    features_reversed = features[::-1]
-    importance_reversed = importance_values[::-1]
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    y_pos = np.arange(len(features_reversed))
-    
-    # Create colors based on ACTUAL importance values, not position
-    max_importance = max(importance_values)
-    min_importance = min(importance_values)
-    
-    colors = []
-    for importance in importance_reversed:
-        # Normalize importance to colormap range (0.2 to 0.8)
-        normalized = 0.2 + (importance - min_importance) / (max_importance - min_importance) * 0.6
-        color = plt.cm.Blues(normalized)
-        colors.append(color)
-    
-    bars = ax.barh(y_pos, importance_reversed, color=colors)
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(features_reversed)
-    ax.set_xlabel('Feature Importance Score')
-    ax.set_title('Feature Importance in Obesity Prediction')
-    
-    for bar in bars:
-        width = bar.get_width()
-        ax.text(width + 0.1, bar.get_y() + bar.get_height()/2, 
-               f'{width:.0f}', ha='left', va='center', fontsize=9)
-    
-    plt.tight_layout()
-    return fig
-
-def create_bmi_distribution_chart(user_bmi, pred_class):
-    """Menampilkan BMI user dalam konteks distribusi"""
-    
-    categories = [
-        'Underweight (<18.5)', 'Normal (18.5-24.9)', 'Overweight (25-29.9)',
-        'Obesity I (30-34.9)', 'Obesity II (35-39.9)', 'Obesity III (40+)'
-    ]
-    
-    distribution = [5, 35, 30, 15, 10, 5]
-    
-    fig, ax = plt.subplots(figsize=(12, 6))
-    bars = ax.bar(categories, distribution, color=['#4ECDC4', '#45B7D1', '#FFD166', 
-                                                  '#FF9F1C', '#FF6B6B', '#C44569'])
-    
-    user_category_idx = 0
-    if user_bmi < 18.5: user_category_idx = 0
-    elif user_bmi < 25: user_category_idx = 1
-    elif user_bmi < 30: user_category_idx = 2
-    elif user_bmi < 35: user_category_idx = 3
-    elif user_bmi < 40: user_category_idx = 4
-    else: user_category_idx = 5
-    
-    bars[user_category_idx].set_color('red')
-    bars[user_category_idx].set_alpha(0.8)
-    
-    ax.set_ylabel('Population Distribution (%)')
-    ax.set_title(f'BMI Distribution - Your BMI: {user_bmi:.1f} (Red Bar)')
-    ax.tick_params(axis='x', rotation=45)
-    
-    for i, bar in enumerate(bars):
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 1,
-               f'{height}%', ha='center', va='bottom')
-    
-    plt.tight_layout()
-    return fig
-
-def create_lifestyle_comparison_chart(feature_inputs):
-    """Membandingkan lifestyle user dengan rekomendasi sehat"""
-    
-    factors = ['Vegetable Intake', 'Physical Activity', 'Water Consumption', 
-               'Meal Frequency', 'Screen Time']
-    
-    user_scores = [
-        (feature_inputs['FCVC'] / 3.0) * 100,
-        (feature_inputs['FAF'] / 3.0) * 100,
-        (feature_inputs['CH2O'] / 3.0) * 100,
-        ((feature_inputs['NCP'] - 1) / 3.0) * 100,
-        100 - (feature_inputs['TUE'] / 2.0) * 100
-    ]
-    
-    healthy_targets = [80, 70, 80, 75, 60]
-    
-    x = np.arange(len(factors))
-    width = 0.35
-    
-    fig, ax = plt.subplots(figsize=(12, 6))
-    bars1 = ax.bar(x - width/2, user_scores, width, label='Your Score', color='#1f77b4')
-    bars2 = ax.bar(x + width/2, healthy_targets, width, label='Healthy Target', color='#2ca02c')
-    
-    ax.set_ylabel('Score (0-100)')
-    ax.set_title('Lifestyle Comparison vs Healthy Targets')
-    ax.set_xticks(x)
-    ax.set_xticklabels(factors)
-    ax.legend()
-    
-    for bars in [bars1, bars2]:
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + 2,
-                   f'{height:.0f}', ha='center', va='bottom')
-    
-    plt.tight_layout()
-    return fig
-
-def create_health_risk_breakdown(feature_inputs):
-    """Breakdown faktor risiko spesifik user"""
-    
-    risk_factors = {
-        'High Caloric Food': 30 if feature_inputs['FAVC'] == 'yes' else 0,
-        'Low Vegetable Intake': 40 if feature_inputs['FCVC'] < 2 else 0,
-        'Low Physical Activity': 50 if feature_inputs['FAF'] < 1.5 else 20,
-        'Frequent Snacking': 35 if feature_inputs['CAEC'] in ['Frequently', 'Always'] else 0,
-        'Sedentary Lifestyle': 45 if feature_inputs['TUE'] > 1.5 else 15,
-        'Family History': 25 if feature_inputs['FHWO'] == 'yes' else 0
-    }
-    
-    active_risks = {k: v for k, v in risk_factors.items() if v > 0}
-    
-    if not active_risks:
-        return None
-    
-    fig, ax = plt.subplots(figsize=(10, 6))
-    factors = list(active_risks.keys())
-    risks = list(active_risks.values())
-    
-    bars = ax.barh(factors, risks, color=['#FF6B6B', '#FF9F1C', '#FFD166', '#EE4266', '#C44569', '#FF9F1C'])
-    ax.set_xlabel('Risk Score')
-    ax.set_title('Your Specific Health Risk Factors')
-    
-    for bar in bars:
-        width = bar.get_width()
-        ax.text(width + 1, bar.get_y() + bar.get_height()/2, 
-               f'{width}', ha='left', va='center')
-    
-    plt.tight_layout()
-    return fig
-
-def create_performance_metrics():
-    """Metrics dari training"""
-    
-    return {
-        'Precision': '97.129%', 
-        'Recall': '97.129%',
-        'F1-Score': '97.129%',
-        'Macro Avg F1': '97.040%',
-        'Weighted Avg F1': '97.125%',
-        'Accuracy': '97.129%'
-    }
-
-# ============================
-# MAIN PROGRAM
-# ============================
-
-# -------------------
-# Banner: aksesoris
-# -------------------
-header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/obelution-forbidden-bw.png"
-st.image(header_image_url, use_container_width=True)
-
-# -------------------
 # Header aplikasi
-# -------------------
-st.markdown('<h1 class="main-header">🏥 Obesity Level Prediction App</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-header">🏥 Obesity Risk Prediction System</h1>', unsafe_allow_html=True)
+st.markdown("Predict obesity levels based on lifestyle and physical attributes using Machine Learning")
 
-st.markdown(
-    '<h3 style="text-align: center; color: #FFA07A; margin-bottom: 2rem;">'
-    'Predict obesity levels based on your input parameters using XGBoost machine learning model'
-    '</h3>', 
-    unsafe_allow_html=True
-)
-
-# -------------------
 # Load model
-# -------------------
 model = load_model()
 
 if model is None:
     st.error("Failed to load model. Please check the model URL.")
     st.stop()
 
-# -------------------
 # Default values
-# -------------------
 default_values = {
     "Gender": "Male",
     "Age": 24.0,
@@ -701,12 +120,9 @@ if st.sidebar.button("🔄 Reset to Default"):
     reset_defaults()
     st.rerun()
 
-# --------------------
 # Collect user inputs
-# --------------------
-feature_inputs = {} # Initial state
+feature_inputs = {}
 
-# Personal information
 feature_inputs["Gender"] = st.sidebar.selectbox(
     "Gender", ["Male", "Female"],
     index=0 if st.session_state.get("Gender", default_values["Gender"]) == "Male" else 1
@@ -730,104 +146,99 @@ feature_inputs["Weight"] = st.sidebar.slider(
     step=1.0
 )
 
-
 # Calculate BMI
 bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
+st.sidebar.metric("BMI", f"{bmi:.1f}")
 
-
-# Health Indicators: Family history with overweight, Smoking habit, alcohol consumption
-fhwo_options = ["no", "yes"]
-feature_inputs["FHWO"] = st.sidebar.selectbox(
-    "Family history of overweight (FHWO)", 
-    fhwo_options,
-    index=fhwo_options.index(st.session_state.get("FHWO", default_values["FHWO"]))
-)
-
-smoke_options = ["no", "yes"]
-feature_inputs["SMOKE"] = st.sidebar.selectbox(
-    "Smoking habit (SMOKE)", 
-    smoke_options,
-    index=smoke_options.index(st.session_state.get("SMOKE", default_values["SMOKE"]))
-)
-
-calc_options = ["no", "Sometimes", "Frequently", "Always"]
-feature_inputs["CALC"] = st.sidebar.selectbox(
-    "Alcohol consumption (CALC)", 
-    calc_options,
-    index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
-)
-
-# Dietary Habits: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
 feature_inputs["FCVC"] = st.sidebar.slider(
-    "Frequency of vegetable consumption (FCVC)", 1.0, 3.0,
+    "Frequency of vegetable consumption", 1.0, 3.0,
     value=float(st.session_state.get("FCVC", default_values["FCVC"])),
     step=0.1
 )
 
 feature_inputs["NCP"] = st.sidebar.slider(
-    "Number of main meals per day (NCP)", 1.0, 4.0,
+    "Number of main meals per day", 1.0, 4.0,
     value=float(st.session_state.get("NCP", default_values["NCP"])),
     step=0.1
 )
 
-favc_options = ["no", "yes"]
-feature_inputs["FAVC"] = st.sidebar.selectbox(
-    "Frequent consumption of high caloric food (FAVC)", 
-    favc_options,
-    index=favc_options.index(st.session_state.get("FAVC", default_values["FAVC"]))
-)
-
 caec_options = ["no", "Sometimes", "Frequently", "Always"]
 feature_inputs["CAEC"] = st.sidebar.selectbox(
-    "Consumption of food between meals (CAEC)", 
+    "Consumption of food between meals", 
     caec_options,
     index=caec_options.index(st.session_state.get("CAEC", default_values["CAEC"]))
 )
 
-scc_options = ["no", "yes"]
-feature_inputs["SCC"] = st.sidebar.selectbox(
-    "Monitor calorie consumption (SCC)", 
-    scc_options,
-    index=scc_options.index(st.session_state.get("SCC", default_values["SCC"]))
-)
-
-# Lifestyle Factors: Physical activity, Water intake, Technology usage, Transportation
-feature_inputs["FAF"] = st.sidebar.slider(
-    "Physical activity frequency (FAF)", 0.0, 3.0,
-    value=float(st.session_state.get("FAF", default_values["FAF"])),
-    step=0.1
+favc_options = ["no", "yes"]
+feature_inputs["FAVC"] = st.sidebar.selectbox(
+    "Frequent consumption of high caloric food", 
+    favc_options,
+    index=favc_options.index(st.session_state.get("FAVC", default_values["FAVC"]))
 )
 
 feature_inputs["CH2O"] = st.sidebar.slider(
-    "Water consumption (CH2O)", 1.0, 3.0,
+    "Water consumption (1-3 scale)", 1.0, 3.0,
     value=float(st.session_state.get("CH2O", default_values["CH2O"])),
     step=0.1
 )
 
+calc_options = ["no", "Sometimes", "Frequently", "Always"]
+feature_inputs["CALC"] = st.sidebar.selectbox(
+    "Alcohol consumption", 
+    calc_options,
+    index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
+)
+
+feature_inputs["FAF"] = st.sidebar.slider(
+    "Physical activity frequency", 0.0, 3.0,
+    value=float(st.session_state.get("FAF", default_values["FAF"])),
+    step=0.1
+)
+
 feature_inputs["TUE"] = st.sidebar.slider(
-    "Time using electronic devices (TUE)", 0.0, 2.0,
+    "Time using electronic devices", 0.0, 2.0,
     value=float(st.session_state.get("TUE", default_values["TUE"])),
     step=0.1
 )
 
 mtrans_options = ["Public_Transportation", "Walking", "Automobile", "Motorbike", "Bike"]
 feature_inputs["MTRANS"] = st.sidebar.selectbox(
-    "Primary transportation method (MTRANS)", 
+    "Primary transportation method", 
     mtrans_options,
     index=mtrans_options.index(st.session_state.get("MTRANS", default_values["MTRANS"]))
 )
 
+scc_options = ["no", "yes"]
+feature_inputs["SCC"] = st.sidebar.selectbox(
+    "Monitor calorie consumption", 
+    scc_options,
+    index=scc_options.index(st.session_state.get("SCC", default_values["SCC"]))
+)
+
+fhwo_options = ["no", "yes"]
+feature_inputs["FHWO"] = st.sidebar.selectbox(
+    "Family history of overweight", 
+    fhwo_options,
+    index=fhwo_options.index(st.session_state.get("FHWO", default_values["FHWO"]))
+)
+
+smoke_options = ["no", "yes"]
+feature_inputs["SMOKE"] = st.sidebar.selectbox(
+    "Smoking habit", 
+    smoke_options,
+    index=smoke_options.index(st.session_state.get("SMOKE", default_values["SMOKE"]))
+)
 
 # Update session state
 for k, v in feature_inputs.items():
     st.session_state[k] = v
 
-# Fungsi preprocessing > disesuaikan dengan proses encoding
+# Fungsi preprocessing yang sesuai dengan expected features model
 def correct_preprocessing(feature_dict):
     """Preprocessing yang sesuai dengan expected features model"""
     
-    categorical_to_numerical = { # add Gender > wrong encoding before
-        #"Gender": {"Male": 0, "yes": 1},
+    # Mapping categorical to numerical untuk remainder features
+    categorical_to_numerical = {
         "FHWO": {"no": 0, "yes": 1},
         "FAVC": {"no": 0, "yes": 1},
         "CAEC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3},
@@ -836,7 +247,7 @@ def correct_preprocessing(feature_dict):
         "CALC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3}
     }
     
-    # Posisi Gender: remainder__Gender
+    # Create DataFrame dengan expected features
     expected_features = [
         'ohe__Gender_Male', 'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
         'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking', 
@@ -847,9 +258,10 @@ def correct_preprocessing(feature_dict):
         'remainder__TUE', 'remainder__CALC'
     ]
     
+    # Initialize semua features dengan 0
     processed_data = {feature: 0.0 for feature in expected_features}
     
-    # Set one-hot encoding untuk Gender >> nantinya dibuang, jadi lebih simple
+    # Set one-hot encoding untuk Gender
     if feature_dict["Gender"] == "Male":
         processed_data["ohe__Gender_Male"] = 1.0
     else:
@@ -861,17 +273,24 @@ def correct_preprocessing(feature_dict):
         "Motorbike": "ohe__MTRANS_Motorbike", 
         "Public_Transportation": "ohe__MTRANS_Public_Transportation",
         "Walking": "ohe__MTRANS_Walking",
-        "Automobile": "ohe__MTRANS_Automobile"
+        "Automobile": "ohe__MTRANS_Automobile"  # Note: Automobile tidak ada dalam expected features
     }
     
+    # Reset semua MTRANS features ke 0
     for feature in ['ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
                    'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking']:
         processed_data[feature] = 0.0
     
+    # Set yang aktif berdasarkan pilihan
     if feature_dict["MTRANS"] in mtrans_mapping:
         feature_name = mtrans_mapping[feature_dict["MTRANS"]]
         if feature_name in processed_data:
             processed_data[feature_name] = 1.0
+    
+    # Handle Automobile (baseline category)
+    if feature_dict["MTRANS"] == "Automobile":
+        # Semua one-hot encoding untuk MTRANS tetap 0 (baseline)
+        pass
     
     # Set numerical features
     processed_data["remainder__Age"] = float(feature_dict["Age"])
@@ -883,7 +302,7 @@ def correct_preprocessing(feature_dict):
     processed_data["remainder__FAF"] = float(feature_dict["FAF"])
     processed_data["remainder__TUE"] = float(feature_dict["TUE"])
     
-    # Set encoded categorical features >> sisipkan Gender di sini!
+    # Set encoded categorical features
     processed_data["remainder__FHWO"] = categorical_to_numerical["FHWO"][feature_dict["FHWO"]]
     processed_data["remainder__FAVC"] = categorical_to_numerical["FAVC"][feature_dict["FAVC"]]
     processed_data["remainder__CAEC"] = categorical_to_numerical["CAEC"][feature_dict["CAEC"]]
@@ -891,146 +310,58 @@ def correct_preprocessing(feature_dict):
     processed_data["remainder__SCC"] = categorical_to_numerical["SCC"][feature_dict["SCC"]]
     processed_data["remainder__CALC"] = categorical_to_numerical["CALC"][feature_dict["CALC"]]
     
+    # Create DataFrame dengan urutan yang tepat
     input_df = pd.DataFrame([processed_data])[expected_features]
     
     return input_df
 
-# ============================
-# TAB LAYOUT
-# ============================
+# Main content area
+tab1, tab2 = st.tabs(["📊 Prediction", "ℹ️ About"])
 
-tab1, tab2, tab3, tab4 = st.tabs(["🎯 Prediction", "📊 Model Performance", "🔍 Health Analysis", "ℹ️ About"])
-
-with tab1: # Main tab: Prediction of model
+with tab1:
+    st.header("📈 Prediction Results")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        # ----------------------------------------
-        # Summary information of input parameters
-        # ----------------------------------------
-        st.subheader("📋 Your Input Summary")
+        st.subheader("Input Features")
+        display_df = pd.DataFrame([feature_inputs])
+        st.dataframe(display_df, use_container_width=True)
         
-        # Personal Information
-        st.write(
-            """
-            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
-                Personal Information
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        col_a, col_b, col_c, col_d = st.columns(4)
-        with col_a:
-            st.metric("Gender", feature_inputs["Gender"])
-        with col_b:
-            st.metric("Age (y.o)", f"{feature_inputs['Age']}")
-        with col_c:
-            st.metric("Height (cm)", f"{feature_inputs["Height"]}")
-        with col_d:
-            st.metric("Weight (kg)", f"{feature_inputs["Weight"]}")
-            
-        # Health Indicators
-        st.write(
-            """
-            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
-                Health Indicators
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.write(f"**Family History of Overweight**: {feature_inputs['FHWO']}")
-            st.write(f"**Smoking Habit**: {feature_inputs['SMOKE']}")
-        with col_b:
-            st.write(f"**Alcohol Consumption**: {feature_inputs['CALC']}")
-        
-        # Dietary habit
-        st.write(
-            """
-            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
-                Dietary Habits
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.write(f"**Vegetable Intake**: {feature_inputs['FCVC']}/3.0")
-            st.write(f"**Meals per Day**: {feature_inputs['NCP']}/4.0")
-            st.write(f"**High-Calorie Food**: {feature_inputs['FAVC']}")                      
-        with col_b:           
-            st.write(f"**Food between meals**: {feature_inputs['CAEC']}")
-            st.write(f"**Calorie monitoring**: {feature_inputs['SCC']}")
-        
-        # Lifestyle Factors
-        st.write(
-            """
-            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
-                Lifestyle Factors
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.write(f"**Physical Activity**: {feature_inputs['FAF']}/3.0")
-            st.write(f"**Water Consumption**: {feature_inputs['CH2O']}/3.0")
-        with col_b:
-            st.write(f"**Screen Time**: {feature_inputs['TUE']}/2.0")
-            st.write(f"**Transportation**: {feature_inputs['MTRANS']}")
+        # BMI Analysis
+        st.metric("Body Mass Index (BMI)", f"{bmi:.1f}")
+        if bmi < 18.5:
+            st.info("📊 BMI Category: Underweight")
+        elif bmi < 25:
+            st.success("📊 BMI Category: Normal weight")
+        elif bmi < 30:
+            st.warning("📊 BMI Category: Overweight")
+        else:
+            st.error("📊 BMI Category: Obesity")
     
     with col2:
+        st.subheader("Preprocessed Features")
+        input_df = correct_preprocessing(feature_inputs)
+        st.dataframe(input_df.T.rename(columns={0: "Value"}), use_container_width=True)
     
-        # -------------
-        # BMI Analysis
-        # -------------
-        st.subheader("⚖️ BMI Analysis")
-        
-        # BMI description in short
-        st.write(
-            """
-            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
-                Evaluate your weight category based on height and weight
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        st.metric("Body Mass Index (kg/m²)", f"{bmi:.1f}")
-        if bmi < 18.5:
-            st.info("📊 **Category**: Underweight")
-            st.progress(0.3)
-        elif bmi < 25:
-            st.success("📊 **Category**: Normal weight")
-            st.progress(0.5)
-        elif bmi < 30:
-            st.warning("📊 **Category**: Overweight")
-            st.progress(0.7)
-        else:
-            st.error("📊 **Category**: Obesity")
-            st.progress(0.9)
-    
-    
-    # ------------------
     # Prediction button
-    # ------------------
     if st.button("🎯 Predict Obesity Level", type="primary", use_container_width=True):
         with st.spinner("Analyzing features and making prediction..."):
             try:
-                input_df = correct_preprocessing(feature_inputs)
+                # Convert to DMatrix untuk XGBoost
                 dmatrix = xgb.DMatrix(input_df)
+                
+                # Make prediction
                 prediction = model.predict(dmatrix)
                 
+                # Untuk multiclass, ambil class dengan probability tertinggi
                 if len(prediction.shape) > 1 and prediction.shape[1] > 1:
                     pred_proba = prediction[0]
                     pred_class = np.argmax(pred_proba)
                 else:
+                    # Jika binary classification atau regression
                     pred_class = int(prediction[0])
+                    # Buat probability array dummy
                     pred_proba = np.zeros(7)
                     pred_proba[pred_class] = 1.0
                 
@@ -1048,6 +379,7 @@ with tab1: # Main tab: Prediction of model
                 
                 st.subheader("🎯 Prediction Result")
                 
+                # Determine CSS class based on prediction
                 if "Insufficient_Weight" in predicted_label:
                     prediction_class = "insufficient-weight"
                     prediction_icon = "💪"
@@ -1069,104 +401,54 @@ with tab1: # Main tab: Prediction of model
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # --------------
-                # VISUALISASI
-                # --------------
-                st.subheader("📊 Advanced Visualization Dashboard")
+                st.subheader("📊 Prediction Probabilities")
                 
-                # Row 1: Gauge Chart dan Risk Meter
-                col1, col2 = st.columns(2)
+                # Create probability chart
+                obesity_levels = [class_mapping[i].replace('_', ' ') for i in range(len(pred_proba))]
                 
-                with col1:
-                    st.plotly_chart(create_gauge_chart(pred_class, pred_proba, class_mapping), 
-                                  use_container_width=True)
+                fig, ax = plt.subplots(figsize=(10, 6))
                 
-                with col2:
-                    risk_fig, risk_info = create_risk_meter_with_legend(pred_class)
-                    st.plotly_chart(risk_fig, use_container_width=True)
-                    display_color_bar_legend(risk_info)
-
-                # Di tab prediction
-                st.subheader("📊 Health Profile Analysis")
+                # Colors based on obesity level
+                colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
+                bars = ax.bar(obesity_levels, pred_proba, color=colors, alpha=0.8)
                 
-                # Tampilkan 3 radar chart dalam columns
-                col1, col2, col3 = st.columns(3)
+                # Highlight predicted class
+                if pred_class < len(bars):
+                    bars[pred_class].set_edgecolor('black')
+                    bars[pred_class].set_linewidth(3)
+                    bars[pred_class].set_alpha(1.0)
                 
-                with col1:
-                    st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
+                ax.set_ylabel('Probability')
+                ax.set_title('Obesity Level Probabilities')
+                ax.tick_params(axis='x', rotation=45)
                 
-                with col2:
-                    st.plotly_chart(create_dietary_radar(feature_inputs), use_container_width=True)
+                # Add value labels on bars
+                for i, bar in enumerate(bars):
+                    height = bar.get_height()
+                    if height > 0.01:  # Only show label if probability > 1%
+                        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                               f'{height:.3f}', ha='center', va='bottom', fontweight='bold')
                 
-                with col3:
-                    st.plotly_chart(create_lifestyle_radar(feature_inputs), use_container_width=True)             
-
-                # ----------------------------------
-                # Row 2: Donut Chart dan Radar Chart
-                # ----------------------------------
-                st.markdown("### 📊 Obesity Level Probabilities")
+                plt.tight_layout()
+                st.pyplot(fig)
                 
-                col3, col4 = st.columns(2)
+                # Probability table
+                prob_df = pd.DataFrame({
+                    'Obesity Level': obesity_levels,
+                    'Probability': [f"{p:.4f}" for p in pred_proba]
+                })
                 
-                with col3:
-                    st.plotly_chart(create_donut_chart(pred_proba, class_mapping), 
-                                  use_container_width=True)
-                with col4:
-                    # Langsung definisikan obesity_levels
-                    #import plotly.graph_objects as go
-
-                    obesity_levels = [
-                        'Insufficient Weight',
-                        'Normal Weight', 
-                        'Overweight Level I',
-                        'Overweight Level II',
-                        'Obesity Type I',
-                        'Obesity Type II', 
-                        'Obesity Type III'
-                    ]
-
-                    if len(pred_proba) == 7:
-                        colors = ['#4ECDC4', '#45B7D1', '#FFD166', '#FF9F1C', '#FF6B6B', '#EE4266', '#C44569']
-                        
-                        # BUAT BAR CHART DENGAN PLOTLY - Lebih responsive
-                        fig = go.Figure()
-                        
-                        for i, (level, prob, color) in enumerate(zip(obesity_levels, pred_proba, colors)):
-                            fig.add_trace(go.Bar(
-                                x=[level],
-                                y=[prob],
-                                name=level,
-                                marker_color=color,
-                                opacity=0.8,
-                                hovertemplate=f'<b>{level}</b><br>Probability: {prob:.3f}<extra></extra>'
-                            ))
-                        
-                        # Highlight predicted class
-                        if pred_class < len(pred_proba):
-                            fig.data[pred_class].marker.line.color = 'black'
-                            fig.data[pred_class].marker.line.width = 3
-                            fig.data[pred_class].opacity = 1.0
-                        
-                        fig.update_layout(
-                            #title="📊 Obesity Level Probabilities",
-                            xaxis_title="Obesity Levels",
-                            yaxis_title="Probability",
-                            showlegend=False,
-                            height=500,  # Tinggi optimal
-                            margin=dict(t=50, l=50, r=50, b=100),  # Margin untuk label panjang
-                            xaxis=dict(tickangle=45)
-                        )
-                        
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.error(f"Expected 7 probability values, got {len(pred_proba)}")
+                # Highlight the predicted row
+                def highlight_row(row):
+                    if row.name == pred_class:
+                        return ['background-color: #ffffcc'] * len(row)
+                    return [''] * len(row)
                 
-                # -----------------------
+                st.dataframe(prob_df.style.apply(highlight_row, axis=1), use_container_width=True)
+                
                 # Health recommendations
-                # -----------------------
-                st.markdown("---")
                 st.subheader("💡 Health Recommendations")
-
+                
                 recommendations = {
                     "Insufficient_Weight": [
                         "Increase caloric intake with nutrient-dense foods",
@@ -1211,204 +493,30 @@ with tab1: # Main tab: Prediction of model
                         "Multidisciplinary team approach needed"
                     ]
                 }
-
+                
                 rec_key = class_mapping[pred_class]
-                rec_list = recommendations.get(rec_key, [])
-
-                # Build HTML sekaligus biar clean
-                recommendations_html = "".join([f'<div style="margin-left: 40px; margin-bottom: 8px;">✅ {rec}</div>' for rec in rec_list])
-
-                st.markdown(f'<div>{recommendations_html}</div>', unsafe_allow_html=True)
+                for rec in recommendations.get(rec_key, []):
+                    st.write(f"• {rec}")
                 
             except Exception as e:
                 st.error(f"❌ Prediction error: {str(e)}")
                 st.info("💡 Tips: Make sure all input values are within the specified ranges.")
 
 with tab2:
-    st.header("📊 Model Performance Metrics")
-    
-    st.info("""
-    **Model Performance from Training Evaluation:**
-    - These metrics show how the model performed on test data during training
-    - They represent the model's overall reliability
-    - For your specific prediction, check the confidence score in Prediction tab
-    """)
-    
-    # Performance Metrics
-    st.subheader("📈 Overall Performance Metrics")
-    metrics = create_performance_metrics()
-    
-    cols = st.columns(3)
-    metric_items = list(metrics.items())
-    
-    for i, (name, value) in enumerate(metric_items):
-        with cols[i % 3]:
-            st.metric(label=name, value=value)
-    
-
-    
-    # ---------------------------------
-    # Confusion Matrix: Upload png file
-    # ---------------------------------
-    st.subheader("🎯 Confusion Matrix from Model Training")
-    st.write("""
-    **How to read this matrix:**
-    - **Diagonal (blue squares)**: Correct predictions  
-    - **Off-diagonal**: Misclassifications
-    - **Rows**: True obesity classes
-    - **Columns**: Predicted obesity classes
-    """)
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
-        st.image(header_image_url, width=700)
-    with col2:
-        st.write("""      
-        **Obesity Level:**
-        - 0 : Insufficient Weight
-        - 1 : Normal Weight
-        - 2 : Overweight Level I 
-        - 3 : Overweight Level II
-        - 4 : Obesity Type I
-        - 5 : Obesity Type II
-        - 6 : Obesity Type III
-        """)
-    
-    # ---------------------------------
-    # Top 10 Important Features
-    # ---------------------------------
-    st.subheader("🏆 Top 10 Important Features")
-    
-    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/importances.png"
-    st.image(header_image_url, width=800)  
-    
-    # ---------------------------------
-    # Class-wise Performance
-    # ---------------------------------
-    st.subheader("📋 Class-wise Performance on Test Data")
-    
-    class_performance = {
-        'Class': ['Insufficient_Weight', 'Normal_Weight', 'Overweight_Level_I', 'Overweight_Level_II', 
-                 'Obesity_Type_I', 'Obesity_Type_II', 'Obesity_Type_III'],
-        'Precision': ['96.61%', '91.80%', '94.44%', '96.08%', '100.00%', '100.00%', '100.00%'],
-        'Recall': ['96.61%', '91.80%', '92.27%', '100.00%', '98.57%', '100.00%', '100.00%'],
-        'F1-Score': ['96.61%', '91.80%', '93.58%', '98.00%', '99.28%', '100.00%', '100.00%'],
-        'Support': ['59', '61', '55', '49', '70', '64', '60']
-    }
-
-    # next panggil file 
-    
-    perf_df = pd.DataFrame(class_performance)
-    st.table(perf_df)
-    
-    # ---------------------------------
-    # Model Analysis
-    # ---------------------------------
-    st.subheader("🔍 Model Analysis")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        **✅ Model Strengths:**
-        - High overall accuracy: All metrics (Precision, Recall, F1-Score) exceed 90%, indicating excellent predictive performance.
-        - Consistent performance across all obesity level classes with no significant drop in accuracy.
-        - Balanced precision and recall, showing that misclassifications are minimal.
-        - Strong generalization ability, suggesting the model is not overfitted to any specific class.
-        - Deployment-ready model with stable, reliable, and well-balanced performance across all categories.
-        """)
-    
-    with col2:
-        st.markdown("""
-        **📈 Areas for Improvement:**
-        - Possible overfitting — model may perform too perfectly on test data.
-        - Need more diverse and larger dataset for better generalization.
-        - Slight misclassification between mid-level obesity classes (Normal, Overweight I).
-        - Further feature analysis could improve class separation.
-        """)
-
-with tab3:
-    st.header("🔍 Detailed Health Analysis")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("📈 Feature Importance")
-        st.write("**The most influential factor in predicting obesity:**")
-        
-        importance_fig = create_real_feature_importance()
-        st.pyplot(importance_fig)
-        
-        st.markdown("""
-        **Interpretasi:**
-        - **Weight & Height**: The most dominant physical factor (BMI calculation)
-        - **Age & Physical Activity**: Lifestyle factors with significant influence
-        - **Dietary Habits**: Dietary patterns determine calorie intake
-        """)
-        
-        st.subheader("🔄 Lifestyle Comparison")
-        st.write("Comparison of your lifestyle with healthy targets:")
-        st.pyplot(create_lifestyle_comparison_chart(feature_inputs))
-    
-    with col2:
-        st.subheader("⚖️ BMI Context")
-        st.write("Your BMI position within the population distribution:")
-        
-        if 'pred_class' in locals():
-            st.pyplot(create_bmi_distribution_chart(bmi, pred_class))
-        else:
-            st.info("Perform a prediction first to analyze the BMI distribution.")
-        
-        st.subheader("🎯 Risk Factors Breakdown")
-        risk_chart = create_health_risk_breakdown(feature_inputs)
-        if risk_chart:
-            st.write("**Specific risk factors based on your input:**")
-            st.pyplot(risk_chart)
-        else:
-            st.success("✅ No significant risk factors have been identified.")
-    
-    # Insights & Recommendations
-    st.subheader("💡 Personalized Action Plan")
-    
-    personalized_recs = []
-    
-    if feature_inputs['FAF'] < 1.5:
-        personalized_recs.append("🚶 **Enhance physical activity levels**: Target a minimum of 30 minutes of moderate exercise daily, five times per week.")
-    
-    if feature_inputs['FCVC'] < 2:
-        personalized_recs.append("🥦 **Eat more greens**: Make sure every meal includes a generous portion of vegetables.")
-    
-    if feature_inputs['CH2O'] < 2:
-        personalized_recs.append("💧 **Stay hydrated**: Drink at least 2–3 liters of water every day to keep your body functioning optimally.")
-    
-    if feature_inputs['TUE'] > 1.5:
-        personalized_recs.append("📱 **Cut down on screen time**: Spend less time on gadgets and stay more active during the day.")
-    
-    if feature_inputs['FAVC'] == 'yes':
-        personalized_recs.append("🍔 **Cut back on high-calorie foods**: fuel your body with healthier, energizing choices that help you feel your best!")
-    
-    if not personalized_recs:
-        personalized_recs.append("✅ **Keep up your healthy habits and stay consistent!**")
-    
-    for i, rec in enumerate(personalized_recs, 1):
-        st.write(f"{i}. {rec}")
-
-with tab4:
     st.header("ℹ️ About This Application")
     
     st.markdown("""
-    ### 🏥 Obesity levels Prediction App 
-    This application predicts obesity levels based on physical condition, health indicators, dietary habits, and lifestyle factors
+    ### 🏥 Obesity Risk Prediction System
+    
+    This application predicts obesity levels based on lifestyle and physical characteristics 
     using a trained XGBoost machine learning model.
     
     #### 📋 Features Used:
     - **Personal Information**: Gender, Age, Height, Weight
-    - **Health Indicators**: Family history with overweight, Smoking habit, alcohol consumption
-    - **Dietary Habits**: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
-    - **Lifestyle Factors**: Physical activity, Water intake, Technology usage, Transportation
-  
+    - **Dietary Habits**: Vegetable consumption, meal frequency, high-calorie food intake
+    - **Lifestyle Factors**: Physical activity, water intake, technology usage
+    - **Health Indicators**: Family history, smoking, alcohol consumption
+    
     #### 🎯 Obesity Levels:
     - Insufficient Weight
     - Normal Weight  
@@ -1419,15 +527,6 @@ with tab4:
     - **Model**: XGBoost Classifier
     - **Training Data**: Obesity dataset with multiple lifestyle factors
     - **Accuracy**: High predictive performance for obesity classification
-    
-    #### 📊 How to Read the Charts:
-    - **Gauge Chart**: Shows model confidence in the prediction (0-100%)
-    - **Risk Meter**: Visual representation of obesity level (0-6)
-    - **Donut Chart**: Probability distribution across all obesity levels
-    - **Radar Chart**: Analysis of lifestyle factors and habits
-    - **Feature Importance**: Shows which factors most influence predictions
-    - **BMI Distribution**: Compares your BMI with population distribution
-    - **Confusion Matrix**: Model performance across different obesity classes
     """)
 
 # Test examples
@@ -1461,10 +560,7 @@ if st.sidebar.button("🚀 Load Example"):
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: gray;'>"
-    "🏥 Obesity Levels Prediction App (OLPA) | Made with Streamlit & XGBoost"
-    "</div>"
-    "<div style='text-align: center; color: salmon; font-size: 14px; margin-top: 5px;'>"
-    "© daudrusyadnurdin@gmail.com, DA/DS bootcamp 34, dibimbing.id"
+    "🏥 Obesity Prediction System | Made with Streamlit & XGBoost"
     "</div>",
     unsafe_allow_html=True
 )
