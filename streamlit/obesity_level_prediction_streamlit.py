@@ -1243,20 +1243,35 @@ with tab2:
         with cols[i % 3]:
             st.metric(label=name, value=value)
     
-    # ---------------------------------
-    # Confusion Matrix: Upload png file
-    # ---------------------------------
-    st.subheader("🎯 Confusion Matrix from Model Training")
-    st.write("""
-    **How to read this matrix:**
-    - **Diagonal (blue squares)**: Correct predictions  
-    - **Off-diagonal**: Misclassifications
-    - **Rows**: True obesity classes
-    - **Columns**: Predicted obesity classes
-    """)
     
-    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
-    st.image(header_image_url, width=700)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # ---------------------------------
+        # Confusion Matrix: Upload png file
+        # ---------------------------------
+        st.subheader("🎯 Confusion Matrix from Model Training")
+        st.write("""
+        **How to read this matrix:**
+        - **Diagonal (blue squares)**: Correct predictions  
+        - **Off-diagonal**: Misclassifications
+        - **Rows**: True obesity classes
+        - **Columns**: Predicted obesity classes
+        """)
+        
+        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
+        st.image(header_image_url, width=700)
+    with col2:
+        st.write("""
+        **Obesity Level:**
+        - 0 : Insufficient Weight
+        - 1 : Normal Weight
+        - 2 : Overweight Level I 
+        - 3 : Overweight Level II
+        - 4 : Obesity Type I
+        - 5 : Obesity Type II
+        - 6 : Obesity Type III
+        """)
     
     # ---------------------------------
     # Top 10 Important Features
