@@ -226,6 +226,45 @@ def safe_float_convert(value, default=0):
     except (ValueError, TypeError):
         return float(default)
 
+# -----------------
+# Radam diagram
+# -----------------
+def create_health_radar(feature_inputs):
+    """Radar chart khusus Health Indicators"""
+    categories = [
+        'Smoking (SMOKE)',
+        'Alcohol (CALC)',  
+        'Family History (FHWO)'
+    ]
+    
+    values = [
+        # SMOKE: Lower is better (binary, reversed)
+        (1 - safe_float_convert(feature_inputs.get('SMOKE', 'no'))) * 5,
+        
+        # CALC: Lower is better (0-3 → 0-5, reversed)
+        (1 - (safe_float_convert(feature_inputs.get('CALC', 'no')) / 3)) * 5,
+        
+        # FHWO: Lower is better (binary, reversed)  
+        (1 - safe_float_convert(feature_inputs.get('FHWO', 'no'))) * 5,
+    ]
+    
+    #ax.set_theta_offset(np.pi / 2)
+    
+    fig = go.Figure(go.Scatterpolar(
+        r=values, theta=categories, fill='toself',
+        line=dict(color='#dc3545'), fillcolor='rgba(220, 53, 69, 0.3)'
+    ))
+    
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
+        title_text="❤️ HEALTH INDICATORS",
+        title_font_size=20,
+        title_x=0.0, 
+        height=400
+    )
+    return fig
+
+# Dietary Habits: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
 def create_dietary_radar(feature_inputs):
     """Radar chart khusus Dietary Habits"""
     categories = [
@@ -242,7 +281,13 @@ def create_dietary_radar(feature_inputs):
         ((safe_float_convert(feature_inputs.get('NCP', 2.5)) - 1) / 3) * 5,
         
         # FAVC: Lower is better (binary, reversed)
-        (1 - safe_float_convert(feature_inputs.get('FAVC', 'no'))) * 5
+        (1 - safe_float_convert(feature_inputs.get('FAVC', 'no'))) * 5,
+        
+        # CAEC: Lower is better (0-3 → 0-5, reversed)
+        (1 - (safe_float_convert(feature_inputs.get('CAEC', 'no')) / 3)) * 5,
+        
+        # SCC: Lower is better (binary, reversed)
+        (safe_float_convert(feature_inputs.get('SCC', 'no'))) * 5
     ]
     
     fig = go.Figure(go.Scatterpolar(
@@ -258,7 +303,8 @@ def create_dietary_radar(feature_inputs):
         height=400
     )
     return fig
-
+    
+# Lifestyle Factors: Physical activity, Water intake, Technology usage, Transportation
 def create_lifestyle_radar(feature_inputs):
     """Radar chart khusus Lifestyle Factors"""
     categories = [
@@ -292,39 +338,9 @@ def create_lifestyle_radar(feature_inputs):
     )
     return fig
 
-def create_health_radar(feature_inputs):
-    """Radar chart khusus Health Indicators"""
-    categories = [
-        'Smoking (SMOKE)',
-        'Alcohol (CALC)',  
-        'Family History (FHWO)'
-    ]
-    
-    values = [
-        # SMOKE: Lower is better (binary, reversed)
-        (1 - safe_float_convert(feature_inputs.get('SMOKE', 'no'))) * 5,
-        
-        # CALC: Lower is better (0-3 → 0-5, reversed)
-        (1 - (safe_float_convert(feature_inputs.get('CALC', 'no')) / 3)) * 5,
-        
-        # FHWO: Lower is better (binary, reversed)  
-        (1 - safe_float_convert(feature_inputs.get('FHWO', 'no'))) * 5,
-    ]
-    
-    fig = go.Figure(go.Scatterpolar(
-        r=values, theta=categories, fill='toself',
-        line=dict(color='#dc3545'), fillcolor='rgba(220, 53, 69, 0.3)'
-    ))
-    
-    fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
-        title_text="❤️ HEALTH INDICATORS",
-        title_font_size=20,
-        title_x=0.0, 
-        height=400
-    )
-    return fig
-
+# -----------------
+# Donut diagram
+# -----------------
 def create_donut_chart(pred_proba, class_mapping):
     """Membuat donut chart untuk probabilities"""
     
@@ -741,81 +757,81 @@ bmi = feature_inputs["Weight"] / (feature_inputs["Height"] ** 2)
 # Health Indicators: Family history with overweight, Smoking habit, alcohol consumption
 fhwo_options = ["no", "yes"]
 feature_inputs["FHWO"] = st.sidebar.selectbox(
-    "Family history of overweight", 
+    "Family history of overweight (FHWO)", 
     fhwo_options,
     index=fhwo_options.index(st.session_state.get("FHWO", default_values["FHWO"]))
 )
 
 smoke_options = ["no", "yes"]
 feature_inputs["SMOKE"] = st.sidebar.selectbox(
-    "Smoking habit", 
+    "Smoking habit (SMOKE)", 
     smoke_options,
     index=smoke_options.index(st.session_state.get("SMOKE", default_values["SMOKE"]))
 )
 
 calc_options = ["no", "Sometimes", "Frequently", "Always"]
 feature_inputs["CALC"] = st.sidebar.selectbox(
-    "Alcohol consumption", 
+    "Alcohol consumption (CALC)", 
     calc_options,
     index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
 )
 
 # Dietary Habits: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
 feature_inputs["FCVC"] = st.sidebar.slider(
-    "Frequency of vegetable consumption", 1.0, 3.0,
+    "Frequency of vegetable consumption (FCVC)", 1.0, 3.0,
     value=float(st.session_state.get("FCVC", default_values["FCVC"])),
     step=0.1
 )
 
 feature_inputs["NCP"] = st.sidebar.slider(
-    "Number of main meals per day", 1.0, 4.0,
+    "Number of main meals per day (NCP)", 1.0, 4.0,
     value=float(st.session_state.get("NCP", default_values["NCP"])),
     step=0.1
 )
 
 favc_options = ["no", "yes"]
 feature_inputs["FAVC"] = st.sidebar.selectbox(
-    "Frequent consumption of high caloric food", 
+    "Frequent consumption of high caloric food (FAVC)", 
     favc_options,
     index=favc_options.index(st.session_state.get("FAVC", default_values["FAVC"]))
 )
 
 caec_options = ["no", "Sometimes", "Frequently", "Always"]
 feature_inputs["CAEC"] = st.sidebar.selectbox(
-    "Consumption of food between meals", 
+    "Consumption of food between meals (CAEC)", 
     caec_options,
     index=caec_options.index(st.session_state.get("CAEC", default_values["CAEC"]))
 )
 
 scc_options = ["no", "yes"]
 feature_inputs["SCC"] = st.sidebar.selectbox(
-    "Monitor calorie consumption", 
+    "Monitor calorie consumption (SCC)", 
     scc_options,
     index=scc_options.index(st.session_state.get("SCC", default_values["SCC"]))
 )
 
 # Lifestyle Factors: Physical activity, Water intake, Technology usage, Transportation
 feature_inputs["FAF"] = st.sidebar.slider(
-    "Physical activity frequency", 0.0, 3.0,
+    "Physical activity frequency (FAF)", 0.0, 3.0,
     value=float(st.session_state.get("FAF", default_values["FAF"])),
     step=0.1
 )
 
 feature_inputs["CH2O"] = st.sidebar.slider(
-    "Water consumption (1-3 scale)", 1.0, 3.0,
+    "Water consumption (CH2O)", 1.0, 3.0,
     value=float(st.session_state.get("CH2O", default_values["CH2O"])),
     step=0.1
 )
 
 feature_inputs["TUE"] = st.sidebar.slider(
-    "Time using electronic devices", 0.0, 2.0,
+    "Time using electronic devices (TUE)", 0.0, 2.0,
     value=float(st.session_state.get("TUE", default_values["TUE"])),
     step=0.1
 )
 
 mtrans_options = ["Public_Transportation", "Walking", "Automobile", "Motorbike", "Bike"]
 feature_inputs["MTRANS"] = st.sidebar.selectbox(
-    "Primary transportation method", 
+    "Primary transportation method (MTRANS)", 
     mtrans_options,
     index=mtrans_options.index(st.session_state.get("MTRANS", default_values["MTRANS"]))
 )
@@ -1136,13 +1152,13 @@ with tab1: # Main tab: Prediction of model
                 col1, col2, col3 = st.columns(3)
                 
                 with col1:
-                    st.plotly_chart(create_dietary_radar(feature_inputs), use_container_width=True)
+                    st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
                 
                 with col2:
-                    st.plotly_chart(create_lifestyle_radar(feature_inputs), use_container_width=True)
+                    st.plotly_chart(create_dietary_radar(feature_inputs), use_container_width=True)
                 
                 with col3:
-                    st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
+                    st.plotly_chart(create_lifestyle_radar(feature_inputs), use_container_width=True)             
 
                 # ----------------------------------
                 # Row 2: Donut Chart dan Radar Chart
