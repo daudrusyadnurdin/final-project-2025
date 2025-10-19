@@ -270,7 +270,9 @@ def create_dietary_radar(feature_inputs):
     categories = [
         'Vegetable Consumption (FCVC)',
         'Meal Frequency (NCP)', 
-        'High-Calorie Food (FAVC)'
+        'High-Calorie Food (FAVC)',
+        'Snacking (CAEC)',           
+        'Calorie Monitoring (SCC)'   
     ]
     
     values = [
@@ -287,7 +289,7 @@ def create_dietary_radar(feature_inputs):
         (1 - (safe_float_convert(feature_inputs.get('CAEC', 'no')) / 3)) * 5,
         
         # SCC: Lower is better (binary, reversed)
-        (safe_float_convert(feature_inputs.get('SCC', 'no'))) * 5
+        (1 - safe_float_convert(feature_inputs.get('SCC', 'no'))) * 5  
     ]
     
     fig = go.Figure(go.Scatterpolar(
@@ -310,7 +312,8 @@ def create_lifestyle_radar(feature_inputs):
     categories = [
         'Physical Activity (FAF)',
         'Water Intake (CH2O)',
-        'Technology Usage (TUE)'
+        'Technology Usage (TUE)',
+        'Transportation (MTRANS)'
     ]
     
     values = [
