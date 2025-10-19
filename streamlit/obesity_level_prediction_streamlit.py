@@ -485,9 +485,9 @@ def create_real_feature_importance():
     fig, ax = plt.subplots(figsize=(10, 8))
     y_pos = np.arange(len(features_reversed))
     
-    # Create color gradient - DARKEST at TOP, lightest at bottom
-    # dari biru tua ke biru sangat muda
-    colors = plt.cm.Blues(np.linspace(0.9, 0.2, len(features_reversed)))
+    # Create color gradient - DARKEST at TOP
+    # Use normal order for colors (tidak perlu reverse karena data sudah reversed)
+    colors = plt.cm.Blues(np.linspace(0.8, 0.3, len(features_reversed)))
     
     bars = ax.barh(y_pos, importance_reversed, color=colors)
     ax.set_yticks(y_pos)
