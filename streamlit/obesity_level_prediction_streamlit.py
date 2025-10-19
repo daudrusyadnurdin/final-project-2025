@@ -1301,17 +1301,7 @@ with tab2:
     perf_df = pd.DataFrame(class_performance)
     #st.dataframe(perf_df, use_container_width=True)
     
-    st.data_editor(
-        perf_df,
-        column_config={
-            "Class": st.column_config.TextColumn(width="large"),
-            "Precision": st.column_config.TextColumn(width="small"),
-            "Recall": st.column_config.TextColumn(width="small"),
-            "F1-Score": st.column_config.TextColumn(width="small"),
-            "Support": st.column_config.TextColumn(width="small"),
-        },
-        use_container_width=False  # <- set ke False biar width kolom bisa diterapkan
-    )
+    st.table(perf_df)
     
     # ---------------------------------
     # Model Analysis
