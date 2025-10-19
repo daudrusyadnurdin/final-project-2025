@@ -686,7 +686,7 @@ st.markdown('<h1 class="main-header">🏥 Obesity Level Prediction App</h1>', un
 
 st.markdown(
     '<h3 style="text-align: center; color: #FFA07A; margin-bottom: 2rem;">'
-    'Predict obesity levels based on lifestyle and physical attributes using Machine Learning'
+    'Predict obesity levels based on your input parameters using XGBoost machine learning model'
     '</h3>', 
     unsafe_allow_html=True
 )
@@ -1463,7 +1463,10 @@ if st.sidebar.button("🚀 Load Example"):
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: gray;'>"
-    "🏥 Obesity Prediction System | Made with Streamlit & XGBoost"
+    "🏥 Obesity Levels Prediction App (OLPA) | Made with Streamlit & XGBoost"
+    "</div>"
+    "<div style='text-align: center; color: lightgray; font-size: 12px; margin-top: 5px;'>"
+    "© daudrusyadnurdin@gmail.com, DA/DS bootcamp 34, dibimbing.id"
     "</div>",
     unsafe_allow_html=True
 )
