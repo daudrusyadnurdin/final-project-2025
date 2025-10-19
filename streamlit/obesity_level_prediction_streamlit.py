@@ -622,12 +622,12 @@ def create_performance_metrics():
     """Metrics dari training"""
     
     return {
-        'Accuracy': '87.2%',
-        'Precision': '85.6%', 
-        'Recall': '86.1%',
-        'F1-Score': '85.8%',
-        'Macro Avg F1': '84.3%',
-        'Weighted Avg F1': '86.7%'
+        'Accuracy': '97.129%',
+        'Precision': '97.129%', 
+        'Recall': '97.129%',
+        'F1-Score': '97.13%',
+        'Macro Avg F1': '97.040%',
+        'Weighted Avg F1': '97.125%'
     }
 
 # ============================
@@ -1264,7 +1264,7 @@ with tab2:
         st.image(header_image_url, width=700)
     with col2:
         st.write("""      
-        ##**Obesity Level:**
+        **Obesity Level:**
         - 0 : Insufficient Weight
         - 1 : Normal Weight
         - 2 : Overweight Level I 
