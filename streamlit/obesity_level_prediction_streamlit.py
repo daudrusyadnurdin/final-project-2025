@@ -618,45 +618,6 @@ def create_health_risk_breakdown(feature_inputs):
     plt.tight_layout()
     return fig
 
-def create_confusion_matrix_plot():
-    """Confusion matrix dari training"""
-    
-    classes = ['Insufficient_Weight', 'Normal_Weight', 'Overweight_I', 
-               'Overweight_II', 'Obesity_I', 'Obesity_II', 'Obesity_III']
-    
-    cm = np.array([
-        [45, 3, 1, 0, 0, 0, 0],
-        [2, 52, 4, 1, 0, 0, 0],
-        [1, 3, 48, 5, 1, 0, 0],
-        [0, 1, 4, 42, 6, 2, 0],
-        [0, 0, 1, 5, 38, 8, 3],
-        [0, 0, 0, 2, 7, 35, 11],
-        [0, 0, 0, 0, 3, 9, 33]
-    ])
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-    ax.figure.colorbar(im, ax=ax)
-    
-    ax.set(xticks=np.arange(cm.shape[1]),
-           yticks=np.arange(cm.shape[0]),
-           xticklabels=classes, yticklabels=classes,
-           title='Confusion Matrix from Model Training',
-           ylabel='True Label',
-           xlabel='Predicted Label')
-    
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-    
-    thresh = cm.max() / 2.
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
-            ax.text(j, i, format(cm[i, j], 'd'),
-                   ha="center", va="center",
-                   color="white" if cm[i, j] > thresh else "black")
-    
-    fig.tight_layout()
-    return fig
-
 def create_performance_metrics():
     """Metrics dari training"""
     
@@ -1297,20 +1258,10 @@ with tab2:
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
     st.image(header_image_url, width=800)
     
-    #cm_fig = create_confusion_matrix_plot()
-    #st.pyplot(cm_fig)
-    
     # ---------------------------------
     # Top 10 Important Features
     # ---------------------------------
     st.subheader("🏆 Top 10 Important Features")
-    st.write("""
-    **How to read this matrix:**
-    - **Diagonal (blue squares)**: Correct predictions  
-    - **Off-diagonal**: Misclassifications
-    - **Rows**: True obesity classes
-    - **Columns**: Predicted obesity classes
-    """)
     
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/importances.png"
     st.image(header_image_url, width=800)
