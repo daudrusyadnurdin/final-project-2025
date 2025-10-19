@@ -412,7 +412,7 @@ def create_risk_meter_with_legend(pred_class):
     fig.update_layout(
         height=250,
         margin=dict(l=10, r=10, t=60, b=10),
-        title=f"Obesity Risk Level: {current_risk['description']}"
+        title=f"Obesity Level: {current_risk['description']}"
     )
     
     return fig, risk_info
@@ -420,7 +420,7 @@ def create_risk_meter_with_legend(pred_class):
 def display_color_bar_legend(risk_info):
     """Menampilkan color bar horizontal yang informatif"""
     
-    st.markdown("**Obesity Risk Classification**")
+    st.markdown("**Obesity Classification**")
     
     # Create color gradient bar
     color_gradient = "background: linear-gradient(90deg"
@@ -1282,7 +1282,9 @@ with tab2:
         with cols[i % 3]:
             st.metric(label=name, value=value)
     
-    # Confusion Matrix
+    # ---------------------------------
+    # Confusion Matrix: Upload png file
+    # ---------------------------------
     st.subheader("🎯 Confusion Matrix from Model Training")
     st.write("""
     **How to read this matrix:**
@@ -1292,10 +1294,15 @@ with tab2:
     - **Columns**: Predicted obesity classes
     """)
     
-    cm_fig = create_confusion_matrix_plot()
-    st.pyplot(cm_fig)
+    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
+    st.image(header_image_url, use_container_width=True)
     
+    #cm_fig = create_confusion_matrix_plot()
+    #st.pyplot(cm_fig)
+    
+    # ---------------------------------
     # Class-wise Performance
+    # ---------------------------------
     st.subheader("📋 Class-wise Performance on Test Data")
     
     class_performance = {
@@ -1424,7 +1431,7 @@ with tab4:
     
     #### 📊 How to Read the Charts:
     - **Gauge Chart**: Shows model confidence in the prediction (0-100%)
-    - **Risk Meter**: Visual representation of obesity risk level (0-6)
+    - **Risk Meter**: Visual representation of obesity level (0-6)
     - **Donut Chart**: Probability distribution across all obesity levels
     - **Radar Chart**: Analysis of lifestyle factors and habits
     - **Feature Importance**: Shows which factors most influence predictions
