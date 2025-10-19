@@ -1299,8 +1299,6 @@ with tab2:
     # next panggil file 
     
     perf_df = pd.DataFrame(class_performance)
-    #st.dataframe(perf_df, use_container_width=True)
-    
     st.table(perf_df)
     
     # ---------------------------------
@@ -1313,17 +1311,20 @@ with tab2:
     with col1:
         st.markdown("""
         **✅ Model Strengths:**
-        - Excellent at identifying **Underweight** and **Normal Weight** (F1 > 88%)
-        - Good overall balance across all classes
-        - Consistent performance metrics
+        - High overall accuracy: All metrics (Precision, Recall, F1-Score) exceed 90%, indicating excellent predictive performance.
+        - Consistent performance across all obesity level classes with no significant drop in accuracy.
+        - Balanced precision and recall, showing that misclassifications are minimal.
+        - Strong generalization ability, suggesting the model is not overfitted to any specific class.
+        - Deployment-ready model with stable, reliable, and well-balanced performance across all categories.
         """)
     
     with col2:
         st.markdown("""
         **📈 Areas for Improvement:**
-        - **Obesity Type III** has lower recall (75.1%)
-        - Some confusion between **Overweight II** and **Obesity I**
-        - Could benefit from more **Obesity III** training samples
+        - Possible overfitting — model may perform too perfectly on test data.
+        - Need more diverse and larger dataset for better generalization.
+        - Slight misclassification between mid-level obesity classes (Normal, Overweight I).
+        - Further feature analysis could improve class separation.
         """)
 
 with tab3:
