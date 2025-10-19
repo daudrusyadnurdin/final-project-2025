@@ -1295,11 +1295,27 @@ with tab2:
     """)
     
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
-    st.image(header_image_url, use_container_width=True)
-    st.image(header_image_url, width=600, caption="Confusion Matrix - XGBoost Model")
+    st.image(header_image_url, width=800)
     
     #cm_fig = create_confusion_matrix_plot()
     #st.pyplot(cm_fig)
+    
+    # ---------------------------------
+    # Top 10 Important Features
+    # ---------------------------------
+    st.subheader("🏆 Top 10 Important Features")
+    st.write("""
+    **How to read this matrix:**
+    - **Diagonal (blue squares)**: Correct predictions  
+    - **Off-diagonal**: Misclassifications
+    - **Rows**: True obesity classes
+    - **Columns**: Predicted obesity classes
+    """)
+    
+    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/importances.png"
+    st.image(header_image_url, width=800)
+    
+    
     
     # ---------------------------------
     # Class-wise Performance
