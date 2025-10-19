@@ -622,12 +622,12 @@ def create_performance_metrics():
     """Metrics dari training"""
     
     return {
-        'Accuracy': '97.129%',
         'Precision': '97.129%', 
         'Recall': '97.129%',
-        'F1-Score': '97.13%',
+        'F1-Score': '97.129%',
         'Macro Avg F1': '97.040%',
-        'Weighted Avg F1': '97.125%'
+        'Weighted Avg F1': '97.125%',
+        'Accuracy': '97.129%'
     }
 
 # ============================
@@ -1290,13 +1290,15 @@ with tab2:
     st.subheader("📋 Class-wise Performance on Test Data")
     
     class_performance = {
-        'Class': ['Insufficient_Weight', 'Normal_Weight', 'Overweight_I', 'Overweight_II', 
-                 'Obesity_I', 'Obesity_II', 'Obesity_III'],
-        'Precision': ['89.2%', '87.5%', '85.1%', '82.3%', '80.8%', '78.6%', '76.4%'],
-        'Recall': ['88.7%', '86.2%', '84.3%', '81.8%', '79.5%', '77.2%', '75.1%'],
-        'F1-Score': ['88.9%', '86.8%', '84.7%', '82.0%', '80.1%', '77.9%', '75.7%'],
-        'Support': ['50', '55', '52', '48', '45', '42', '38']
+        'Class': ['Insufficient_Weight', 'Normal_Weight', 'Overweight_Level_I', 'Overweight_Level_II', 
+                 'Obesity_Type_I', 'Obesity_Type_II', 'Obesity_Type_III'],
+        'Precision': ['96.61%', '91.80%', '94.44%', '96.08%', '100.00%', '100.00%', '100.00%'],
+        'Recall': ['96.61%', '91.80%', '92.27%', '100.00%', '98.57%', '100.00%', '100.00%'],
+        'F1-Score': ['96.61%', '91.80%', '93.58%', '98.00%', '99.28%', '100.00%', '100.00%'],
+        'Support': ['59', '61', '55', '49', '70', '64', '60']
     }
+
+    # next panggil file 
     
     perf_df = pd.DataFrame(class_performance)
     st.dataframe(perf_df, use_container_width=True)
