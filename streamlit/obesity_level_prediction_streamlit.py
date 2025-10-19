@@ -1304,12 +1304,13 @@ with tab2:
     st.data_editor(
         perf_df,
         column_config={
-            "Precision": st.column_config.NumberColumn(width="small"),
-            "Recall": st.column_config.NumberColumn(width="small"),
-            "F1-Score": st.column_config.NumberColumn(width="small"),
-            "Support": st.column_config.NumberColumn(width="medium")
+            "Class": st.column_config.TextColumn(width="large"),
+            "Precision": st.column_config.TextColumn(width="small"),
+            "Recall": st.column_config.TextColumn(width="small"),
+            "F1-Score": st.column_config.TextColumn(width="small"),
+            "Support": st.column_config.TextColumn(width="small"),
         },
-        use_container_width=True
+        use_container_width=False  # <- set ke False biar width kolom bisa diterapkan
     )
     
     # ---------------------------------
