@@ -1027,6 +1027,17 @@ with tab1: # Main tab: Prediction of model
         # BMI Analysis
         # -------------
         st.subheader("⚖️ BMI Analysis")
+        
+        # BMI description in short
+        st.write(
+            """
+            <div style='background-color: #F5F5F5; padding: 10px; border-radius: 5px; color: black;'>
+                Evaluate your weight category based on height and weight
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
         st.metric("Body Mass Index (kg/m²)", f"{bmi:.1f}")
         if bmi < 18.5:
             st.info("📊 **Category**: Underweight")
