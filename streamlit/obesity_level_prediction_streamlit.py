@@ -485,15 +485,8 @@ def create_real_feature_importance():
     fig, ax = plt.subplots(figsize=(10, 8))
     y_pos = np.arange(len(features_reversed))
     
-    # Create color gradient from dark to light (blue theme)
-    base_color = np.array([0.2, 0.4, 0.8])  # Dark blue base
-    colors = []
-    
-    for i in range(len(features_reversed)):
-        # Calculate lightness factor (0.3 to 1.0)
-        lightness = 0.3 + (i / len(features_reversed)) * 0.7
-        color = base_color * lightness
-        colors.append(color)
+    # Create color gradient using colormap
+    colors = plt.cm.Blues(np.linspace(0.6, 0.2, len(features_reversed)))
     
     bars = ax.barh(y_pos, importance_reversed, color=colors)
     ax.set_yticks(y_pos)
