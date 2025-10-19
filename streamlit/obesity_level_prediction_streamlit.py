@@ -1465,7 +1465,7 @@ st.markdown(
     "<div style='text-align: center; color: gray;'>"
     "🏥 Obesity Levels Prediction App (OLPA) | Made with Streamlit & XGBoost"
     "</div>"
-    "<div style='text-align: center; color: lightgray; font-size: 12px; margin-top: 5px;'>"
+    "<div style='text-align: center; color: salmon; font-size: 14px; margin-top: 5px;'>"
     "© daudrusyadnurdin@gmail.com, DA/DS bootcamp 34, dibimbing.id"
     "</div>",
     unsafe_allow_html=True
