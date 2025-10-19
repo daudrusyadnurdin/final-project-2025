@@ -1304,10 +1304,10 @@ with tab2:
     st.data_editor(
         perf_df,
         column_config={
-            "precision": st.column_config.NumberColumn(width="small"),
-            "recall": st.column_config.NumberColumn(width="small"),
-            "f1-score": st.column_config.NumberColumn(width="small"),
-            "support": st.column_config.NumberColumn(width="medium")
+            "Precision": st.column_config.NumberColumn(width="small"),
+            "Recall": st.column_config.NumberColumn(width="small"),
+            "F1-Score": st.column_config.NumberColumn(width="small"),
+            "Support": st.column_config.NumberColumn(width="medium")
         },
         use_container_width=True
     )
