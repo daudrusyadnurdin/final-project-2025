@@ -899,7 +899,7 @@ def correct_preprocessing(feature_dict):
 # TAB LAYOUT
 # ============================
 
-tab1, tab2, tab3 = st.tabs(["🎯 Prediction", "📊 Model Performance", "ℹ️ About"])
+tab1, tab2, tab3, tab4 = st.tabs(["🎯 Prediction", "📊 Model Performance", "🔍 Health Analysis", "ℹ️ About"])
 
 with tab1: # Main tab: Prediction of model
     
@@ -1330,6 +1330,72 @@ with tab2:
         """)
 
 with tab3:
+    st.header("🔍 Detailed Health Analysis")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📈 Feature Importance")
+        st.write("**The most influential factor in predicting obesity:**")
+        
+        importance_fig = create_real_feature_importance()
+        st.pyplot(importance_fig)
+        
+        st.markdown("""
+        **Interpretasi:**
+        - **Weight & Height**: The most dominant physical factor (BMI calculation)
+        - **Age & Physical Activity**: Lifestyle factors with significant influence
+        - **Dietary Habits**: Dietary patterns determine calorie intake
+        """)
+        
+        st.subheader("🔄 Lifestyle Comparison")
+        st.write("Comparison of your lifestyle with healthy targets:")
+        st.pyplot(create_lifestyle_comparison_chart(feature_inputs))
+    
+    with col2:
+        st.subheader("⚖️ BMI Context")
+        st.write("Your BMI position within the population distribution:")
+        
+        if 'pred_class' in locals():
+            st.pyplot(create_bmi_distribution_chart(bmi, pred_class))
+        else:
+            st.info("Perform a prediction first to analyze the BMI distribution.")
+        
+        st.subheader("🎯 Risk Factors Breakdown")
+        risk_chart = create_health_risk_breakdown(feature_inputs)
+        if risk_chart:
+            st.write("**Specific risk factors based on your input:**")
+            st.pyplot(risk_chart)
+        else:
+            st.success("✅ No significant risk factors have been identified.")
+    
+    # Insights & Recommendations
+    st.subheader("💡 Personalized Action Plan")
+    
+    personalized_recs = []
+    
+    if feature_inputs['FAF'] < 1.5:
+        personalized_recs.append("🚶 **Enhance physical activity levels**: Target a minimum of 30 minutes of moderate exercise daily, five times per week.")
+    
+    if feature_inputs['FCVC'] < 2:
+        personalized_recs.append("🥦 **Eat more greens**: Make sure every meal includes a generous portion of vegetables.")
+    
+    if feature_inputs['CH2O'] < 2:
+        personalized_recs.append("💧 **Stay hydrated**: Drink at least 2–3 liters of water every day to keep your body functioning optimally.")
+    
+    if feature_inputs['TUE'] > 1.5:
+        personalized_recs.append("📱 **Cut down on screen time**: Spend less time on gadgets and stay more active during the day.")
+    
+    if feature_inputs['FAVC'] == 'yes':
+        personalized_recs.append("🍔 **Cut back on high-calorie foods**: fuel your body with healthier, energizing choices that help you feel your best!")
+    
+    if not personalized_recs:
+        personalized_recs.append("✅ **Keep up your healthy habits and stay consistent!**")
+    
+    for i, rec in enumerate(personalized_recs, 1):
+        st.write(f"{i}. {rec}")
+
+with tab4:
     st.header("ℹ️ About This Application")
     
     st.markdown("""
