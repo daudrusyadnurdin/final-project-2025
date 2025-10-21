@@ -813,8 +813,8 @@ for k, v in feature_inputs.items():
 # Fungsi preprocessing > disesuaikan dengan proses encoding
 def correct_preprocessing(feature_dict):
     """Preprocessing yang sesuai dengan expected features model"""
-
-    categorical_to_numerical = { # add Gender > wrong encoding before
+    
+    categorical_to_numerical = {
         "Gender": {"Female": 0, "Male": 1},
         "FHWO": {"no": 0, "yes": 1},
         "FAVC": {"no": 0, "yes": 1},
@@ -824,12 +824,11 @@ def correct_preprocessing(feature_dict):
         "CALC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3}
     }
     
-    # Posisi Gender: remainder__Gender
+    # Expected features - PASTIKAN INI SAMA DENGAN YANG DIGUNAKAN SAAT TRAINING
     expected_features = [
-        #'ohe__Gender_Male', 'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
         'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
-        'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking', 
-        'remainder__Gender',
+        'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking',
+        'remainder__Gender',  # Gender sekarang di remainder dengan label encoding
         'remainder__Age', 'remainder__Height', 'remainder__Weight', 
         'remainder__FHWO', 'remainder__FAVC', 'remainder__FCVC', 
         'remainder__NCP', 'remainder__CAEC', 'remainder__SMOKE', 
@@ -837,52 +836,69 @@ def correct_preprocessing(feature_dict):
         'remainder__TUE', 'remainder__CALC'
     ]
     
+    # Inisialisasi dengan nilai default 0
     processed_data = {feature: 0.0 for feature in expected_features}
     
-    # Set one-hot encoding untuk Gender >> nantinya dibuang, jadi lebih simple
-    #if feature_dict["Gender"] == "Male":
-    #    processed_data["ohe__Gender_Male"] = 1.0
-    #else:
-    #    processed_data["ohe__Gender_Male"] = 0.0
-    
-    # Set one-hot encoding untuk MTRANS
+    # 1. Handle MTRANS one-hot encoding
     mtrans_mapping = {
         "Bike": "ohe__MTRANS_Bike",
         "Motorbike": "ohe__MTRANS_Motorbike", 
         "Public_Transportation": "ohe__MTRANS_Public_Transportation",
-        "Walking": "ohe__MTRANS_Walking",
-        "Automobile": "ohe__MTRANS_Automobile"
+        "Walking": "ohe__MTRANS_Walking"
+        # "Automobile" adalah baseline category (semua 0)
     }
     
+    # Reset semua MTRANS features ke 0
     for feature in ['ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
                    'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking']:
         processed_data[feature] = 0.0
     
+    # Set the appropriate MTRANS feature to 1
     if feature_dict["MTRANS"] in mtrans_mapping:
         feature_name = mtrans_mapping[feature_dict["MTRANS"]]
-        if feature_name in processed_data:
-            processed_data[feature_name] = 1.0
+        processed_data[feature_name] = 1.0
     
-    # Set numerical features
-    processed_data["remainder__Age"] = float(feature_dict["Age"])
-    processed_data["remainder__Height"] = float(feature_dict["Height"])
-    processed_data["remainder__Weight"] = float(feature_dict["Weight"])
-    processed_data["remainder__FCVC"] = float(feature_dict["FCVC"])
-    processed_data["remainder__NCP"] = float(feature_dict["NCP"])
-    processed_data["remainder__CH2O"] = float(feature_dict["CH2O"])
-    processed_data["remainder__FAF"] = float(feature_dict["FAF"])
-    processed_data["remainder__TUE"] = float(feature_dict["TUE"])
+    # 2. Handle numerical features dengan validasi
+    try:
+        processed_data["remainder__Age"] = float(feature_dict["Age"])
+        processed_data["remainder__Height"] = float(feature_dict["Height"])
+        processed_data["remainder__Weight"] = float(feature_dict["Weight"])
+        processed_data["remainder__FCVC"] = float(feature_dict["FCVC"])
+        processed_data["remainder__NCP"] = float(feature_dict["NCP"])
+        processed_data["remainder__CH2O"] = float(feature_dict["CH2O"])
+        processed_data["remainder__FAF"] = float(feature_dict["FAF"])
+        processed_data["remainder__TUE"] = float(feature_dict["TUE"])
+    except (ValueError, TypeError) as e:
+        print(f"Error converting numerical features: {e}")
+        return None
     
-    # Set encoded categorical features >> sisipkan Gender di sini!
-    processed_data["remainder__Gender"] = categorical_to_numerical["Gender"][feature_dict["Gender"]]
-    processed_data["remainder__FHWO"] = categorical_to_numerical["FHWO"][feature_dict["FHWO"]]
-    processed_data["remainder__FAVC"] = categorical_to_numerical["FAVC"][feature_dict["FAVC"]]
-    processed_data["remainder__CAEC"] = categorical_to_numerical["CAEC"][feature_dict["CAEC"]]
-    processed_data["remainder__SMOKE"] = categorical_to_numerical["SMOKE"][feature_dict["SMOKE"]]
-    processed_data["remainder__SCC"] = categorical_to_numerical["SCC"][feature_dict["SCC"]]
-    processed_data["remainder__CALC"] = categorical_to_numerical["CALC"][feature_dict["CALC"]]
+    # 3. Handle categorical features dengan validasi
+    try:
+        processed_data["remainder__Gender"] = categorical_to_numerical["Gender"].get(
+            feature_dict["Gender"], 0)  # default ke Female jika tidak ada
+        processed_data["remainder__FHWO"] = categorical_to_numerical["FHWO"].get(
+            feature_dict["FHWO"], 0)
+        processed_data["remainder__FAVC"] = categorical_to_numerical["FAVC"].get(
+            feature_dict["FAVC"], 0)
+        processed_data["remainder__CAEC"] = categorical_to_numerical["CAEC"].get(
+            feature_dict["CAEC"], 0)
+        processed_data["remainder__SMOKE"] = categorical_to_numerical["SMOKE"].get(
+            feature_dict["SMOKE"], 0)
+        processed_data["remainder__SCC"] = categorical_to_numerical["SCC"].get(
+            feature_dict["SCC"], 0)
+        processed_data["remainder__CALC"] = categorical_to_numerical["CALC"].get(
+            feature_dict["CALC"], 0)
+    except KeyError as e:
+        print(f"Error with categorical feature: {e}")
+        return None
     
+    # 4. Create DataFrame dengan urutan yang tepat
     input_df = pd.DataFrame([processed_data])[expected_features]
+    
+    # Debug: Print shape dan beberapa nilai
+    print(f"Input shape: {input_df.shape}")
+    print(f"Sample values - Weight: {processed_data['remainder__Weight']}, Age: {processed_data['remainder__Age']}")
+    print(f"MTRANS encoded: {feature_dict['MTRANS']} -> {[processed_data[f] for f in expected_features if 'MTRANS' in f]}")
     
     return input_df
 
