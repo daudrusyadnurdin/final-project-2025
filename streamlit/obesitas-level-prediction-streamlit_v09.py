@@ -1248,9 +1248,9 @@ with tab2:
     # ---------------------------------
     # Model performance comparison
     # ---------------------------------
-    st.subheader("💹 Model performance comparison")
+    st.subheader("💹 Model Performance Comparison")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-performance-comparison.png"
-    st.image(header_image_url, width=700)
+    st.image(header_image_url, width=900)
     
     # ---------------------------------
     # Confusion Matrix: Upload png file
