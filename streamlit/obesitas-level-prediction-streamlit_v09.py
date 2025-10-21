@@ -1056,6 +1056,7 @@ with tab1: # Main tab: Prediction of model
                     </h2>
                 </div>
                 """, unsafe_allow_html=True)
+                st.markdown("---")
                 
                 # --------------
                 # VISUALISASI
@@ -1088,6 +1089,8 @@ with tab1: # Main tab: Prediction of model
                 
                 with col3:
                     st.plotly_chart(create_lifestyle_radar(feature_inputs), use_container_width=True)             
+                
+                st.markdown("---")
 
                 # ----------------------------------
                 # Row 2: Donut Chart dan Radar Chart
@@ -1148,6 +1151,8 @@ with tab1: # Main tab: Prediction of model
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.error(f"Expected 7 probability values, got {len(pred_proba)}")
+                
+                st.markdown("---")
                 
                 # -----------------------
                 # Health recommendations
