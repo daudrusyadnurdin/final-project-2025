@@ -1056,12 +1056,13 @@ with tab1: # Main tab: Prediction of model
                     </h2>
                 </div>
                 """, unsafe_allow_html=True)
+                
                 st.markdown("---")
                 
                 # --------------
                 # VISUALISASI
                 # --------------
-                st.subheader("📊 Advanced Visualization Dashboard")
+                st.subheader("📊 Visualization Dashboard")
                 
                 # Row 1: Gauge Chart dan Risk Meter
                 col1, col2 = st.columns(2)
@@ -1157,7 +1158,6 @@ with tab1: # Main tab: Prediction of model
                 # -----------------------
                 # Health recommendations
                 # -----------------------
-                st.markdown("---")
                 st.subheader("💡 Health Recommendations")
 
                 recommendations = {
