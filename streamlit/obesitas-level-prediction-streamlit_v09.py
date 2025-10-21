@@ -813,9 +813,9 @@ for k, v in feature_inputs.items():
 # Fungsi preprocessing > disesuaikan dengan proses encoding
 def correct_preprocessing(feature_dict):
     """Preprocessing yang sesuai dengan expected features model"""
-    
+
     categorical_to_numerical = { # add Gender > wrong encoding before
-        #"Gender": {"Male": 0, "yes": 1},
+        "Gender": {"Female": 0, "Male": 1},
         "FHWO": {"no": 0, "yes": 1},
         "FAVC": {"no": 0, "yes": 1},
         "CAEC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3},
@@ -826,8 +826,10 @@ def correct_preprocessing(feature_dict):
     
     # Posisi Gender: remainder__Gender
     expected_features = [
-        'ohe__Gender_Male', 'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
+        #'ohe__Gender_Male', 'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
+        'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
         'ohe__MTRANS_Public_Transportation', 'ohe__MTRANS_Walking', 
+        'remainder__Gender',
         'remainder__Age', 'remainder__Height', 'remainder__Weight', 
         'remainder__FHWO', 'remainder__FAVC', 'remainder__FCVC', 
         'remainder__NCP', 'remainder__CAEC', 'remainder__SMOKE', 
@@ -838,10 +840,10 @@ def correct_preprocessing(feature_dict):
     processed_data = {feature: 0.0 for feature in expected_features}
     
     # Set one-hot encoding untuk Gender >> nantinya dibuang, jadi lebih simple
-    if feature_dict["Gender"] == "Male":
-        processed_data["ohe__Gender_Male"] = 1.0
-    else:
-        processed_data["ohe__Gender_Male"] = 0.0
+    #if feature_dict["Gender"] == "Male":
+    #    processed_data["ohe__Gender_Male"] = 1.0
+    #else:
+    #    processed_data["ohe__Gender_Male"] = 0.0
     
     # Set one-hot encoding untuk MTRANS
     mtrans_mapping = {
@@ -872,6 +874,7 @@ def correct_preprocessing(feature_dict):
     processed_data["remainder__TUE"] = float(feature_dict["TUE"])
     
     # Set encoded categorical features >> sisipkan Gender di sini!
+    processed_data["remainder__Gender"] = categorical_to_numerical["Gender"][feature_dict["Gender"]]
     processed_data["remainder__FHWO"] = categorical_to_numerical["FHWO"][feature_dict["FHWO"]]
     processed_data["remainder__FAVC"] = categorical_to_numerical["FAVC"][feature_dict["FAVC"]]
     processed_data["remainder__CAEC"] = categorical_to_numerical["CAEC"][feature_dict["CAEC"]]
