@@ -1227,6 +1227,7 @@ with tab2:
     st.subheader("📈 Classification Report")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification-report.png"
     st.image(header_image_url, width=800)
+    st.markdown("---")
     
     # ---------------------------------
     # Model performance comparison
@@ -1234,6 +1235,7 @@ with tab2:
     st.subheader("💹 Model Performance Comparison")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-performance-comparison.png"
     st.image(header_image_url, width=1000)
+    st.markdown("---")
     
     # ---------------------------------
     # Confusion Matrix: Upload png file
@@ -1263,6 +1265,7 @@ with tab2:
         - 5 : Obesity Type II
         - 6 : Obesity Type III
         """)
+    st.markdown("---")
     
     # ---------------------------------
     # Top 10 Important Features
@@ -1279,7 +1282,7 @@ with tab2:
         
         header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/columns-dataset.png"
         st.image(header_image_url, width=800)  
-    
+    st.markdown("---")
     
     # ---------------------------------
     # Model Analysis
