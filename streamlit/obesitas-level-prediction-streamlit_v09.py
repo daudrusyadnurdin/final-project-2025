@@ -1284,10 +1284,18 @@ with tab2:
     # ---------------------------------
     # Top 10 Important Features
     # ---------------------------------
-    st.subheader("🏆 Top 10 Important Features")
+    col1, col2 = st.columns(2)
     
-    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/importances.png"
-    st.image(header_image_url, width=800)  
+    with col1:
+        st.subheader("🏆 Top 10 Important Features")
+        
+        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/importances.png"
+        st.image(header_image_url, width=800)  
+    with col2:
+        st.subheader("Columm Description")
+        
+        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/columns-dataset.png"
+        st.image(header_image_url, width=800)  
     
     # ---------------------------------
     # Class-wise Performance
