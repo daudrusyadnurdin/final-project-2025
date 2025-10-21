@@ -823,7 +823,7 @@ def correct_preprocessing(feature_dict):
         "SCC": {"no": 0, "yes": 1},
         "CALC": {"no": 0, "Sometimes": 1, "Frequently": 2, "Always": 3}
     }
-    
+       
     # Expected features - PASTIKAN INI SAMA DENGAN YANG DIGUNAKAN SAAT TRAINING
     expected_features = [
         'ohe__MTRANS_Bike', 'ohe__MTRANS_Motorbike', 
