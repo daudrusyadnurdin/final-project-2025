@@ -1245,7 +1245,12 @@ with tab2:
         with cols[i % 3]:
             st.metric(label=name, value=value)
     
-
+    # ---------------------------------
+    # Model performance comparison
+    # ---------------------------------
+    st.subheader("💹 Model performance comparison")
+    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-performance-comparison.png"
+    st.image(header_image_url, width=700)
     
     # ---------------------------------
     # Confusion Matrix: Upload png file
@@ -1356,11 +1361,9 @@ with tab3:
     
     #### 📊 How to Read the Charts:
     - **Gauge Chart**: Shows model confidence in the prediction (0-100%)
-    - **Risk Meter**: Visual representation of obesity level (0-6)
     - **Donut Chart**: Probability distribution across all obesity levels
     - **Radar Chart**: Analysis of lifestyle factors and habits
     - **Feature Importance**: Shows which factors most influence predictions
-    - **BMI Distribution**: Compares your BMI with population distribution
     - **Confusion Matrix**: Model performance across different obesity classes
     """)
 
