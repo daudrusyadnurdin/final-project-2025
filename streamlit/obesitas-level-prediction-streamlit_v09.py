@@ -1076,6 +1076,8 @@ with tab1: # Main tab: Prediction of model
                     st.plotly_chart(risk_fig, use_container_width=True)
                     display_color_bar_legend(risk_info)
 
+                st.markdown("---")
+                
                 # Di tab prediction
                 st.subheader("📊 Health Profile Analysis")
                 
