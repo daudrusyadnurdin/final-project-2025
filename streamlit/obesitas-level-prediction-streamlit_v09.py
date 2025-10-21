@@ -1236,14 +1236,16 @@ with tab2:
     
     # Performance Metrics
     st.subheader("📈 Overall Performance Metrics")
-    metrics = create_performance_metrics()
+    #metrics = create_performance_metrics()
     
-    cols = st.columns(3)
-    metric_items = list(metrics.items())
+    #cols = st.columns(3)
+    #metric_items = list(metrics.items())
     
-    for i, (name, value) in enumerate(metric_items):
-        with cols[i % 3]:
-            st.metric(label=name, value=value)
+    #for i, (name, value) in enumerate(metric_items):
+    #    with cols[i % 3]:
+    #        st.metric(label=name, value=value)
+    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification_report.png"
+    st.image(header_image_url, width=1000)
     
     # ---------------------------------
     # Model performance comparison
@@ -1300,21 +1302,21 @@ with tab2:
     # ---------------------------------
     # Class-wise Performance
     # ---------------------------------
-    st.subheader("📋 Class-wise Performance on Test Data")
+    #st.subheader("📋 Class-wise Performance on Test Data")
     
-    class_performance = {
-        'Class': ['Insufficient_Weight', 'Normal_Weight', 'Overweight_Level_I', 'Overweight_Level_II', 
-                 'Obesity_Type_I', 'Obesity_Type_II', 'Obesity_Type_III'],
-        'Precision': ['96.61%', '91.80%', '94.44%', '96.08%', '100.00%', '100.00%', '100.00%'],
-        'Recall': ['96.61%', '91.80%', '92.27%', '100.00%', '98.57%', '100.00%', '100.00%'],
-        'F1-Score': ['96.61%', '91.80%', '93.58%', '98.00%', '99.28%', '100.00%', '100.00%'],
-        'Support': ['59', '61', '55', '49', '70', '64', '60']
-    }
+    #class_performance = {
+    #    'Class': ['Insufficient_Weight', 'Normal_Weight', 'Overweight_Level_I', 'Overweight_Level_II', 
+    #             'Obesity_Type_I', 'Obesity_Type_II', 'Obesity_Type_III'],
+    #    'Precision': ['96.61%', '91.80%', '94.44%', '96.08%', '100.00%', '100.00%', '100.00%'],
+    #    'Recall': ['96.61%', '91.80%', '92.27%', '100.00%', '98.57%', '100.00%', '100.00%'],
+    #    'F1-Score': ['96.61%', '91.80%', '93.58%', '98.00%', '99.28%', '100.00%', '100.00%'],
+    #    'Support': ['59', '61', '55', '49', '70', '64', '60']
+    #}
 
     # next panggil file 
     
-    perf_df = pd.DataFrame(class_performance)
-    st.table(perf_df)
+    #perf_df = pd.DataFrame(class_performance)
+    #st.table(perf_df)
     
     # ---------------------------------
     # Model Analysis
