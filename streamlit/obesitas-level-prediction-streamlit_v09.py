@@ -92,7 +92,7 @@ st.markdown("""
 # ------------------------------------------------
 @st.cache_resource
 def load_model():
-    url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb-obesity.json"
+    url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/streamlit/xgb_obesity.json"
     try:
         response = requests.get(url)
         response.raise_for_status()
