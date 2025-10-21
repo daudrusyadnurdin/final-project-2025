@@ -1244,7 +1244,7 @@ with tab2:
     #for i, (name, value) in enumerate(metric_items):
     #    with cols[i % 3]:
     #        st.metric(label=name, value=value)
-    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification_report.png"
+    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification-report.png"
     st.image(header_image_url, width=1000)
     
     # ---------------------------------
