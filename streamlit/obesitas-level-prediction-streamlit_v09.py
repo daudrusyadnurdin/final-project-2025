@@ -620,18 +620,6 @@ def create_health_risk_breakdown(feature_inputs):
     plt.tight_layout()
     return fig
 
-def create_performance_metrics():
-    """Metrics dari training"""
-    
-    return {
-        'Precision': '97.129%', 
-        'Recall': '97.129%',
-        'F1-Score': '97.129%',
-        'Macro Avg F1': '97.040%',
-        'Weighted Avg F1': '97.125%',
-        'Accuracy': '97.129%'
-    }
-
 # ============================
 # MAIN PROGRAM
 # ============================
@@ -1233,19 +1221,12 @@ with tab2:
     - They represent the model's overall reliability
     - For your specific prediction, check the confidence score in Prediction tab
     """)
-    
-    # Performance Metrics
-    st.subheader("📈 Overall Performance Metrics")
-    #metrics = create_performance_metrics()
-    
-    #cols = st.columns(3)
-    #metric_items = list(metrics.items())
-    
-    #for i, (name, value) in enumerate(metric_items):
-    #    with cols[i % 3]:
-    #        st.metric(label=name, value=value)
+    # -----------------------
+    # Classification Report
+    # -----------------------
+    st.subheader("📈 Classification Report")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification-report.png"
-    st.image(header_image_url, width=1000)
+    st.image(header_image_url, width=800)
     
     # ---------------------------------
     # Model performance comparison
@@ -1299,24 +1280,6 @@ with tab2:
         header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/columns-dataset.png"
         st.image(header_image_url, width=800)  
     
-    # ---------------------------------
-    # Class-wise Performance
-    # ---------------------------------
-    #st.subheader("📋 Class-wise Performance on Test Data")
-    
-    #class_performance = {
-    #    'Class': ['Insufficient_Weight', 'Normal_Weight', 'Overweight_Level_I', 'Overweight_Level_II', 
-    #             'Obesity_Type_I', 'Obesity_Type_II', 'Obesity_Type_III'],
-    #    'Precision': ['96.61%', '91.80%', '94.44%', '96.08%', '100.00%', '100.00%', '100.00%'],
-    #    'Recall': ['96.61%', '91.80%', '92.27%', '100.00%', '98.57%', '100.00%', '100.00%'],
-    #    'F1-Score': ['96.61%', '91.80%', '93.58%', '98.00%', '99.28%', '100.00%', '100.00%'],
-    #    'Support': ['59', '61', '55', '49', '70', '64', '60']
-    #}
-
-    # next panggil file 
-    
-    #perf_df = pd.DataFrame(class_performance)
-    #st.table(perf_df)
     
     # ---------------------------------
     # Model Analysis
