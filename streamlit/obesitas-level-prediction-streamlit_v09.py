@@ -1040,54 +1040,121 @@ with tab1: # Main tab: Prediction of model
     if st.button("🎯 Predict Obesity Level", type="primary", use_container_width=True):
         with st.spinner("Analyzing features and making prediction..."):
             try:
+                # KOREKSI VERSI YANG LEBIH ROBUST
                 input_df = correct_preprocessing(feature_inputs)
-                dmatrix = xgb.DMatrix(input_df)
-                prediction = model.predict(dmatrix)
-                
-                if len(prediction.shape) > 1 and prediction.shape[1] > 1:
-                    pred_proba = prediction[0]
-                    pred_class = np.argmax(pred_proba)
+
+                if input_df is not None:
+                    try:
+                        dmatrix = xgb.DMatrix(input_df)
+                        prediction = model.predict(dmatrix)
+                        
+                        # DEBUG: Tampilkan shape prediction untuk memahami output
+                        print(f"🔍 Prediction shape: {prediction.shape}")
+                        print(f"🔍 Prediction values: {prediction}")
+                        
+                        # HANDLE PREDICTION OUTPUT DENGAN LEBIH BAIK
+                        if len(prediction.shape) == 1:
+                            # Binary classification atau regression output
+                            if prediction.shape[0] == 1:
+                                # Single value output (mungkin binary)
+                                pred_class = int(prediction[0])
+                                pred_proba = np.zeros(7)
+                                pred_proba[pred_class] = 1.0
+                            else:
+                                # Multi-class probabilities (sudah dalam bentuk probabilities)
+                                pred_proba = prediction
+                                pred_class = np.argmax(pred_proba)
+                        else:
+                            # Multi-class dengan multiple outputs
+                            if prediction.shape[1] == 1:
+                                # Single column (class indices)
+                                pred_class = int(prediction[0, 0])
+                                pred_proba = np.zeros(7)
+                                pred_proba[pred_class] = 1.0
+                            else:
+                                # Multiple columns (probabilities)
+                                pred_proba = prediction[0]
+                                pred_class = np.argmax(pred_proba)
+                        
+                        # Pastikan pred_class dalam range yang valid
+                        pred_class = max(0, min(pred_class, 6))
+                        
+                        class_mapping = {
+                            0: "Insufficient_Weight",
+                            1: "Normal_Weight", 
+                            2: "Overweight_Level_I",
+                            3: "Overweight_Level_II", 
+                            4: "Obesity_Type_I",
+                            5: "Obesity_Type_II",
+                            6: "Obesity_Type_III"
+                        }
+                        
+                        predicted_label = class_mapping.get(pred_class, "Unknown")
+                        confidence = pred_proba[pred_class] if len(pred_proba) > pred_class else 1.0
+                        
+                        st.subheader("🎯 Prediction Result")
+                        
+                        # Tampilkan confidence score
+                        st.info(f"**Confidence: {confidence:.1%}**")
+                        
+                        # Classification dengan styling yang lebih baik
+                        if "Insufficient_Weight" in predicted_label:
+                            prediction_class = "insufficient-weight"
+                            prediction_icon = "💪"
+                            advice = "Consider nutritional consultation for healthy weight gain"
+                        elif "Normal_Weight" in predicted_label:
+                            prediction_class = "normal-weight" 
+                            prediction_icon = "✅"
+                            advice = "Maintain your healthy lifestyle!"
+                        elif "Overweight_Level_I" in predicted_label:
+                            prediction_class = "overweight-level1"
+                            prediction_icon = "📊"
+                            advice = "Consider moderate exercise and balanced diet"
+                        elif "Overweight_Level_II" in predicted_label:
+                            prediction_class = "overweight-level2" 
+                            prediction_icon = "⚖️"
+                            advice = "Recommended to consult with healthcare professional"
+                        elif "Obesity_Type_I" in predicted_label:
+                            prediction_class = "obesity-type1"
+                            prediction_icon = "⚠️"
+                            advice = "Seek medical advice for weight management"
+                        elif "Obesity_Type_II" in predicted_label:
+                            prediction_class = "obesity-type2"
+                            prediction_icon = "🚨"
+                            advice = "Urgent medical consultation recommended"
+                        else:  # Obesity_Type_III
+                            prediction_class = "obesity-type3"
+                            prediction_icon = "🏥"
+                            advice = "Immediate medical attention required"
+                        
+                        # Tampilkan hasil dengan styling yang lebih informatif
+                        st.markdown(f"""
+                        <div class="prediction-box {prediction_class}">
+                            <h2 style="text-align: center; margin: 0;">
+                                {prediction_icon} {predicted_label.replace('_', ' ')} {prediction_icon}
+                            </h2>
+                            <p style="text-align: center; margin: 10px 0 0 0; font-size: 14px;">
+                                Confidence: {confidence:.1%}
+                            </p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Tampilkan advice
+                        st.success(f"**Recommendation:** {advice}")
+                        
+                        # Tampilkan probability distribution (opsional)
+                        with st.expander("📊 Detailed Probability Distribution"):
+                            for i, (class_name, prob) in enumerate(zip(class_mapping.values(), pred_proba)):
+                                st.write(f"**{class_name.replace('_', ' ')}:** {prob:.1%}")
+                                st.progress(float(prob))
+                        
+                        st.markdown("---")
+                        
+                    except Exception as e:
+                        st.error(f"❌ Prediction error: {str(e)}")
+                        st.info("Please check your input values and try again.")
                 else:
-                    pred_class = int(prediction[0])
-                    pred_proba = np.zeros(7)
-                    pred_proba[pred_class] = 1.0
-                
-                class_mapping = {
-                    0: "Insufficient_Weight",
-                    1: "Normal_Weight", 
-                    2: "Overweight_Level_I",
-                    3: "Overweight_Level_II", 
-                    4: "Obesity_Type_I",
-                    5: "Obesity_Type_II",
-                    6: "Obesity_Type_III"
-                }
-                
-                predicted_label = class_mapping.get(pred_class, f"Class {pred_class}")
-                
-                st.subheader("🎯 Prediction Result")
-                
-                if "Insufficient_Weight" in predicted_label:
-                    prediction_class = "insufficient-weight"
-                    prediction_icon = "💪"
-                elif "Normal_Weight" in predicted_label:
-                    prediction_class = "normal-weight" 
-                    prediction_icon = "✅"
-                elif "Overweight" in predicted_label:
-                    prediction_class = "overweight"
-                    prediction_icon = "📊"
-                else:
-                    prediction_class = "obesity"
-                    prediction_icon = "⚠️"
-                
-                st.markdown(f"""
-                <div class="prediction-box {prediction_class}">
-                    <h2 style="text-align: center; margin: 0;">
-                        {prediction_icon} {predicted_label.replace('_', ' ')} {prediction_icon}
-                    </h2>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("---")
+                    st.error("❌ Data preprocessing failed. Please check your input values.")
                 
                 # --------------
                 # VISUALISASI
