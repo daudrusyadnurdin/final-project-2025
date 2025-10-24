@@ -148,17 +148,6 @@ def calculate_health_score(feature_inputs):
     
     return max(0, min(100, score))
 
-def get_health_interpretation(score):
-    """Interpretation of the health score"""
-    if score >= 80:
-        return "Excellent", "🟢", "health-score-excellent"
-    elif score >= 60:
-        return "Good", "🟡", "health-score-good"
-    elif score >= 40:
-        return "Fair", "🟠", "health-score-fair"
-    else:
-        return "Needs Improvement", "🔴", "health-score-poor"
-
 def create_gauge_chart(pred_class, pred_proba, class_mapping):
     """Create an engaging gauge chart"""
     
