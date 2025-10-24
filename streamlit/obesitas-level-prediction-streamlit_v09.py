@@ -456,43 +456,6 @@ def display_color_bar_legend(risk_info):
 # =======================================
 # FUNCTIONS OF TAB PERFORMANCE & ANALYSIS
 # =======================================
-def create_bmi_distribution_chart(user_bmi, pred_class):
-    """Menampilkan BMI user dalam konteks distribusi"""
-    
-    categories = [
-        'Underweight (<18.5)', 'Normal (18.5-24.9)', 'Overweight (25-29.9)',
-        'Obesity I (30-34.9)', 'Obesity II (35-39.9)', 'Obesity III (40+)'
-    ]
-    
-    distribution = [5, 35, 30, 15, 10, 5]
-    
-    fig, ax = plt.subplots(figsize=(12, 6))
-    bars = ax.bar(categories, distribution, color=['#4ECDC4', '#45B7D1', '#FFD166', 
-                                                  '#FF9F1C', '#FF6B6B', '#C44569'])
-    
-    user_category_idx = 0
-    if user_bmi < 18.5: user_category_idx = 0
-    elif user_bmi < 25: user_category_idx = 1
-    elif user_bmi < 30: user_category_idx = 2
-    elif user_bmi < 35: user_category_idx = 3
-    elif user_bmi < 40: user_category_idx = 4
-    else: user_category_idx = 5
-    
-    bars[user_category_idx].set_color('red')
-    bars[user_category_idx].set_alpha(0.8)
-    
-    ax.set_ylabel('Population Distribution (%)')
-    ax.set_title(f'BMI Distribution - Your BMI: {user_bmi:.1f} (Red Bar)')
-    ax.tick_params(axis='x', rotation=45)
-    
-    for i, bar in enumerate(bars):
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 1,
-               f'{height}%', ha='center', va='bottom')
-    
-    plt.tight_layout()
-    return fig
-
 def create_lifestyle_comparison_chart(feature_inputs):
     """Membandingkan lifestyle user dengan rekomendasi sehat"""
     
