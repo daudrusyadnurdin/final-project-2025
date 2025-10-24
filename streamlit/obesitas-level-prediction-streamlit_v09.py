@@ -372,7 +372,7 @@ def create_risk_meter_with_legend(pred_class):
     ]
     
     current_risk = risk_info[pred_class]
-
+    
     fig = go.Figure(go.Indicator(
         mode="number+gauge",
         value=pred_class,
@@ -401,11 +401,11 @@ def create_risk_meter_with_legend(pred_class):
         title={
             'text': f"Level {pred_class} - {current_risk['label']}<br><sup>{current_risk['description']}</sup>",
             'x': 0.5,
-            'y': 0.95,
+            'y': 0.88,  # turun, lebih dekat dengan gauge
             'font': {'color': current_risk['color'], 'size': 18}
         },
-        height=260,
-        margin=dict(l=10, r=10, t=70, b=20)
+        height=250,
+        margin=dict(l=10, r=10, t=50, b=20)
     )
     
     return fig, risk_info
