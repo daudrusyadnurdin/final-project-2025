@@ -359,61 +359,53 @@ def create_donut_chart(pred_proba, class_mapping):
     return fig
 
 def create_risk_meter_with_legend(pred_class):
+    """Membuat risk meter visual dengan legend"""
+    
     risk_info = [
-        {'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
-        {'label': 'Low', 'color': '#45B7D1', 'description': 'Normal Weight'},
-        {'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight Level I'},
-        {'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight Level II'},
-        {'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity Type I'},
-        {'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity Type II'},
-        {'label': 'Critical', 'color': '#C44569', 'description': 'Obesity Type III'}
+        {'level': 0, 'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
+        {'level': 1, 'label': 'Low', 'color': '#45B7D1', 'description': 'Normal Weight'},
+        {'level': 2, 'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight Level I'},
+        {'level': 3, 'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight Level II'},
+        {'level': 4, 'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity Type I'},
+        {'level': 5, 'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity Type II'},
+        {'level': 6, 'label': 'Critical', 'color': '#C44569', 'description': 'Obesity Type III'}
     ]
-
-    current = risk_info[pred_class]
-    colors = [r['color'] for r in risk_info]
-
-    fig = go.Figure(go.Bar(
-        x=[1]*7, y=[0]*7,
-        marker=dict(color=colors),
-        orientation='h',
-        width=0.4,
-        offset=0,
-        showlegend=False
-    ))
-
-    # Penanda garis
-    fig.add_shape(
-        type="line",
-        x0=pred_class, x1=pred_class,
-        y0=-0.25, y1=0.25,
-        line=dict(color="black", width=4)
-    )
-
-    # Label di atas segmen aktif
-    fig.add_annotation(
-        x=pred_class + 0.5,
-        y=0.5,
-        text=f"{pred_class} - {current['label']}",
-        showarrow=False,
-        font=dict(color="black", size=16, family="Arial"),
-        xanchor="center"
-    )
-
+    
+    current_risk = risk_info[pred_class]
+    
+    fig = go.Figure(go.Indicator(
+        mode = "number+gauge+delta",
+        value = pred_class,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        delta = {'reference': 1},
+        number = {
+            'font': {'size': 24, 'color': current_risk['color']},
+            'prefix': 'Level ',
+            'suffix': f" - {current_risk['label']}"
+        },
+        gauge = {
+            'shape': "bullet",
+            'axis': {'range': [0, 6], 'tickwidth': 1, 'tickvals': list(range(7))},
+            'threshold': {
+                'line': {'color': "black", 'width': 3},
+                'thickness': 0.8,
+                'value': pred_class},
+            'steps': [
+                {'range': [0, 1], 'color': '#4ECDC4'},
+                {'range': [1, 2], 'color': '#45B7D1'},
+                {'range': [2, 3], 'color': '#FFD166'},
+                {'range': [3, 4], 'color': '#FF9F1C'},
+                {'range': [4, 5], 'color': '#FF6B6B'},
+                {'range': [5, 6], 'color': '#EE4266'},
+                {'range': [6, 7], 'color': '#C44569'}],
+            'bar': {'color': "black", 'thickness': 0.8}}))
+    
     fig.update_layout(
-        title=dict(
-            text=f"Obesity Level: {current['description']}",
-            font=dict(size=20),
-            x=0.0
-        ),
-        xaxis=dict(visible=False, range=[0,7]),
-        yaxis=dict(visible=False),
-        height=180,
-        margin=dict(t=60, l=20, r=20, b=20),
-        bargap=0,
-        paper_bgcolor="white",
-        plot_bgcolor="white"
+        height=250,
+        margin=dict(l=10, r=10, t=60, b=10),
+        title=f"Obesity Level: {current_risk['description']}"
     )
-
+    
     return fig, risk_info
 
 def display_color_bar_legend(risk_info):
