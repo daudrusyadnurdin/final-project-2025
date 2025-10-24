@@ -507,12 +507,16 @@ default_values = {
     "SMOKE": "no"
 }
 
+# -------------------------
 # Initialize session state
+# -------------------------
 for key in default_values.keys():
     if key not in st.session_state:
         st.session_state[key] = default_values[key]
 
+# -----------------------------
 # Sidebar untuk input features
+# -----------------------------
 st.sidebar.header("🛠️ Feature Configuration")
 
 def reset_defaults():
@@ -579,7 +583,8 @@ feature_inputs["CALC"] = st.sidebar.selectbox(
     index=calc_options.index(st.session_state.get("CALC", default_values["CALC"]))
 )
 
-# Dietary Habits: Vegetable consumption, Meal frequency, High-calorie food intake, Food between meals, Calorie monitoring
+# Dietary Habits: Vegetable consumption, Meal frequency, High-calorie food intake, 
+# Food between meals, Calorie monitoring
 feature_inputs["FCVC"] = st.sidebar.slider(
     "Frequency of vegetable consumption (FCVC)", 1.0, 3.0,
     value=float(st.session_state.get("FCVC", default_values["FCVC"])),
@@ -639,8 +644,9 @@ feature_inputs["MTRANS"] = st.sidebar.selectbox(
     index=mtrans_options.index(st.session_state.get("MTRANS", default_values["MTRANS"]))
 )
 
-
+# ------------------------
 # Update session state
+# ------------------------
 for k, v in feature_inputs.items():
     st.session_state[k] = v
 
@@ -736,21 +742,12 @@ def correct_preprocessing(feature_dict):
     
     # 4. Create DataFrame dengan urutan yang tepat
     input_df = pd.DataFrame([processed_data])[expected_features]
-    
-    # Debug info
-    print(f"✅ Preprocessing successful")
-    print(f"📊 Input shape: {input_df.shape}")
-    print(f"🎯 MTRANS: {mtrans_value} -> Bike:{processed_data['ohe__MTRANS_Bike']}, "
-          f"Motorbike:{processed_data['ohe__MTRANS_Motorbike']}, "
-          f"Public_Transport:{processed_data['ohe__MTRANS_Public_Transportation']}, "
-          f"Walking:{processed_data['ohe__MTRANS_Walking']}")
-    
+       
     return input_df
 
-# ============================
+# =====================================================================================================
 # TAB LAYOUT
-# ============================
-
+# =====================================================================================================
 tab1, tab2, tab3 = st.tabs(["🎯 Prediction", "📊 Model Performance", "ℹ️ About"])
 
 with tab1: # Main tab: Prediction of model
