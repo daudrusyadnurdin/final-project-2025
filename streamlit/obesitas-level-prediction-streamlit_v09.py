@@ -456,51 +456,6 @@ def display_color_bar_legend(risk_info):
 # =======================================
 # FUNCTIONS OF TAB PERFORMANCE & ANALYSIS
 # =======================================
-
-def create_real_feature_importance():
-    """Feature importance realistic berdasarkan domain knowledge"""
-    
-    features = [
-        'Weight', 'Height', 'Age', 'Physical Activity', 'High Caloric Food',
-        'Vegetable Consumption', 'Meal Frequency', 'Water Intake', 
-        'Screen Time', 'Between Meals', 'Family History', 'Alcohol Consumption',
-        'Calorie Monitoring', 'Transportation', 'Gender', 'Smoking'
-    ]
-    
-    importance_values = [85, 78, 65, 58, 55, 52, 48, 45, 42, 38, 35, 32, 28, 25, 22, 18]
-    
-    # Reverse the order - highest importance at the top
-    features_reversed = features[::-1]
-    importance_reversed = importance_values[::-1]
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    y_pos = np.arange(len(features_reversed))
-    
-    # Create colors based on ACTUAL importance values, not position
-    max_importance = max(importance_values)
-    min_importance = min(importance_values)
-    
-    colors = []
-    for importance in importance_reversed:
-        # Normalize importance to colormap range (0.2 to 0.8)
-        normalized = 0.2 + (importance - min_importance) / (max_importance - min_importance) * 0.6
-        color = plt.cm.Blues(normalized)
-        colors.append(color)
-    
-    bars = ax.barh(y_pos, importance_reversed, color=colors)
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(features_reversed)
-    ax.set_xlabel('Feature Importance Score')
-    ax.set_title('Feature Importance in Obesity Prediction')
-    
-    for bar in bars:
-        width = bar.get_width()
-        ax.text(width + 0.1, bar.get_y() + bar.get_height()/2, 
-               f'{width:.0f}', ha='left', va='center', fontsize=9)
-    
-    plt.tight_layout()
-    return fig
-
 def create_bmi_distribution_chart(user_bmi, pred_class):
     """Menampilkan BMI user dalam konteks distribusi"""
     
