@@ -374,31 +374,34 @@ def create_risk_meter_with_legend(pred_class):
     current_risk = risk_info[pred_class]
     
     fig = go.Figure(go.Indicator(
-        mode = "number+gauge+delta",
-        value = pred_class,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        delta = {'reference': 1},
-        number = {
-            'font': {'size': 12, 'color': current_risk['color']},
-            'prefix': 'Level ',
-            'suffix': f" - {current_risk['label']}"
-        },
+            mode = "number+gauge+delta",
+            value = pred_class,
+            domain = {'x': [0, 1], 'y': [0, 1]},
+            delta = {'reference': 1},
+            number = {
+                        'font': {'size': 18, 'color': current_risk['color']},
+                        'prefix': 'Level ',
+                        'suffix': f" - {current_risk['label']}"
+                    }
+        ,
         gauge = {
-            'shape': "bullet",
-            'axis': {'range': [0, 6], 'tickwidth': 1, 'tickvals': list(range(7))},
-            'threshold': {
-                'line': {'color': "black", 'width': 3},
-                'thickness': 0.8,
-                'value': pred_class},
-            'steps': [
-                {'range': [0, 1], 'color': '#4ECDC4'},
-                {'range': [1, 2], 'color': '#45B7D1'},
-                {'range': [2, 3], 'color': '#FFD166'},
-                {'range': [3, 4], 'color': '#FF9F1C'},
-                {'range': [4, 5], 'color': '#FF6B6B'},
-                {'range': [5, 6], 'color': '#EE4266'},
-                {'range': [6, 7], 'color': '#C44569'}],
-            'bar': {'color': "black", 'thickness': 0.8}}))
+                    'shape': "bullet",
+                    'axis': {'range': [0, 6], 'tickwidth': 1, 'tickvals': list(range(7))},
+                    'threshold': {
+                        'line': {'color': "black", 'width': 3},
+                        'thickness': 0.8,
+                        'value': pred_class},
+                    'steps': [
+                        {'range': [0, 1], 'color': '#4ECDC4'},
+                        {'range': [1, 2], 'color': '#45B7D1'},
+                        {'range': [2, 3], 'color': '#FFD166'},
+                        {'range': [3, 4], 'color': '#FF9F1C'},
+                        {'range': [4, 5], 'color': '#FF6B6B'},
+                        {'range': [5, 6], 'color': '#EE4266'},
+                        {'range': [6, 7], 'color': '#C44569'}],
+                    'bar': {'color': "black", 'thickness': 0.8}
+                }
+        ))
     
     fig.update_layout(
         height=250,
