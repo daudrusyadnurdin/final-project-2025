@@ -358,8 +358,6 @@ def create_donut_chart(pred_proba, class_mapping):
     
     return fig
 
-import plotly.graph_objects as go
-
 def create_risk_meter_with_legend(pred_class):
     """Membuat risk meter visual dengan legend"""
 
@@ -398,10 +396,10 @@ def create_risk_meter_with_legend(pred_class):
         }
     ))
 
-    # Label: tepat di atas segment aktif
+    # Label tepat di atas blok aktif
     fig.add_annotation(
         x=(pred_class + 0.5) / 7,
-        y=0.92,  # lebih tinggi jadi pasti keliatan
+        y=0.88,  # aman ga ketutup
         text=f"<b>{current_risk['label']}</b><br>{current_risk['description']}",
         showarrow=False,
         font=dict(color=current_risk['color'], size=14),
@@ -409,16 +407,20 @@ def create_risk_meter_with_legend(pred_class):
         xanchor="center"
     )
 
+    # JUDULNYA muncul lagi bro!
     fig.update_layout(
-        height=200,
-        margin=dict(l=10, r=10, t=10, b=10),
+        title=dict(
+            text="Obesity Risk Meter",
+            x=0.5,
+            font=dict(size=20, color="black")
+        ),
+        height=260,
+        margin=dict(l=10, r=10, t=40, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)"
     )
 
     return fig, risk_info
-
-
 
 def display_color_bar_legend(risk_info):
     """Menampilkan color bar horizontal yang informatif"""
