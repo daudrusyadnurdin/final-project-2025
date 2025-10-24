@@ -835,9 +835,9 @@ with tab1: # Main tab: Prediction of model
     
     with col2:
     
-        # -------------
+        # -----------------------------
         # BMI Analysis
-        # -------------
+        # -----------------------------
         st.subheader("⚖️ BMI Analysis")
         
         # BMI description in short
@@ -863,11 +863,10 @@ with tab1: # Main tab: Prediction of model
         else:
             st.error("📊 **Category**: Obesity")
             st.progress(0.9)
-    
-    
-    # ------------------
+       
+    # --------------------------------------------------------------------------------
     # Prediction button
-    # ------------------
+    # --------------------------------------------------------------------------------
     if st.button("🎯 Predict Obesity Level", type="primary", use_container_width=True):
         with st.spinner("Analyzing features and making prediction..."):
             try:
@@ -923,7 +922,7 @@ with tab1: # Main tab: Prediction of model
                 # --------------
                 st.subheader("📊 Visualization Dashboard")
                 
-                # Row 1: Gauge Chart dan Risk Meter
+                # Row 1: (1) Gauge Chart & (2) Obesity Levels
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -937,10 +936,9 @@ with tab1: # Main tab: Prediction of model
 
                 st.markdown("---")
                 
-                # Di tab prediction
+                # Row 2: Tampilkan 3 radar chart dalam columns
                 st.subheader("📊 Health Profile Analysis")
-                
-                # Tampilkan 3 radar chart dalam columns
+                              
                 col1, col2, col3 = st.columns(3)
                 
                 with col1:
@@ -955,16 +953,16 @@ with tab1: # Main tab: Prediction of model
                 st.markdown("---")
 
                 # ----------------------------------
-                # Row 2: Donut Chart dan Radar Chart
+                # Row 3: Donut Chart & bar chart
                 # ----------------------------------
                 st.markdown("### 📊 Obesity Level Probabilities")
                 
-                col3, col4 = st.columns(2)
+                col1, col2 = st.columns(2)
                 
-                with col3:
+                with col1:
                     st.plotly_chart(create_donut_chart(pred_proba, class_mapping), 
                                   use_container_width=True)
-                with col4:
+                with col2:
                     # Langsung definisikan obesity_levels
                     #import plotly.graph_objects as go
 
