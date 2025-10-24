@@ -874,6 +874,8 @@ with tab1: # Main tab: Prediction of model
                 dmatrix = xgb.DMatrix(input_df)
                 prediction = model.predict(dmatrix)
                 
+                print (prediction)
+                
                 if len(prediction.shape) > 1 and prediction.shape[1] > 1:
                     pred_proba = prediction[0]
                     pred_class = np.argmax(pred_proba)
