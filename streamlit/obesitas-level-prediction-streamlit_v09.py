@@ -358,6 +358,7 @@ def create_donut_chart(pred_proba, class_mapping):
     
     return fig
 
+
 def create_risk_meter_with_legend(pred_class):
     risk_info = [
         {'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
@@ -368,53 +369,60 @@ def create_risk_meter_with_legend(pred_class):
         {'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity Type II'},
         {'label': 'Critical', 'color': '#C44569', 'description': 'Obesity Type III'}
     ]
+    
+    fig = go.Figure()
+
+    # Tambahkan segmen warna
+    for i, r in enumerate(risk_info):
+        fig.add_trace(go.Bar(
+            x=[1],
+            y=[1],
+            marker=dict(color=r['color']),
+            orientation="h",
+            showlegend=False,
+            width=0.4,
+            offset=i,
+            hovertemplate=f"{r['label']}<br>{r['description']}"
+        ))
 
     current = risk_info[pred_class]
 
-    fig = go.Figure(go.Indicator(
-        mode="gauge",
-        value=pred_class,
-        gauge={
-            'shape': "bullet",
-            'axis': {'range': [0, 7], 'visible': False},
-            'threshold': {
-                'line': {'color': "black", 'width': 3},
-                'value': pred_class
-            },
-            'steps': [
-                {'range': [i, i+1], 'color': risk_info[i]['color']}
-                for i in range(7)
-            ],
-            'bar': {'color': "black", 'thickness': 0.8}
-        },
-        domain={'x': [0.05, 0.95], 'y': [0.25, 0.65]}  # bar turun biar ada ruang label
-    ))
-
-    # Label tepat di atas blok aktif
-    fig.add_annotation(
-        x=(pred_class + 0.5) / 7,
-        y=0.72,
-        text=f"<b>{pred_class} - {current['label']}</b>",
-        showarrow=False,
-        font=dict(color="black", size=16),
-        xanchor="center"
+    # Marker titik penanda
+    fig.add_shape(
+        type="line",
+        x0=pred_class,
+        x1=pred_class,
+        y0=0.2,
+        y1=1.8,
+        line=dict(color="black", width=3)
     )
 
-    # Title sesuai screenshot
+    # Label di atas segmen aktif
+    fig.add_annotation(
+        x=pred_class + 0.5,
+        y=2.1,
+        text=f"{pred_class} - {current['label']}",
+        showarrow=False,
+        font=dict(color="black", size=16)
+    )
+
     fig.update_layout(
         title=dict(
             text=f"Obesity Level: {current['description']}",
+            font=dict(size=20, color="black"),
             x=0.0,
-            xanchor="left",
-            font=dict(size=18, color="black")
         ),
+        xaxis=dict(visible=False, range=[0, 7]),
+        yaxis=dict(visible=False),
         height=220,
-        margin=dict(l=10, r=10, t=40, b=10),
+        margin=dict(t=60, l=30, r=30, b=20),
+        bargap=0.0,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)"
     )
 
     return fig, risk_info
+
 
 def display_color_bar_legend(risk_info):
     """Menampilkan color bar horizontal yang informatif"""
