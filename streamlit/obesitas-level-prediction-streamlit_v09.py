@@ -364,11 +364,11 @@ def create_risk_meter_with_legend(pred_class):
     risk_info = [
         {'level': 0, 'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
         {'level': 1, 'label': 'Low', 'color': '#45B7D1', 'description': 'Normal Weight'},
-        {'level': 2, 'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight I'},
-        {'level': 3, 'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight II'},
-        {'level': 4, 'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity I'},
-        {'level': 5, 'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity II'},
-        {'level': 6, 'label': 'Critical', 'color': '#C44569', 'description': 'Obesity III'}
+        {'level': 2, 'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight Level I'},
+        {'level': 3, 'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight Level II'},
+        {'level': 4, 'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity Type I'},
+        {'level': 5, 'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity Type II'},
+        {'level': 6, 'label': 'Critical', 'color': '#C44569', 'description': 'Obesity Type III'}
     ]
     
     current_risk = risk_info[pred_class]
