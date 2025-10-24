@@ -374,17 +374,15 @@ def create_risk_meter_with_legend(pred_class):
     current_risk = risk_info[pred_class]
     
     fig = go.Figure(go.Indicator(
-        mode="number+gauge",
+        mode="gauge",
         value=pred_class,
-        number={
-            'font': {'size': 38, 'color': current_risk['color']}
-        },
         gauge={
             'shape': "bullet",
-            'axis': {'range': [0, 6], 'tickvals': list(range(7))},
+            'axis': {'range': [0, 7], 'tickvals': list(range(7))},
             'threshold': {
                 'line': {'color': "black", 'width': 3},
-                'value': pred_class},
+                'value': pred_class
+            },
             'steps': [
                 {'range': [0, 1], 'color': '#4ECDC4'},
                 {'range': [1, 2], 'color': '#45B7D1'},
@@ -396,19 +394,24 @@ def create_risk_meter_with_legend(pred_class):
             'bar': {'color': "black", 'thickness': 0.8}
         }
     ))
-
+    
+    # Tambahkan label tepat di atas blok yang aktif
+    fig.add_annotation(
+        x=(pred_class + 0.5) / 7,   # posisi horizontal tepat di tengah bloknya
+        y=0.6,                      # tepat di atas bar
+        text=f"Level {pred_class} - {current_risk['label']}<br>{current_risk['description']}",
+        showarrow=False,
+        font=dict(color=current_risk['color'], size=16),
+        xanchor="center"
+    )
+    
     fig.update_layout(
-        title={
-            'text': f"Level {pred_class} - {current_risk['label']}<br><sup>{current_risk['description']}</sup>",
-            'x': 0.5,
-            'y': 0.88,  # turun, lebih dekat dengan gauge
-            'font': {'color': current_risk['color'], 'size': 18}
-        },
-        height=250,
-        margin=dict(l=10, r=10, t=50, b=20)
+        height=200,
+        margin=dict(l=10, r=10, t=10, b=10)
     )
     
     return fig, risk_info
+
 
 def display_color_bar_legend(risk_info):
     """Menampilkan color bar horizontal yang informatif"""
