@@ -358,7 +358,6 @@ def create_donut_chart(pred_proba, class_mapping):
     
     return fig
 
-
 def create_risk_meter_with_legend(pred_class):
     risk_info = [
         {'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
@@ -369,60 +368,53 @@ def create_risk_meter_with_legend(pred_class):
         {'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity Type II'},
         {'label': 'Critical', 'color': '#C44569', 'description': 'Obesity Type III'}
     ]
-    
-    fig = go.Figure()
-
-    # Tambahkan segmen warna
-    for i, r in enumerate(risk_info):
-        fig.add_trace(go.Bar(
-            x=[1],
-            y=[1],
-            marker=dict(color=r['color']),
-            orientation="h",
-            showlegend=False,
-            width=0.4,
-            offset=i,
-            hovertemplate=f"{r['label']}<br>{r['description']}"
-        ))
 
     current = risk_info[pred_class]
+    colors = [r['color'] for r in risk_info]
 
-    # Marker titik penanda
+    fig = go.Figure(go.Bar(
+        x=[1]*7, y=[0]*7,
+        marker=dict(color=colors),
+        orientation='h',
+        width=0.4,
+        offset=0,
+        showlegend=False
+    ))
+
+    # Penanda garis
     fig.add_shape(
         type="line",
-        x0=pred_class,
-        x1=pred_class,
-        y0=0.2,
-        y1=1.8,
-        line=dict(color="black", width=3)
+        x0=pred_class, x1=pred_class,
+        y0=-0.25, y1=0.25,
+        line=dict(color="black", width=4)
     )
 
     # Label di atas segmen aktif
     fig.add_annotation(
         x=pred_class + 0.5,
-        y=2.1,
+        y=0.5,
         text=f"{pred_class} - {current['label']}",
         showarrow=False,
-        font=dict(color="black", size=16)
+        font=dict(color="black", size=16, family="Arial"),
+        xanchor="center"
     )
 
     fig.update_layout(
         title=dict(
             text=f"Obesity Level: {current['description']}",
-            font=dict(size=20, color="black"),
-            x=0.0,
+            font=dict(size=20),
+            x=0.0
         ),
-        xaxis=dict(visible=False, range=[0, 7]),
+        xaxis=dict(visible=False, range=[0,7]),
         yaxis=dict(visible=False),
-        height=220,
-        margin=dict(t=60, l=30, r=30, b=20),
-        bargap=0.0,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
+        height=180,
+        margin=dict(t=60, l=20, r=20, b=20),
+        bargap=0,
+        paper_bgcolor="white",
+        plot_bgcolor="white"
     )
 
     return fig, risk_info
-
 
 def display_color_bar_legend(risk_info):
     """Menampilkan color bar horizontal yang informatif"""
