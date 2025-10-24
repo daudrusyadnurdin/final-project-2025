@@ -372,27 +372,19 @@ def create_risk_meter_with_legend(pred_class):
     ]
     
     current_risk = risk_info[pred_class]
-    
+
     fig = go.Figure(go.Indicator(
-        mode="number+gauge+delta",
+        mode="number+gauge",
         value=pred_class,
-        domain={'x': [0, 1], 'y': [0, 1]},
-        delta={'reference': 1},
         number={
-            'font': {'size': 20, 'color': current_risk['color']},
-            'prefix': 'Level ',
-            'suffix': f" - {current_risk['label']}",
-            'x': 0.5,   # posisi horizontal
-            'y': 1.15   # posisi vertikal dinaikkan agar tidak menumpuk
+            'font': {'size': 38, 'color': current_risk['color']}
         },
         gauge={
             'shape': "bullet",
-            'axis': {'range': [0, 6], 'tickwidth': 1, 'tickvals': list(range(7))},
+            'axis': {'range': [0, 6], 'tickvals': list(range(7))},
             'threshold': {
                 'line': {'color': "black", 'width': 3},
-                'thickness': 0.8,
-                'value': pred_class
-            },
+                'value': pred_class},
             'steps': [
                 {'range': [0, 1], 'color': '#4ECDC4'},
                 {'range': [1, 2], 'color': '#45B7D1'},
@@ -400,16 +392,20 @@ def create_risk_meter_with_legend(pred_class):
                 {'range': [3, 4], 'color': '#FF9F1C'},
                 {'range': [4, 5], 'color': '#FF6B6B'},
                 {'range': [5, 6], 'color': '#EE4266'},
-                {'range': [6, 7], 'color': '#C44569'}
-            ],
+                {'range': [6, 7], 'color': '#C44569'}],
             'bar': {'color': "black", 'thickness': 0.8}
         }
     ))
-    
+
     fig.update_layout(
-        height=250,
-        margin=dict(l=10, r=10, t=70, b=10),
-        title=f"Obesity Level: {current_risk['description']}"
+        title={
+            'text': f"Level {pred_class} - {current_risk['label']}<br><sup>{current_risk['description']}</sup>",
+            'x': 0.5,
+            'y': 0.95,
+            'font': {'color': current_risk['color'], 'size': 18}
+        },
+        height=260,
+        margin=dict(l=10, r=10, t=70, b=20)
     )
     
     return fig, risk_info
