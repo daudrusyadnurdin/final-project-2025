@@ -874,9 +874,6 @@ with tab1: # Main tab: Prediction of model
                 dmatrix = xgb.DMatrix(input_df)
                 prediction = model.predict(dmatrix)
                 
-                print ( f"len = {len(prediction.shape)}")
-                print ( f"shape = {prediction.shape[1]}")
-                
                 if len(prediction.shape) > 1 and prediction.shape[1] > 1:
                     pred_proba = prediction[0]
                     pred_class = np.argmax(pred_proba)
@@ -924,8 +921,9 @@ with tab1: # Main tab: Prediction of model
                 # VISUALISASI
                 # --------------
                 st.subheader("📊 Visualization Dashboard")
-                
+                # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 # Row 1: (1) Gauge Chart & (2) Obesity Levels
+                # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -939,25 +937,9 @@ with tab1: # Main tab: Prediction of model
 
                 st.markdown("---")
                 
-                # Row 2: Tampilkan 3 radar chart dalam columns
-                st.subheader("📊 Health Profile Analysis")
-                              
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
-                
-                with col2:
-                    st.plotly_chart(create_dietary_radar(feature_inputs), use_container_width=True)
-                
-                with col3:
-                    st.plotly_chart(create_lifestyle_radar(feature_inputs), use_container_width=True)             
-                
-                st.markdown("---")
-
-                # ----------------------------------
-                # Row 3: Donut Chart & bar chart
-                # ----------------------------------
+                # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                # Row 2: Donut Chart & bar chart
+                # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 st.markdown("### 📊 Obesity Level Probabilities")
                 
                 col1, col2 = st.columns(2)
@@ -1014,6 +996,24 @@ with tab1: # Main tab: Prediction of model
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.error(f"Expected 7 probability values, got {len(pred_proba)}")
+                
+                st.markdown("---")
+                
+                # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                # Row 3: Tampilkan 3 radar chart dalam columns
+                # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                st.subheader("📊 Health Profile Analysis")
+                              
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.plotly_chart(create_health_radar(feature_inputs), use_container_width=True)
+                
+                with col2:
+                    st.plotly_chart(create_dietary_radar(feature_inputs), use_container_width=True)
+                
+                with col3:
+                    st.plotly_chart(create_lifestyle_radar(feature_inputs), use_container_width=True)             
                 
                 st.markdown("---")
                 
