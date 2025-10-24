@@ -359,62 +359,56 @@ def create_donut_chart(pred_proba, class_mapping):
     return fig
 
 def create_risk_meter_with_legend(pred_class):
-    """Membuat risk meter visual dengan legend"""
-
     risk_info = [
-        {'level': 0, 'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
-        {'level': 1, 'label': 'Low', 'color': '#45B7D1', 'description': 'Normal Weight'},
-        {'level': 2, 'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight Level I'},
-        {'level': 3, 'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight Level II'},
-        {'level': 4, 'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity Type I'},
-        {'level': 5, 'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity Type II'},
-        {'level': 6, 'label': 'Critical', 'color': '#C44569', 'description': 'Obesity Type III'}
+        {'label': 'Very Low', 'color': '#4ECDC4', 'description': 'Underweight'},
+        {'label': 'Low', 'color': '#45B7D1', 'description': 'Normal Weight'},
+        {'label': 'Moderate', 'color': '#FFD166', 'description': 'Overweight Level I'},
+        {'label': 'High', 'color': '#FF9F1C', 'description': 'Overweight Level II'},
+        {'label': 'Very High', 'color': '#FF6B6B', 'description': 'Obesity Type I'},
+        {'label': 'Severe', 'color': '#EE4266', 'description': 'Obesity Type II'},
+        {'label': 'Critical', 'color': '#C44569', 'description': 'Obesity Type III'}
     ]
 
-    current_risk = risk_info[pred_class]
+    current = risk_info[pred_class]
 
     fig = go.Figure(go.Indicator(
         mode="gauge",
         value=pred_class,
         gauge={
             'shape': "bullet",
-            'axis': {'range': [0, 7], 'tickvals': list(range(7))},
+            'axis': {'range': [0, 7], 'visible': False},
             'threshold': {
                 'line': {'color': "black", 'width': 3},
                 'value': pred_class
             },
             'steps': [
-                {'range': [0, 1], 'color': '#4ECDC4'},
-                {'range': [1, 2], 'color': '#45B7D1'},
-                {'range': [2, 3], 'color': '#FFD166'},
-                {'range': [3, 4], 'color': '#FF9F1C'},
-                {'range': [4, 5], 'color': '#FF6B6B'},
-                {'range': [5, 6], 'color': '#EE4266'},
-                {'range': [6, 7], 'color': '#C44569'}
+                {'range': [i, i+1], 'color': risk_info[i]['color']}
+                for i in range(7)
             ],
             'bar': {'color': "black", 'thickness': 0.8}
-        }
+        },
+        domain={'x': [0.05, 0.95], 'y': [0.25, 0.65]}  # bar turun biar ada ruang label
     ))
 
     # Label tepat di atas blok aktif
     fig.add_annotation(
         x=(pred_class + 0.5) / 7,
-        y=0.88,  # aman ga ketutup
-        text=f"<b>{current_risk['label']}</b><br>{current_risk['description']}",
+        y=0.72,
+        text=f"<b>{pred_class} - {current['label']}</b>",
         showarrow=False,
-        font=dict(color=current_risk['color'], size=14),
-        align="center",
+        font=dict(color="black", size=16),
         xanchor="center"
     )
 
-    # JUDULNYA muncul lagi bro!
+    # Title sesuai screenshot
     fig.update_layout(
         title=dict(
-            text="Obesity Risk Meter",
-            x=0.5,
-            font=dict(size=20, color="black")
+            text=f"Obesity Level: {current['description']}",
+            x=0.0,
+            xanchor="left",
+            font=dict(size=18, color="black")
         ),
-        height=260,
+        height=220,
         margin=dict(l=10, r=10, t=40, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)"
