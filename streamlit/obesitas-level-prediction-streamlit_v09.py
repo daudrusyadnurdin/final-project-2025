@@ -426,11 +426,11 @@ def display_color_bar_legend(risk_info):
     class_mapping = {
         'Very Low': 'Insufficient Weight',
         'Low': 'Normal Weight', 
-        'Moderate': 'Overweight I',
-        'High': 'Overweight II',
-        'Very High': 'Obesity I',
-        'Severe': 'Obesity II',
-        'Critical': 'Obesity III'
+        'Moderate': 'Overweight Level I',
+        'High': 'Overweight Level II',
+        'Very High': 'Obesity Type I',
+        'Severe': 'Obesity Type II',
+        'Critical': 'Obesity Type III'
     }
     
     st.markdown(
