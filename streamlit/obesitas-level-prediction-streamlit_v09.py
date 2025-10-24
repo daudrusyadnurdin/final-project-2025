@@ -379,7 +379,7 @@ def create_risk_meter_with_legend(pred_class):
         domain = {'x': [0, 1], 'y': [0, 1]},
         delta = {'reference': 1},
         number = {
-            'font': {'size': 24, 'color': current_risk['color']},
+            'font': {'size': 12, 'color': current_risk['color']},
             'prefix': 'Level ',
             'suffix': f" - {current_risk['label']}"
         },
