@@ -19,6 +19,7 @@
 import streamlit as st
 import pandas as pd
 import xgboost as xgb
+import lightgbm as lgb #NEW
 import matplotlib.pyplot as plt
 import requests
 import tempfile
@@ -92,7 +93,8 @@ st.markdown("""
 # ------------------------------------------------
 @st.cache_resource
 def load_model():
-    url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/models/xgb_obesity.json"
+    #OLD: url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/models/xgb_obesity.json"
+    url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/models/lgbm_tuned_obesity.json"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -103,7 +105,8 @@ def load_model():
             tmp_path = tmp_file.name
         
         # Load model
-        model = xgb.Booster()
+        #OLD: model = xgb.Booster()
+        model = lgb.Booster(model_file='lgbm_tuned_obesity.json')
         model.load_model(tmp_path)
         os.unlink(tmp_path)
         
@@ -871,8 +874,9 @@ with tab1: # Main tab: Prediction of model
         with st.spinner("Analyzing features and making prediction..."):
             try:
                 input_df = correct_preprocessing(feature_inputs)
-                dmatrix = xgb.DMatrix(input_df)
-                prediction = model.predict(dmatrix)
+                #OLD: dmatrix = xgb.DMatrix(input_df)
+                #OLD: prediction = model.predict(dmatrix)
+                prediction = model.predict(input_df)
                 
                 if len(prediction.shape) > 1 and prediction.shape[1] > 1:
                     pred_proba = prediction[0]
