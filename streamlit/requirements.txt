@@ -1,6 +1,7 @@
 streamlit
 pandas
 xgboost
+xgboost
 matplotlib
 numpy
 requests
