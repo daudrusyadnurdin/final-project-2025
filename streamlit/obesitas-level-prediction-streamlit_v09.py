@@ -1175,14 +1175,14 @@ with tab2:
     st.subheader("🔍 Model Analysis")
 
     st.markdown("""
-    ✅ **Key Strengths of LightGBM:**<br>
-    ⚡ **High Speed & Efficiency**: Utilizes a histogram-based algorithm for faster training and lower memory usage.<br>
-    🌳 **Leaf-wise Growth Strategy**: Builds trees asymmetrically for higher accuracy.<br>
-    📊 **Native Categorical Feature Handling**: Optimally handles categorical features without one-hot encoding.<br>
-    🎯 **Gradient-based One-Side Sampling (GOSS)**: Focuses on harder-to-predict instances.<br>
-    🧩 **Exclusive Feature Bundling (EFB)**: Bundles sparse features to reduce dimensionality.<br>
-    🖥️ **GPU Support**: Excellent GPU acceleration for faster training.<br>
-    📈 **Scalability**: Designed for large-scale data and distributed learning.
+    ✅ **Key Strengths of LightGBM:**
+    - **High Speed & Efficiency**: Utilizes a histogram-based algorithm for faster training and lower memory usage.
+    - **Leaf-wise Growth Strategy**: Builds trees asymmetrically for higher accuracy.
+    - **Native Categorical Feature Handling**: Optimally handles categorical features without one-hot encoding.
+    - **Gradient-based One-Side Sampling (GOSS)**: Focuses on harder-to-predict instances.
+    - **Exclusive Feature Bundling (EFB)**: Bundles sparse features to reduce dimensionality.
+    -️ **GPU Support**: Excellent GPU acceleration for faster training.
+    - **Scalability**: Designed for large-scale data and distributed learning.
     """)
 
 with tab3:
