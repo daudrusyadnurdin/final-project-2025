@@ -1098,15 +1098,19 @@ with tab2:
     # Classification Report
     # -----------------------
     st.subheader("📈 Classification Report")
-    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification-report.png"
+    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification-report-lgbm.png"
     st.image(header_image_url, width=800)
     st.markdown("---")
     
     # ---------------------------------
     # Model performance comparison
     # ---------------------------------
-    st.subheader("💹 Model Performance Comparison")
+    st.subheader("💹 Model Performance Comparison - Baseline")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-performance-comparison.png"
+    st.image(header_image_url, width=1000)
+    
+    st.subheader("💹 Model Performance Comparison - Tuned")
+    header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-comparison-tuned.png"
     st.image(header_image_url, width=1000)
     st.markdown("---")
     
@@ -1125,7 +1129,7 @@ with tab2:
     col1, col2 = st.columns(2)
     
     with col1:
-        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion_matrix.png"
+        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/confusion-matrix-lgbm.png"
         st.image(header_image_url, width=700)
     with col2:
         st.write("""      
@@ -1148,7 +1152,7 @@ with tab2:
     with col1:
         st.subheader("🏆 Top 10 Important Features")
         
-        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/importances.png"
+        header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/top-10-features-lgbm.png"
         st.image(header_image_url, width=800)  
     with col2:
         st.subheader("Columm Description")
