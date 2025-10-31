@@ -876,8 +876,6 @@ with tab1: # Main tab: Prediction of model
         with st.spinner("Analyzing features and making prediction..."):
             try:
                 input_df = correct_preprocessing(feature_inputs)
-                #OLD: dmatrix = xgb.DMatrix(input_df)
-                #OLD: prediction = model.predict(dmatrix)
                 prediction = model.predict(input_df)
                 
                 if len(prediction.shape) > 1 and prediction.shape[1] > 1:
