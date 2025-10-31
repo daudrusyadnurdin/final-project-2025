@@ -1175,8 +1175,8 @@ with tab2:
     st.subheader("🔍 Model Analysis")
 
     st.markdown("""
-    ✅ **Key Strengths of LightGBM:**
-    ⚡ **High Speed & Efficiency**: Utilizes a histogram-based algorithm for faster training and lower memory usage than traditional GBDT.
+    ✅ **Key Strengths of LightGBM:**<br>
+    ⚡ **High Speed & Efficiency**: Utilizes a histogram-based algorithm for faster training and lower memory usage than traditional GBDT.<br>
     🌳 **Leaf-wise Growth Strategy**: Builds trees asymmetrically, often leading to lower loss and higher accuracy compared to depth-wise growth.
     📊 **Native Categorical Feature Handling**: Optimally handles categorical features without requiring one-hot encoding, improving performance.
     🎯 **Gradient-based One-Side Sampling (GOSS)**: Retains data points with large gradients, focusing on harder-to-predict instances to boost both speed and accuracy.
