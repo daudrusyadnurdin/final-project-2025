@@ -1181,7 +1181,7 @@ with tab2:
     - **Native Categorical Feature Handling**: Optimally handles categorical features without one-hot encoding.
     - **Gradient-based One-Side Sampling (GOSS)**: Focuses on harder-to-predict instances.
     - **Exclusive Feature Bundling (EFB)**: Bundles sparse features to reduce dimensionality.
-    -️ **GPU Support**: Excellent GPU acceleration for faster training.
+    - **GPU Support**: Excellent GPU acceleration for faster training.
     - **Scalability**: Designed for large-scale data and distributed learning.
     """)
 
