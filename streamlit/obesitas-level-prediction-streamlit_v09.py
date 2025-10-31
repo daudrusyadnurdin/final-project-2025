@@ -476,7 +476,7 @@ st.markdown('<h1 class="main-header">🏥 Obesity Level Prediction App</h1>', un
 
 st.markdown(
     '<h3 style="text-align: center; color: #FFA07A; margin-bottom: 2rem;">'
-    'Predict obesity levels based on your input parameters using XGBoost machine learning model'
+    'Predict obesity levels based on your input parameters using LightGBM machine learning model'
     '</h3>', 
     unsafe_allow_html=True
 )
@@ -1189,7 +1189,7 @@ with tab3:
     st.markdown("""
     ### 🏥 Obesity levels Prediction App 
     This application predicts obesity levels based on physical condition, health indicators, dietary habits, and lifestyle factors
-    using a trained XGBoost machine learning model.
+    using a trained LightGBM machine learning model.
     
     #### 📋 Features Used:
     - **Personal Information**: Gender, Age, Height, Weight
@@ -1204,7 +1204,7 @@ with tab3:
     - Obesity Type I, II & III
     
     #### 🔧 Technical Details:
-    - **Model**: XGBoost Classifier
+    - **Model**: LightGBM Classifier
     - **Training Data**: Obesity dataset with multiple lifestyle factors
     - **Accuracy**: High predictive performance for obesity classification
     
@@ -1247,7 +1247,7 @@ if st.sidebar.button("🚀 Load Example"):
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: gray;'>"
-    "🏥 Obesity Levels Prediction App (OLPA) | Made with Streamlit & XGBoost"
+    "🏥 Obesity Levels Prediction App (OLPA) | Made with Streamlit & LightGBM"
     "</div>"
     "<div style='text-align: center; color: salmon; font-size: 14px; margin-top: 5px;'>"
     "© daudrusyadnurdin@gmail.com, DA/DS bootcamp 34, dibimbing.id"
