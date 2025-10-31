@@ -93,24 +93,26 @@ st.markdown("""
 # ------------------------------------------------
 @st.cache_resource
 def load_model():
-    #OLD: url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/models/xgb_obesity.json"
-    url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/models/lgbm_tuned_obesity.json"
+    """Download model dari GitHub dan load ke memory"""
     try:
+        url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/models/lgbm_tuned_obesity.json"
+        
+        # Download model
         response = requests.get(url)
-        response.raise_for_status()
+        response.raise_for_status()  # Check for HTTP errors
         
-        # Simpan file sementara
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as tmp_file:
-            tmp_file.write(response.text)
-            tmp_path = tmp_file.name
+        # Simpan ke temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write(response.text)
+            temp_path = f.name
         
-        # Load model
-        #OLD: model = xgb.Booster()
-        model = lgb.Booster(model_file='lgbm_tuned_obesity.json')
-        model.load_model(tmp_path)
-        os.unlink(tmp_path)
+        # Load model dari temporary file
+        model = lgb.Booster(model_file=temp_path)
         
-        st.success("✅ Model loaded successfully!")
+        # Hapus temporary file
+        os.unlink(temp_path)
+        
+        st.success("✅ Model loaded successfully from GitHub!")
         return model
         
     except Exception as e:
