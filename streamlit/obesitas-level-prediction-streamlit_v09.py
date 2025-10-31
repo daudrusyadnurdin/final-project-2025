@@ -1099,7 +1099,7 @@ with tab2:
     # -----------------------
     st.subheader("📈 Classification Report")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/classification-report-lgbm.png"
-    st.image(header_image_url, width=800)
+    st.image(header_image_url, width=600)
     st.markdown("---")
     
     # ---------------------------------
@@ -1111,7 +1111,15 @@ with tab2:
     
     st.subheader("💹 Model Performance Comparison - Tuned")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-comparison-tuned.png"
-    st.image(header_image_url, width=1000)
+    st.image(header_image_url, width=800)
+    
+    st.write("""
+    **Conclusion:**
+    - LightGBM was the most effective model, achieving the highest accuracy (97.18%) and the best improvement over its baseline (+0.53%), all in the shortest time.
+    - XGBoost was slightly less accurate and much slower, while Random Forest's performance degraded after tuning.
+    - CatBoost failed to complete.
+    """)
+
     st.markdown("---")
     
     # ---------------------------------
@@ -1165,27 +1173,17 @@ with tab2:
     # Model Analysis
     # ---------------------------------
     st.subheader("🔍 Model Analysis")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        **✅ Model Strengths:**
-        - High overall accuracy: All metrics (Precision, Recall, F1-Score) exceed 90%, indicating excellent predictive performance.
-        - Consistent performance across all obesity level classes with no significant drop in accuracy.
-        - Balanced precision and recall, showing that misclassifications are minimal.
-        - Strong generalization ability, suggesting the model is not overfitted to any specific class.
-        - Deployment-ready model with stable, reliable, and well-balanced performance across all categories.
-        """)
-    
-    with col2:
-        st.markdown("""
-        **📈 Areas for Improvement:**
-        - Possible overfitting — model may perform too perfectly on test data.
-        - Need more diverse and larger dataset for better generalization.
-        - Slight misclassification between mid-level obesity classes (Normal, Overweight I).
-        - Further feature analysis could improve class separation.
-        """)
+
+    st.markdown("""
+    ✅ **Key Strengths of LightGBM:**
+    ⚡ **High Speed & Efficiency**: Utilizes a histogram-based algorithm for faster training and lower memory usage than traditional GBDT.
+    🌳 **Leaf-wise Growth Strategy**: Builds trees asymmetrically, often leading to lower loss and higher accuracy compared to depth-wise growth.
+    📊 **Native Categorical Feature Handling**: Optimally handles categorical features without requiring one-hot encoding, improving performance.
+    🎯 **Gradient-based One-Side Sampling (GOSS)**: Retains data points with large gradients, focusing on harder-to-predict instances to boost both speed and accuracy.
+    🧩 **Exclusive Feature Bundling (EFB)**: Bundles sparse, mutually exclusive features to reduce dimensionality and further accelerate training.
+    🖥️ **GPU Support**: Offers excellent GPU acceleration for significantly faster model training.
+    📈 **Scalability**: Designed for large-scale data and supports distributed learning for handling massive datasets.
+    """)
 
 with tab3:
     st.header("ℹ️ About This Application")
