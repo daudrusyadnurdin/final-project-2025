@@ -1107,6 +1107,15 @@ with tab2:
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-performance-comparison.png"
     st.image(header_image_url, width=1000)
     
+    st.write("""
+    **Conclusion on Baseline:**
+    - XGBoost achieved the highest accuracy (97.13%) and the best F1-scores, making it the top-performing model.
+    - LightGBM and CatBoost also performed well (~96.65% accuracy), slightly below XGBoost.
+    - Random Forest offered good accuracy (96.41%) with faster training time.
+    - Multinomial Logistic Regression and Ordinal Logistic Regression were faster but less accurate.
+    - Overall, XGBoost provides the best balance between accuracy and training time. --> Champion of Baseline, before tuning
+    """)
+    
     st.subheader("💹 Model Performance Comparison - Tuned")
     header_image_url = "https://raw.githubusercontent.com/daudrusyadnurdin/final-project-2025/main/assets/model-comparison-tuned.png"
     st.image(header_image_url, width=800)
@@ -1115,7 +1124,7 @@ with tab2:
     **Conclusion:**
     - LightGBM was the most effective model, achieving the highest accuracy (97.18%) and the best improvement over its baseline (+0.53%), all in the shortest time.
     - XGBoost was slightly less accurate and much slower, while Random Forest's performance degraded after tuning.
-    - CatBoost failed to complete.
+    - CatBoost failed to complete because it was taking too long.
     """)
 
     st.markdown("---")
