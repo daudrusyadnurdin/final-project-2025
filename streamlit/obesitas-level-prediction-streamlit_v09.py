@@ -1121,7 +1121,7 @@ with tab2:
     st.image(header_image_url, width=800)
     
     st.write("""
-    **Conclusion:**
+    **Conclusion after hyperparameter tuning:**
     - LightGBM was the most effective model, achieving the highest accuracy (97.18%) and the best improvement over its baseline (+0.53%), all in the shortest time.
     - XGBoost was slightly less accurate and much slower, while Random Forest's performance degraded after tuning.
     - CatBoost failed to complete because it was taking too long.
